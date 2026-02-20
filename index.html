@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Elite Dashboard v6</title>
+    <title>Staffanstorp Elite Dashboard v7</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
@@ -44,11 +44,10 @@
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
         }
 
-        /* Top Bar & Citat */
+        /* Top Bar */
         .top-bar { grid-column: 1/3; display: flex; justify-content: space-between; align-items: center; padding: 0 40px; }
         #mini-clock { font-size: 4rem; font-weight: 800; letter-spacing: -2px; }
         #mini-date { font-size: 1.8rem; color: var(--accent); font-weight: 300; text-transform: capitalize; }
-        
         #quote-container { flex-grow: 1; text-align: center; padding: 0 40px; max-width: 600px; }
         #top-quote { font-style: italic; font-size: 1.05rem; color: #eee; line-height: 1.4; margin-bottom: 4px; }
         #quote-author { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; color: var(--accent); font-weight: 600; }
@@ -57,40 +56,61 @@
         .panel-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; opacity: 0.6; }
         .panel-header h2 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 3px; margin: 0; }
 
-        /* Schema */
-        .event-item { display: flex; align-items: center; gap: 25px; padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
-        .event-day { font-size: 1.1rem; color: var(--accent); font-weight: 800; }
-        .event-time { font-size: 2.5rem; font-weight: 800; line-height: 1; }
-        .event-title { font-size: 1.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        /* Schema-justeringar */
+        #custom-calendar-list { display: flex; flex-direction: column; gap: 10px; }
+        
+        .event-item { 
+            display: flex; align-items: center; gap: 20px; padding: 12px 15px; 
+            border-radius: 20px; transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+
+        /* Framhäv om händelsen är idag */
+        .event-item.is-today {
+            background: rgba(255, 255, 255, 0.05);
+            border-left-color: var(--accent);
+            box-shadow: inset 10px 0 20px -10px rgba(94, 146, 243, 0.2);
+        }
+        body.friday-mode .event-item.is-today { box-shadow: inset 10px 0 20px -10px rgba(255, 204, 51, 0.2); }
+
+        /* Första händelsen (Full storlek) */
+        .event-item:first-child { padding: 20px; margin-bottom: 5px; }
+        .event-item:first-child .event-time { font-size: 2.8rem; }
+        .event-item:first-child .event-title { font-size: 2rem; }
+
+        /* Övriga händelser (20% mindre) */
+        .event-item:not(:first-child) { opacity: 0.8; transform: scale(0.98); transform-origin: left; }
+        .event-item:not(:first-child) .event-time { font-size: 2rem; }
+        .event-item:not(:first-child) .event-title { font-size: 1.5rem; }
+        .event-item:not(:first-child) .event-day { font-size: 0.9rem; }
+
+        .event-time-block { min-width: 140px; }
+        .event-day { font-size: 1.1rem; color: var(--accent); font-weight: 800; display: flex; align-items: center; gap: 5px; }
+        .event-time { font-weight: 800; line-height: 1; }
+        .event-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 400; }
 
         /* Väder */
         #hourly-forecast { display: flex; justify-content: space-between; margin-bottom: 25px; padding: 20px; background: rgba(255,255,255,0.07); border-radius: 25px; }
-        .hour-item { text-align: center; }
         .weather-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; background: rgba(255,255,255,0.03); border-radius: 15px; margin-bottom: 5px; }
         .weather-day { font-size: 1.4rem; width: 130px; text-transform: capitalize; }
-        .weather-temp-max { font-size: 1.6rem; font-weight: 800; width: 60px; text-align: right; }
 
-        /* Botten-sektion */
+        /* Botten */
         #news-card { grid-column: 1/2; display: flex; align-items: center; padding: 0 30px; position: relative; overflow: hidden; }
         #countdown-card { grid-column: 2/3; display: flex; flex-direction: column; justify-content: center; align-items: center; border: 1px solid rgba(255, 170, 51, 0.3); }
-        
         #news-progress { position: absolute; bottom: 0; left: 0; height: 4px; background: var(--accent); width: 0%; transition: width 10s linear; }
-        
-        .countdown-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; color: var(--easter-accent); margin-bottom: 5px; }
         .countdown-timer { font-size: 2.2rem; font-weight: 800; display: flex; gap: 15px; }
-        .timer-segment { text-align: center; }
-        .timer-unit { font-size: 0.6rem; opacity: 0.5; text-transform: uppercase; display: block; }
+        .timer-unit { font-size: 0.6rem; opacity: 0.5; text-transform: uppercase; display: block; text-align: center; }
 
         /* Animationer */
-        @keyframes fall { to { transform: translateY(110vh) translateX(30px); } }
-        @keyframes rain-fall { to { transform: translateY(110vh); } }
         .snow-flake { position: fixed; top: -20px; color: white; pointer-events: none; z-index: 100; opacity: 0.6; animation: fall linear infinite; }
         .rain-drop { position: fixed; top: -20px; background-color: rgba(174, 194, 224, 0.4); width: 1px; height: 15px; pointer-events: none; z-index: 100; animation: rain-fall linear infinite; }
+        @keyframes fall { to { transform: translateY(110vh) translateX(30px); } }
+        @keyframes rain-fall { to { transform: translateY(110vh); } }
     </style>
 </head>
 <body id="main-body">
 
-<header class="top-bar glass-panel" style="border-radius: 20px; height: 85px;">
+<header class="top-bar glass-panel" style="height: 85px;">
     <div id="mini-date">Laddar...</div>
     <div id="quote-container">
         <div id="top-quote">"Det enda vi vet är att vi ingenting vet."</div>
@@ -122,11 +142,11 @@
 </footer>
 
 <div id="countdown-card" class="glass-panel">
-    <div class="countdown-label">Nedräkning: Påsklov (30 Mars)</div>
+    <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; color: var(--easter-accent); margin-bottom: 5px;">Påsklov (30 Mars)</div>
     <div class="countdown-timer" id="easter-countdown">
-        <div class="timer-segment"><span id="days">00</span><span class="timer-unit">Dagar</span></div>
-        <div class="timer-segment"><span id="hours">00</span><span class="timer-unit">Tim</span></div>
-        <div class="timer-segment"><span id="mins">00</span><span class="timer-unit">Min</span></div>
+        <div><span id="days">00</span><span class="timer-unit">Dagar</span></div>
+        <div><span id="hours">00</span><span class="timer-unit">Tim</span></div>
+        <div><span id="mins">00</span><span class="timer-unit">Min</span></div>
     </div>
 </div>
 
@@ -136,12 +156,10 @@
 
     const quotes = [
         { q: "Det vi gör i livet, ekar i evigheten.", a: "Marcus Aurelius" },
-        { q: "Lycka är inte något färdiglagat. Den kommer från dina egna handlingar.", a: "Dalai Lama" },
+        { q: "Lycka kommer från dina egna handlingar.", a: "Dalai Lama" },
         { q: "Människan lider mer i fantasin än i verkligheten.", a: "Seneca" },
-        { q: "Den som har ett varför att leva för kan uthärda nästan vilket hur som helst.", a: "Friedrich Nietzsche" },
         { q: "Du har makt över ditt sinne – inte externa händelser.", a: "Marcus Aurelius" },
-        { q: "Problemet är inte att vi har lite tid, utan att vi slösar bort mycket av den.", a: "Seneca" },
-        { q: "Varje morgon föds vi på nytt. Det vi gör idag är det som betyder mest.", a: "Buddha" }
+        { q: "Varje morgon föds vi på nytt.", a: "Buddha" }
     ];
 
     function updateQuote() {
@@ -159,20 +177,29 @@
         document.getElementById('weekend-tag').style.display = isFriday ? 'block' : 'none';
     }
 
-    function updateCountdown() {
-        const target = new Date('2026-03-30T00:00:00');
-        const now = new Date();
-        const diff = target - now;
-        if (diff > 0) {
-            const d = Math.floor(diff / (1000 * 60 * 60 * 24));
-            const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            document.getElementById('days').innerText = d.toString().padStart(2, '0');
-            document.getElementById('hours').innerText = h.toString().padStart(2, '0');
-            document.getElementById('mins').innerText = m.toString().padStart(2, '0');
-        } else {
-            document.getElementById('easter-countdown').innerHTML = "PÅSKLOV! 🐣";
-        }
+    async function updateCalendar() {
+        try {
+            const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CAL_ID)}/events?key=${API_KEY}&timeMin=${new Date().toISOString()}&singleEvents=true&orderBy=startTime`;
+            const res = await fetch(url);
+            const data = await res.json();
+            if (data.items) {
+                const now = new Date();
+                document.getElementById('custom-calendar-list').innerHTML = data.items.slice(0, 5).map(event => {
+                    const start = new Date(event.start.dateTime || event.start.date);
+                    const isToday = start.toDateString() === now.toDateString();
+                    const dayStr = isToday ? '<span style="color:var(--accent)">IDAG</span>' : start.toLocaleDateString('sv-SE', {day:'numeric', month:'short'});
+                    
+                    return `
+                        <div class="event-item ${isToday ? 'is-today' : ''}">
+                            <div class="event-time-block">
+                                <div class="event-day">${dayStr}</div>
+                                <div class="event-time">${event.start.dateTime ? start.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'}) : 'HELDAG'}</div>
+                            </div>
+                            <div class="event-title">${event.summary}</div>
+                        </div>`;
+                }).join('');
+            }
+        } catch (e) {}
     }
 
     async function updateWeather() {
@@ -207,32 +234,26 @@
             let dHtml = '';
             for(let i=0; i<6; i++) {
                 const d = new Date(data.daily.time[i]);
-                const dayName = i === 0 ? 'Idag' : d.toLocaleDateString('sv-SE', {weekday:'short'});
-                dHtml += `<div class="weather-row"><span class="weather-day">${dayName}</span><i data-lucide="${getWeatherIcon(data.daily.weathercode[i])}" style="width:24px"></i><span class="weather-temp-max">${Math.round(data.daily.temperature_2m_max[i])}°</span></div>`;
+                dHtml += `<div class="weather-row"><span class="weather-day">${i===0?'Idag':d.toLocaleDateString('sv-SE',{weekday:'short'})}</span><i data-lucide="${getWeatherIcon(data.daily.weathercode[i])}" style="width:24px"></i><span>${Math.round(data.daily.temperature_2m_max[i])}°</span></div>`;
             }
             document.getElementById('daily-list').innerHTML = dHtml;
             lucide.createIcons();
         } catch(e) {}
     }
 
-    async function updateCalendar() {
-        try {
-            const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CAL_ID)}/events?key=${API_KEY}&timeMin=${new Date().toISOString()}&singleEvents=true&orderBy=startTime`;
-            const res = await fetch(url);
-            const data = await res.json();
-            if (data.items) {
-                document.getElementById('custom-calendar-list').innerHTML = data.items.slice(0, 5).map(event => {
-                    const d = new Date(event.start.dateTime || event.start.date);
-                    return `<div class="event-item"><div class="event-time-block"><div class="event-day">${d.toLocaleDateString('sv-SE', {day:'numeric', month:'short'})}</div><div class="event-time">${event.start.dateTime ? d.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'}) : 'HELDAG'}</div></div><div class="event-title">${event.summary}</div></div>`;
-                }).join('');
-            }
-        } catch (e) {}
-    }
-
     function spawnSnow() { for (let i = 0; i < 25; i++) { let f = document.createElement('div'); f.className = 'snow-flake'; f.innerHTML = '•'; f.style.left = Math.random() * 100 + 'vw'; f.style.animationDuration = (Math.random() * 5 + 5) + 's'; document.body.appendChild(f); } }
     function spawnRain() { for (let i = 0; i < 50; i++) { let r = document.createElement('div'); r.className = 'rain-drop'; r.style.left = Math.random() * 100 + 'vw'; r.style.animationDuration = (Math.random() * 0.5 + 0.5) + 's'; document.body.appendChild(r); } }
     function getWeatherIcon(code) { if (code <= 3) return 'sun'; if (code >= 71 && code <= 77) return 'snowflake'; if (code >= 51) return 'cloud-rain'; return 'cloud'; }
-
+    function updateCountdown() {
+        const target = new Date('2026-03-30T00:00:00');
+        const now = new Date();
+        const diff = target - now;
+        if (diff > 0) {
+            document.getElementById('days').innerText = Math.floor(diff/(1000*60*60*24)).toString().padStart(2,'0');
+            document.getElementById('hours').innerText = Math.floor((diff%(1000*60*60*24))/(1000*60*60)).toString().padStart(2,'0');
+            document.getElementById('mins').innerText = Math.floor((diff%(1000*60*60))/(1000*60)).toString().padStart(2,'0');
+        }
+    }
     async function updateHistory() {
         try {
             const res = await fetch(`https://en.wikipedia.org/api/rest_v1/feed/onthisday/events/${new Date().getMonth()+1}/${new Date().getDate()}`);
@@ -241,7 +262,6 @@
             document.getElementById('history-text').innerHTML = `<b>${event.year}:</b> ${event.text}`;
         } catch(e) {}
     }
-
     let news = []; let idx = 0;
     async function getNews() {
         try {
