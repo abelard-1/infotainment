@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Glass-Dashboard Pro - Friday Glow Edition</title>
+    <title>Staffanstorp Elite Dashboard</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
@@ -13,24 +13,19 @@
             --accent: #5e92f3;
             --friday-gold: #ffcc33;
             --text-main: #ffffff;
-            --text-dim: #bbb;
         }
 
-        /* Friday Mode klass som triggas av JS */
+        /* Friday Mode - Triggat av JS */
         body.friday-mode {
-            --glass-border: rgba(255, 204, 51, 0.4); /* Guld-glöd i ramen */
+            --glass-border: rgba(255, 204, 51, 0.4);
             --accent: var(--friday-gold);
         }
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #000;
-            background-size: cover;
-            background-position: center;
+            background-color: #000; background-size: cover; background-position: center;
             margin: 0; height: 100vh; width: 100vw; color: var(--text-main);
-            display: grid; 
-            grid-template-columns: 1.1fr 0.9fr; 
-            grid-template-rows: 100px 1fr 100px; 
+            display: grid; grid-template-columns: 1.1fr 0.9fr; grid-template-rows: 100px 1fr 100px; 
             gap: 25px; padding: 25px; box-sizing: border-box; overflow: hidden;
             transition: background-image 2s ease-in-out;
         }
@@ -41,36 +36,20 @@
         }
 
         .glass-panel {
-            background: var(--glass-bg);
-            backdrop-filter: blur(25px) saturate(160%);
+            background: var(--glass-bg); backdrop-filter: blur(25px) saturate(160%);
             -webkit-backdrop-filter: blur(25px) saturate(160%);
-            border: 1px solid var(--glass-border);
-            border-radius: 40px;
+            border: 1px solid var(--glass-border); border-radius: 40px;
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
             transition: border 1s ease-in-out;
         }
 
-        .top-bar { 
-            grid-column: 1/3; 
-            display: flex; justify-content: space-between; align-items: center; 
-            padding: 0 40px;
-        }
+        .top-bar { grid-column: 1/3; display: flex; justify-content: space-between; align-items: center; padding: 0 40px; }
         #mini-clock-container { display: flex; align-items: baseline; gap: 15px; }
         #mini-clock { font-size: 4.2rem; font-weight: 800; letter-spacing: -2px; }
         #weekend-tag { font-size: 1.2rem; color: var(--friday-gold); font-weight: 600; display: none; }
         #mini-date { font-size: 1.8rem; color: var(--accent); font-weight: 300; text-transform: capitalize; }
         
-        #top-quote {
-            flex-grow: 1;
-            text-align: center;
-            padding: 0 30px;
-            font-style: italic;
-            font-size: 1.1rem;
-            color: #eee;
-            font-weight: 300;
-            max-width: 500px;
-            line-height: 1.3;
-        }
+        #top-quote { flex-grow: 1; text-align: center; padding: 0 30px; font-style: italic; font-size: 1.1rem; color: #eee; font-weight: 300; max-width: 500px; line-height: 1.3; }
 
         .panel { padding: 35px; display: flex; flex-direction: column; height: 100%; box-sizing: border-box; }
         .panel-header { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; opacity: 0.6; }
@@ -78,31 +57,25 @@
 
         .event-item { display: flex; align-items: center; gap: 30px; padding: 18px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
         .event-time-block { min-width: 200px; }
-        .event-day { font-size: 1.3rem; color: var(--accent); font-weight: 800; text-transform: uppercase; }
+        .event-day { font-size: 1.3rem; color: var(--accent); font-weight: 800; }
         .event-time { font-size: 3.2rem; font-weight: 800; line-height: 1; margin-top: 4px; }
-        .event-title { font-size: 1.7rem; color: #fff; font-weight: 400; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .event-title { font-size: 1.7rem; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        .sun-row { display: flex; gap: 35px; margin-bottom: 25px; font-size: 1.4rem; font-weight: 300; }
-        #hourly-forecast { 
-            display: flex; justify-content: space-between; margin-bottom: 30px; 
-            padding: 20px; background: rgba(255,255,255,0.05); border-radius: 25px; 
-        }
+        #hourly-forecast { display: flex; justify-content: space-between; margin-bottom: 30px; padding: 20px; background: rgba(255,255,255,0.05); border-radius: 25px; }
         .hour-item { text-align: center; }
-        .hour-temp { font-size: 1.8rem; font-weight: 700; margin-top: 5px; }
-
         .weather-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; }
-        .weather-day { font-size: 1.7rem; width: 140px; text-transform: capitalize; }
         .weather-temp { font-size: 2rem; font-weight: 800; width: 110px; text-align: right; }
 
         #history-mini { margin-top: auto; padding: 20px; background: rgba(255, 255, 255, 0.05); border-radius: 20px; }
-        #history-text { font-size: 1.1rem; color: #ddd; line-height: 1.4; font-weight: 300; }
-
         #news-card { grid-column: 1/3; display: flex; align-items: center; padding: 0 35px; overflow: hidden; position: relative; }
-        #news-content { font-size: 1.8rem; font-weight: 300; }
         #news-progress { position: absolute; bottom: 0; left: 0; height: 4px; background: var(--accent); width: 0%; transition: width 10s linear; }
 
+        /* ANIMATIONER: SNÖ & REGN */
         @keyframes fall { to { transform: translateY(110vh) translateX(30px); } }
-        .snow-flake { position: fixed; top: -20px; color: white; pointer-events: none; z-index: 100; opacity: 0.8; }
+        @keyframes rain-fall { to { transform: translateY(110vh); } }
+
+        .snow-flake { position: fixed; top: -20px; color: white; pointer-events: none; z-index: 100; opacity: 0.8; font-size: 1.2rem; animation: fall linear infinite; }
+        .rain-drop { position: fixed; top: -20px; background-color: rgba(174, 194, 224, 0.5); width: 1px; height: 15px; pointer-events: none; z-index: 100; animation: rain-fall linear infinite; }
     </style>
 </head>
 <body id="main-body">
@@ -123,23 +96,20 @@
 
 <section class="panel glass-panel">
     <div class="panel-header"><i data-lucide="cloud-sun" style="width:16px"></i><h2>VÄDER & HISTORIA</h2></div>
-    
-    <div class="sun-row">
+    <div class="sun-row" style="display:flex; gap:35px; margin-bottom:25px; font-size:1.4rem;">
         <span><i data-lucide="sunrise" style="color:#ffcd00; width:22px; vertical-align:middle;"></i> <span id="sunrise-val">--:--</span></span>
         <span><i data-lucide="sunset" style="color:#ff9d00; width:22px; vertical-align:middle;"></i> <span id="sunset-val">--:--</span></span>
     </div>
-
     <div id="hourly-forecast"></div>
     <div id="daily-list"></div>
-
     <div id="history-mini">
         <div style="color:var(--accent); font-size:0.75rem; text-transform:uppercase; letter-spacing:2px; margin-bottom:8px;">Idag i historien</div>
-        <div id="history-text">Hämtar historisk händelse...</div>
+        <div id="history-text" style="font-size:1.1rem; font-weight:300; color:#ddd;">Hämtar historisk händelse...</div>
     </div>
 </section>
 
 <footer id="news-card" class="glass-panel" style="border-radius: 25px;">
-    <div id="news-content"></div>
+    <div id="news-content" style="font-size:1.8rem; font-weight:300;"></div>
     <div id="news-progress"></div>
 </footer>
 
@@ -152,7 +122,6 @@
         document.getElementById('mini-clock').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
         document.getElementById('mini-date').innerText = now.toLocaleDateString('sv-SE', {weekday:'long', day:'numeric', month:'long'});
         
-        // Friday Mode Logik (Fredag efter 13:00)
         const isFriday = now.getDay() === 5;
         const isAfterLunch = now.getHours() >= 13;
         
@@ -170,20 +139,17 @@
         "Lycka är inte något färdiglagat. Den kommer från dina egna handlingar.",
         "Människan lider mer i fantasin än i verkligheten.",
         "Den som har ett 'varför' att leva för kan uthärda nästan vilket 'hur' som helst.",
-        "Allt som irriterar oss hos andra kan leda oss till en förståelse av oss själva.",
-        "Du har makt över ditt sinne – inte externa händelser. Inse detta, och du kommer att finna styrka.",
-        "Problemet är inte att we har lite tid, utan att vi slösar bort mycket av den."
+        "Du har makt över ditt sinne – inte externa händelser.",
+        "Problemet är inte att vi har lite tid, utan att vi slösar bort mycket av den."
     ];
 
     function updateQuote() {
-        const quoteEl = document.getElementById('top-quote');
-        quoteEl.innerText = `"${quotes[Math.floor(Math.random() * quotes.length)]}"`;
+        document.getElementById('top-quote').innerText = `"${quotes[Math.floor(Math.random() * quotes.length)]}"`;
     }
 
     async function updateCalendar() {
         try {
-            const now = new Date();
-            const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CAL_ID)}/events?key=${API_KEY}&timeMin=${now.toISOString()}&singleEvents=true&orderBy=startTime`;
+            const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CAL_ID)}/events?key=${API_KEY}&timeMin=${new Date().toISOString()}&singleEvents=true&orderBy=startTime`;
             const res = await fetch(url);
             const data = await res.json();
             if (data.items) {
@@ -202,10 +168,23 @@
             const currH = new Date().getHours();
             const code = data.hourly.weathercode[currH];
 
+            // Rensa gamla animationer
+            document.querySelectorAll('.snow-flake, .rain-drop').forEach(f => f.remove());
+
+            // Väder-logik: Bakgrund & Animation
             let bg = "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?q=80&w=1920"; 
-            if(code <= 3) bg = "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=1920";
-            if(code >= 51) bg = "https://images.unsplash.com/photo-1428592953211-077101b2021b?q=80&w=1920";
-            if(code >= 71) bg = "https://images.unsplash.com/photo-1483664852095-d6cc6870702d?q=80&w=1920";
+            if(code <= 3) {
+                bg = "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=1920";
+            } else if(code >= 51 && code <= 67) {
+                bg = "https://images.unsplash.com/photo-1428592953211-077101b2021b?q=80&w=1920";
+                spawnRain();
+            } else if(code >= 71 && code <= 77) {
+                bg = "https://images.unsplash.com/photo-1483664852095-d6cc6870702d?q=80&w=1920";
+                spawnSnow();
+            } else if(code >= 80) {
+                bg = "https://images.unsplash.com/photo-1511289080610-b9834a1b0d71?q=80&w=1920";
+                spawnRain();
+            }
             document.body.style.backgroundImage = `url('${bg}')`;
 
             document.getElementById('sunrise-val').innerText = new Date(data.daily.sunrise[0]).toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
@@ -220,11 +199,30 @@
             let dHtml = '';
             for(let i=0; i<5; i++) {
                 const d = new Date(data.daily.time[i]).toLocaleDateString('sv-SE', {weekday:'short'});
-                dHtml += `<div class="weather-row"><span class="weather-day">${i===0?'Idag':d}</span><i data-lucide="${getWeatherIcon(data.daily.weathercode[i])}" style="width:24px"></i><span class="weather-temp">${Math.round(data.daily.temperature_2m_max[i])}°</span></div>`;
+                dHtml += `<div class="weather-row"><span style="font-size:1.4rem; text-transform:capitalize;">${i===0?'Idag':d}</span><i data-lucide="${getWeatherIcon(data.daily.weathercode[i])}" style="width:24px"></i><span class="weather-temp">${Math.round(data.daily.temperature_2m_max[i])}°</span></div>`;
             }
             document.getElementById('daily-list').innerHTML = dHtml;
             lucide.createIcons();
         } catch(e) {}
+    }
+
+    function spawnSnow() {
+        for (let i = 0; i < 40; i++) {
+            let f = document.createElement('div'); f.className = 'snow-flake'; f.innerHTML = '•';
+            f.style.left = Math.random() * 100 + 'vw';
+            f.style.animationDuration = (Math.random() * 5 + 5) + 's';
+            document.body.appendChild(f);
+        }
+    }
+
+    function spawnRain() {
+        for (let i = 0; i < 80; i++) {
+            let r = document.createElement('div'); r.className = 'rain-drop';
+            r.style.left = Math.random() * 100 + 'vw';
+            r.style.animationDuration = (Math.random() * 0.5 + 0.5) + 's';
+            r.style.opacity = Math.random() * 0.5;
+            document.body.appendChild(r);
+        }
     }
 
     function getWeatherIcon(code) {
