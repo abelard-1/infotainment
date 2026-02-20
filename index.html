@@ -6,24 +6,32 @@
   <title>Infotainment</title>
   <style>
     :root{
-      --bg:#0b0f14; --card:#121924; --text:#e9eef7; --muted:#a9b4c7;
+      --bg:#0b0f14; --card:#121924; --text:#e9eef7; --muted:#a9b4c7; --accent:#7aa2ff;
       --radius:18px;
       font-family: system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
     }
     body{ margin:0; background:linear-gradient(180deg,#070a0f, var(--bg)); color:var(--text); }
-    .wrap{ padding:24px; display:grid; gap:18px; grid-template-columns: 1fr 1fr; }
+    .wrap{ padding:24px; display:grid; gap:18px; grid-template-columns: 1.1fr .9fr; }
+    .col{ display:grid; gap:18px; }
     .card{ background:rgba(18,25,36,.92); border:1px solid rgba(255,255,255,.06); border-radius:var(--radius);
            padding:18px; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
     .title{ font-size:14px; color:var(--muted); text-transform:uppercase; letter-spacing:.12em; margin-bottom:12px; }
     .clock{ font-size:64px; font-weight:750; letter-spacing:-1px; line-height:1; }
     .date{ color:var(--muted); font-size:18px; margin-top:6px; }
-    .temp{ font-size:56px; font-weight:800; }
     .meta{ color:var(--muted); font-size:16px; }
     .row{ display:flex; justify-content:space-between; gap:12px; align-items:baseline; }
+    .temp{ font-size:56px; font-weight:800; }
     .forecast{ margin-top:14px; display:grid; grid-template-columns: repeat(5, 1fr); gap:10px; }
     .day{ background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.06); border-radius:14px; padding:10px; }
     .day b{ display:block; font-size:14px; margin-bottom:6px; }
     .day span{ color:var(--muted); font-size:13px; }
+    .events{ display:flex; flex-direction:column; gap:10px; }
+    .event{ display:flex; gap:10px; align-items:flex-start; padding:10px; border-radius:14px;
+            background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.06); }
+    .when{ min-width:130px; color:var(--accent); font-weight:700; }
+    .what{ flex:1; }
+    .what .s{ color:var(--muted); font-size:13px; margin-top:2px; }
+    code{ color:#cfe1ff; }
     @media (max-width: 980px){
       .wrap{ grid-template-columns: 1fr; }
       .forecast{ grid-template-columns: repeat(3, 1fr); }
@@ -32,29 +40,47 @@
 </head>
 <body>
   <div class="wrap">
-    <div class="card">
-      <div class="title">Tid</div>
-      <div class="clock" id="clock">--:--</div>
-      <div class="date" id="date">—</div>
-      <div class="meta" id="updated">—</div>
+    <div class="col">
+      <div class="card">
+        <div class="title">Tid</div>
+        <div class="clock" id="clock">--:--</div>
+        <div class="date" id="date">—</div>
+        <div class="meta" id="updated">—</div>
+      </div>
+
+      <div class="card">
+        <div class="title">Väder (Lomma/Malmö)</div>
+        <div class="row">
+          <div class="temp" id="temp">—°</div>
+          <div class="meta" id="wmeta">Laddar…</div>
+        </div>
+        <div class="forecast" id="forecast"></div>
+      </div>
     </div>
 
-    <div class="card">
-      <div class="title">Väder (Lomma/Malmö)</div>
-      <div class="row">
-        <div class="temp" id="temp">—°</div>
-        <div class="meta" id="wmeta">Laddar…</div>
+    <div class="col">
+      <div class="card">
+        <div class="title">Kalender (nästa)</div>
+        <div class="events" id="events">
+          <div class="meta">Laddar kalender…</div>
+        </div>
+        <div class="meta" style="margin-top:12px">
+          Tips: Lägg din iCal-länk i <code>ICS_URL</code> i koden.
+        </div>
       </div>
-      <div class="forecast" id="forecast"></div>
     </div>
   </div>
 
 <script>
-  // ====== ÄNDRA HÄR om du vill byta plats ======
-  // Lomma ungefär:
+  // ================== INSTÄLLNINGAR ==================
+  // Plats (Lomma ungefär):
   const LAT = 55.672;
   const LON = 13.068;
 
+  // Kalender: klistra in din "Secret address in iCal format" här (i GitHub, inte här i chatten)
+  const ICS_URL = "https://calendar.google.com/calendar/ical/rezgarhayder%40gmail.com/private-f9f661b6300bbdae155503503e43e62e/basic.ics";
+
+  // ================== KLOCKA ==================
   function pad(n){ return String(n).padStart(2,'0'); }
   function tick(){
     const now = new Date();
@@ -65,6 +91,7 @@
   }
   tick(); setInterval(tick, 1000*10);
 
+  // ================== VÄDER (Open-Meteo) ==================
   async function loadWeather(){
     const url =
       `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}` +
@@ -123,8 +150,96 @@
     return "•";
   }
 
+  // ================== KALENDER (ICS) ==================
+  function unfoldICS(text){
+    return text.replace(/\r?\n[ \t]/g, '');
+  }
+  function parseICSDate(s){
+    if(!s) return null;
+    if(/^\d{8}$/.test(s)){
+      const y=s.slice(0,4), m=s.slice(4,6), d=s.slice(6,8);
+      return new Date(`${y}-${m}-${d}T00:00:00`);
+    }
+    const m = s.match(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})(Z)?$/);
+    if(m){
+      const dt = new Date(Date.UTC(+m[1], +m[2]-1, +m[3], +m[4], +m[5], +m[6]));
+      return m[7] ? dt : new Date(+m[1], +m[2]-1, +m[3], +m[4], +m[5], +m[6]);
+    }
+    return new Date(s);
+  }
+  function esc(s){
+    return (s||"").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+  function formatWhen(dt){
+    const now = new Date();
+    const sameDay = dt.toDateString() === now.toDateString();
+    const day = dt.toLocaleDateString('sv-SE', { weekday:'short', month:'short', day:'numeric' });
+    const time = dt.toLocaleTimeString('sv-SE', { hour:'2-digit', minute:'2-digit' });
+    return sameDay ? `Idag ${time}` : `${day} ${time}`;
+  }
+
+  async function loadCalendar(){
+    const holder = document.getElementById('events');
+
+    if(!ICS_URL || ICS_URL.includes("KLIStra")){
+      holder.innerHTML = `<div class="meta">Sätt <code>ICS_URL</code> i koden (din secret iCal-länk).</div>`;
+      return;
+    }
+
+    try{
+      const res = await fetch(ICS_URL);
+      const text = unfoldICS(await res.text());
+      const blocks = text.split("BEGIN:VEVENT").slice(1);
+      const events = [];
+
+      for(const b of blocks){
+        const part = b.split("END:VEVENT")[0];
+        const get = (k) => {
+          const r = new RegExp(`${k}(;[^:]*)?:([^\\r\\n]+)`, 'i');
+          const m = part.match(r);
+          return m ? m[2].trim() : "";
+        };
+
+        const summary = get("SUMMARY");
+        const location = get("LOCATION");
+        const dtstart = parseICSDate(get("DTSTART"));
+
+        if(!dtstart) continue;
+        if(dtstart < new Date(Date.now() - 60*60*1000)) continue;
+
+        events.push({summary, location, dtstart});
+      }
+
+      events.sort((a,b)=>a.dtstart-b.dtstart);
+      const top = events.slice(0, 8);
+
+      holder.innerHTML = "";
+      if(top.length === 0){
+        holder.innerHTML = `<div class="meta">Inga kommande händelser.</div>`;
+        return;
+      }
+
+      for(const e of top){
+        const row = document.createElement('div');
+        row.className = 'event';
+        row.innerHTML = `
+          <div class="when">${formatWhen(e.dtstart)}</div>
+          <div class="what">
+            <div>${esc(e.summary || "Händelse")}</div>
+            ${e.location ? `<div class="s">${esc(e.location)}</div>` : ""}
+          </div>`;
+        holder.appendChild(row);
+      }
+    }catch(err){
+      holder.innerHTML = `<div class="meta">Kunde inte läsa kalendern. Kontrollera att iCal-länken är korrekt och delningsbar.</div>`;
+    }
+  }
+
+  // ================== START ==================
   loadWeather();
-  setInterval(loadWeather, 1000*60*15); // var 15:e minut
+  loadCalendar();
+  setInterval(loadWeather, 1000*60*15);   // 15 min
+  setInterval(loadCalendar, 1000*60*10);  // 10 min
 </script>
 </body>
 </html>
