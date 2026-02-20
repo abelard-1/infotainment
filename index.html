@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Elite Dashboard v5</title>
+    <title>Staffanstorp Elite Dashboard v6</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
@@ -44,10 +44,14 @@
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
         }
 
+        /* Top Bar & Citat */
         .top-bar { grid-column: 1/3; display: flex; justify-content: space-between; align-items: center; padding: 0 40px; }
         #mini-clock { font-size: 4rem; font-weight: 800; letter-spacing: -2px; }
         #mini-date { font-size: 1.8rem; color: var(--accent); font-weight: 300; text-transform: capitalize; }
-        #top-quote { text-align: center; font-style: italic; font-size: 1.1rem; color: #eee; max-width: 500px; }
+        
+        #quote-container { flex-grow: 1; text-align: center; padding: 0 40px; max-width: 600px; }
+        #top-quote { font-style: italic; font-size: 1.05rem; color: #eee; line-height: 1.4; margin-bottom: 4px; }
+        #quote-author { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; color: var(--accent); font-weight: 600; }
 
         .panel { padding: 30px; display: flex; flex-direction: column; height: 100%; box-sizing: border-box; overflow: hidden; }
         .panel-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; opacity: 0.6; }
@@ -66,7 +70,7 @@
         .weather-day { font-size: 1.4rem; width: 130px; text-transform: capitalize; }
         .weather-temp-max { font-size: 1.6rem; font-weight: 800; width: 60px; text-align: right; }
 
-        /* Countdown & Nyheter Layout */
+        /* Botten-sektion */
         #news-card { grid-column: 1/2; display: flex; align-items: center; padding: 0 30px; position: relative; overflow: hidden; }
         #countdown-card { grid-column: 2/3; display: flex; flex-direction: column; justify-content: center; align-items: center; border: 1px solid rgba(255, 170, 51, 0.3); }
         
@@ -86,9 +90,12 @@
 </head>
 <body id="main-body">
 
-<header class="top-bar glass-panel" style="border-radius: 20px; height: 80px;">
+<header class="top-bar glass-panel" style="border-radius: 20px; height: 85px;">
     <div id="mini-date">Laddar...</div>
-    <div id="top-quote">"Det enda vi vet är att vi ingenting vet."</div>
+    <div id="quote-container">
+        <div id="top-quote">"Det enda vi vet är att vi ingenting vet."</div>
+        <div id="quote-author">Sokrates</div>
+    </div>
     <div id="mini-clock-container" style="display:flex; align-items:baseline; gap:10px;">
         <div id="mini-clock">00:00</div>
         <div id="weekend-tag" style="font-size:1rem; color:var(--friday-gold); display:none; font-weight:800;">HELGLÄGE</div>
@@ -127,6 +134,22 @@
     const API_KEY = 'AIzaSyAC3QiGhqOM2F2ZrnFq3xWUu6_1bAwOvSw';
     const CAL_ID = 'rezgarhayder@gmail.com';
 
+    const quotes = [
+        { q: "Det vi gör i livet, ekar i evigheten.", a: "Marcus Aurelius" },
+        { q: "Lycka är inte något färdiglagat. Den kommer från dina egna handlingar.", a: "Dalai Lama" },
+        { q: "Människan lider mer i fantasin än i verkligheten.", a: "Seneca" },
+        { q: "Den som har ett varför att leva för kan uthärda nästan vilket hur som helst.", a: "Friedrich Nietzsche" },
+        { q: "Du har makt över ditt sinne – inte externa händelser.", a: "Marcus Aurelius" },
+        { q: "Problemet är inte att vi har lite tid, utan att vi slösar bort mycket av den.", a: "Seneca" },
+        { q: "Varje morgon föds vi på nytt. Det vi gör idag är det som betyder mest.", a: "Buddha" }
+    ];
+
+    function updateQuote() {
+        const quote = quotes[Math.floor(Math.random() * quotes.length)];
+        document.getElementById('top-quote').innerText = `"${quote.q}"`;
+        document.getElementById('quote-author').innerText = quote.a;
+    }
+
     function updateClock() {
         const now = new Date();
         document.getElementById('mini-clock').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
@@ -140,7 +163,6 @@
         const target = new Date('2026-03-30T00:00:00');
         const now = new Date();
         const diff = target - now;
-
         if (diff > 0) {
             const d = Math.floor(diff / (1000 * 60 * 60 * 24));
             const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -149,7 +171,7 @@
             document.getElementById('hours').innerText = h.toString().padStart(2, '0');
             document.getElementById('mins').innerText = m.toString().padStart(2, '0');
         } else {
-            document.getElementById('easter-countdown').innerHTML = "LOVET ÄR HÄR! 🐣";
+            document.getElementById('easter-countdown').innerHTML = "PÅSKLOV! 🐣";
         }
     }
 
@@ -161,7 +183,6 @@
             const hourStartIndex = data.hourly.time.findIndex(t => new Date(t).getHours() === now.getHours() && new Date(t).getDate() === now.getDate());
             const code = data.hourly.weathercode[hourStartIndex];
 
-            // Bakgrund
             let bg = "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?q=80&w=1920";
             if(code <= 3) bg = "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=1920";
             if(code >= 51 && code <= 67) bg = "https://images.unsplash.com/photo-1428592953211-077101b2021b?q=80&w=1920";
@@ -169,12 +190,10 @@
             if(code >= 80) bg = "https://images.unsplash.com/photo-1511289080610-b9834a1b0d71?q=80&w=1920";
             document.body.style.backgroundImage = `url('${bg}')`;
 
-            // Animationer
             document.querySelectorAll('.snow-flake, .rain-drop').forEach(f => f.remove());
             if(code >= 51 && code <= 67 || code >= 80) spawnRain();
             if(code >= 71 && code <= 77) spawnSnow();
 
-            // Hourly
             let hHtml = '';
             for(let i = 0; i < 6; i++) {
                 const idx = hourStartIndex + i;
@@ -185,9 +204,8 @@
             }
             document.getElementById('hourly-forecast').innerHTML = hHtml;
 
-            // Daily
             let dHtml = '';
-            for(let i=0; i<6; i++) { // Lite färre dagar för att få plats
+            for(let i=0; i<6; i++) {
                 const d = new Date(data.daily.time[i]);
                 const dayName = i === 0 ? 'Idag' : d.toLocaleDateString('sv-SE', {weekday:'short'});
                 dHtml += `<div class="weather-row"><span class="weather-day">${dayName}</span><i data-lucide="${getWeatherIcon(data.daily.weathercode[i])}" style="width:24px"></i><span class="weather-temp-max">${Math.round(data.daily.temperature_2m_max[i])}°</span></div>`;
@@ -243,7 +261,7 @@
         updateWeather(); setInterval(updateWeather, 600000);
         updateCalendar(); setInterval(updateCalendar, 600000);
         updateCountdown(); setInterval(updateCountdown, 60000);
-        updateHistory(); getNews();
+        updateHistory(); updateQuote(); getNews();
     });
 </script>
 </body>
