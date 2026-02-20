@@ -2,24 +2,17 @@
 <html lang="sv">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Elite Dashboard</title>
-    
+    <title>Staffanstorp Dashboard 27-tum</title>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/google-calendar@6.1.10/index.global.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
-
     <style>
         :root {
-            --bg-overlay: rgba(0, 0, 0, 0.65);
-            --card-bg: rgba(15, 15, 15, 0.85);
-            --card-border: rgba(255, 255, 255, 0.15);
+            --bg-overlay: rgba(0, 0, 0, 0.6);
+            --card-bg: rgba(20, 20, 20, 0.8);
             --accent: #5e92f3;
-            --pitch-green: #2ecc71;
-            --bus-yellow: #ffcd00;
             --text-main: #ffffff;
-            --text-dim: #b0b0b0;
         }
 
         body {
@@ -27,46 +20,63 @@
             background-color: #000;
             background-size: cover;
             background-position: center;
-            transition: background-image 2s ease-in-out;
-            margin: 0; height: 100vh; color: var(--text-main);
-            display: grid; grid-template-columns: 420px 1fr 33%; grid-template-rows: 1fr 110px; gap: 30px; padding: 30px; box-sizing: border-box; overflow: hidden;
+            margin: 0; 
+            height: 100vh; 
+            width: 100vw;
+            color: var(--text-main);
+            display: grid; 
+            /* Justerad för 27 tum: Något smalare kolumner för att ge mitten plats */
+            grid-template-columns: 350px 1fr 30%; 
+            grid-template-rows: 1fr 80px; 
+            gap: 20px; 
+            padding: 20px; 
+            box-sizing: border-box; 
+            overflow: hidden;
         }
 
         body::before {
             content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            background: var(--bg-overlay); backdrop-filter: blur(10px); z-index: -2;
+            background: var(--bg-overlay); backdrop-filter: blur(8px); z-index: -2;
         }
 
+        /* Väder-effekter */
         #weather-effects { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 100; }
-        .drop { position: absolute; background: rgba(255, 255, 255, 0.4); width: 2px; height: 15px; animation: fall linear infinite; }
+        .drop { position: absolute; background: rgba(255,255,255,0.4); width: 2px; height: 15px; animation: fall linear infinite; }
         .snow { position: absolute; background: white; border-radius: 50%; opacity: 0.8; animation: fall linear infinite; }
         @keyframes fall { to { transform: translateY(100vh); } }
 
-        .sidebar { display: flex; flex-direction: column; gap: 25px; grid-column: 1; z-index: 10; }
-        .center-content { display: flex; flex-direction: column; justify-content: center; align-items: center; grid-column: 2; text-align: center; z-index: 10; padding: 0 40px; }
-        .calendar-panel { grid-column: 3; height: 100%; z-index: 10; }
+        /* Paneler */
+        .sidebar { display: flex; flex-direction: column; gap: 15px; grid-column: 1; min-height: 0; }
+        .center-content { display: flex; flex-direction: column; justify-content: center; align-items: center; grid-column: 2; text-align: center; padding: 0 20px; }
+        .calendar-panel { grid-column: 3; height: 100%; min-height: 0; }
         
-        .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 32px; padding: 30px; box-shadow: 0 15px 50px rgba(0,0,0,0.6); }
+        .card { 
+            background: var(--card-bg); 
+            border: 1px solid rgba(255,255,255,0.1); 
+            border-radius: 25px; 
+            padding: 20px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            overflow: hidden;
+        }
 
-        /* Matcher */
-        .match-item { font-size: 1.1rem; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); color: #eee; }
-        .match-item:last-child { border: none; }
-
-        /* Center */
-        #big-time { font-size: 8.5rem; font-weight: 800; line-height: 0.9; margin: 0; letter-spacing: -4px; }
-        #big-date { font-size: 2.2rem; color: var(--accent); margin-top: 15px; font-weight: 300; text-transform: capitalize; }
-        #quote-text { font-size: 1.8rem; font-weight: 300; font-style: italic; line-height: 1.4; color: #ddd; margin-top: 40px; max-width: 600px; }
-        #quote-author { font-size: 1rem; color: var(--accent); text-transform: uppercase; margin-top: 15px; letter-spacing: 2px; }
-
-        .bus-clean-row { display: flex; align-items: center; gap: 20px; background: rgba(255,255,255,0.08); padding: 18px 25px; border-radius: 22px; }
-        .bus-number { background: var(--bus-yellow); color: #000; font-weight: 800; padding: 4px 12px; border-radius: 10px; }
-
-        .weather-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; font-size: 1.2rem; }
-        #news-card { grid-column: 1 / 4; grid-row: 2; display: flex; align-items: center; padding: 0 50px; z-index: 10; position: relative; }
-        .progress-bar { position: absolute; bottom: 0; left: 0; height: 6px; background: var(--accent); width: 0%; }
+        /* Typography anpassad för datorskärm */
+        #big-time { font-size: 7rem; font-weight: 800; line-height: 0.8; letter-spacing: -3px; margin: 0; }
+        #big-date { font-size: 1.8rem; color: var(--accent); margin-top: 10px; font-weight: 300; }
         
-        .fc-list-event-title { color: #fff !important; font-size: 1.1rem !important; }
-        .fc-list-day-cushion { background: rgba(255,255,255,0.1) !important; padding: 15px !important; }
+        #quote-text { font-size: 1.4rem; font-weight: 300; font-style: italic; line-height: 1.4; color: #eee; margin-top: 30px; max-width: 500px; }
+        #quote-author { font-size: 0.9rem; color: var(--accent); text-transform: uppercase; margin-top: 10px; letter-spacing: 2px; }
+
+        .match-item { font-size: 1rem; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .weather-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 1.1rem; }
+        
+        #news-card { grid-column: 1 / 4; grid-row: 2; display: flex; align-items: center; padding: 0 30px; position: relative; border-radius: 20px; }
+        #news-content { font-size: 1.3rem; font-weight: 400; }
+        .progress-bar { position: absolute; bottom: 0; left: 0; height: 5px; background: var(--accent); width: 0%; }
+        
+        /* Kalender skalning */
+        .fc { font-size: 0.9rem !important; }
+        .fc-list-event-title { font-size: 1rem !important; }
+        .fc-list-day-cushion { padding: 10px !important; }
     </style>
 </head>
 <body>
@@ -75,53 +85,42 @@
 
 <div class="sidebar">
     <div class="card">
-        <div style="display:flex; align-items:center; gap:12px; margin-bottom:15px;">
-            <i data-lucide="trophy" style="width:18px; color:var(--pitch-green)"></i>
-            <h3 style="margin:0; font-size:0.8rem; text-transform:uppercase; color:var(--text-dim); letter-spacing:1px;">Toppmatcher</h3>
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+            <i data-lucide="trophy" style="width:18px; color:#2ecc71"></i>
+            <span style="font-size:0.7rem; text-transform:uppercase; letter-spacing:1px; color:var(--text-dim)">Toppmatcher</span>
         </div>
-        <div id="match-list">Hämtar matcher...</div>
+        <div id="match-list">Hämtar...</div>
     </div>
 
-    <div class="card">
-        <div style="display:flex; align-items:center; gap:12px; margin-bottom:15px;">
-            <h3 style="margin:0; font-size:0.8rem; text-transform:uppercase; color:var(--text-dim);">166 ➞ Lund</h3>
-            <i data-lucide="bus" style="width:18px; color:var(--bus-yellow)"></i>
-        </div>
-        <div class="bus-clean-row">
-            <span class="bus-number">166</span>
-            <div style="font-size:1.3rem; font-weight:600; color:var(--accent)">4, 19, 33 min</div>
-        </div>
-    </div>
-    
-    <div class="card">
-        <div id="hourly-list" style="display:flex; justify-content:space-between; margin-bottom:20px; padding-bottom:20px; border-bottom:1px solid var(--card-border)"></div>
+    <div class="card" style="flex-grow: 1;">
+        <div id="hourly-list" style="display:flex; justify-content:space-between; margin-bottom:15px; padding-bottom:15px; border-bottom:1px solid rgba(255,255,255,0.1)"></div>
         <div id="daily-list"></div>
     </div>
 </div>
 
 <div class="center-content">
     <div id="big-time">00:00</div>
-    <div id="big-date">Laddar...</div>
-    <div id="quote-text">"Laddar dagens tanke..."</div>
+    <div id="big-date">...</div>
+    <div id="quote-text"></div>
     <div id="quote-author"></div>
 </div>
 
 <div class="calendar-panel">
-    <div class="card" style="height:100%; overflow:hidden;">
+    <div class="card" style="height:100%;">
         <div id="calendar"></div>
     </div>
 </div>
 
 <div class="card" id="news-card">
-    <div id="news-content">Hämtar senaste nytt...</div>
+    <div id="news-content">Hämtar nyheter...</div>
     <div id="news-progress" class="progress-bar"></div>
 </div>
 
 <script>
+    // Samma logik som tidigare, men med optimerade hämtningar för 27"
     const GOOGLE_API_KEY = 'AIzaSyAC3QiGhqOM2F2ZrnFq3xWUu6_1bAwOvSw';
     const CALENDAR_ID = 'rezgarhayder@gmail.com';
 
-    // 1. DYNAMISKT VÄDER-TEMA
     function setWeatherTheme(code) {
         const body = document.body;
         const effects = document.getElementById('weather-effects');
@@ -136,7 +135,7 @@
 
         body.style.backgroundImage = `url('${bgUrl}')`;
         if (type === 'rain') {
-            for(let i=0; i<60; i++) {
+            for(let i=0; i<40; i++) {
                 let d = document.createElement('div'); d.className = 'drop';
                 d.style.left = Math.random()*100+'vw'; d.style.animationDuration = Math.random()*0.4+0.3+'s';
                 effects.appendChild(d);
@@ -144,17 +143,14 @@
         }
     }
 
-    // 2. FOTBOLL - RIKTIGA MATCHER (via RSS)
     async function updateFootball() {
         try {
             const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://push.api.bbci.co.uk/p0089855/football/rss.xml');
             const data = await res.json();
-            const matches = data.items.slice(0, 4);
-            document.getElementById('match-list').innerHTML = matches.map(m => `<div class="match-item">${m.title.split(':').pop()}</div>`).join('');
-        } catch(e) { document.getElementById('match-list').innerText = "Matchdata ej tillgänglig just nu"; }
+            document.getElementById('match-list').innerHTML = data.items.slice(0, 3).map(m => `<div class="match-item">${m.title.split(':').pop()}</div>`).join('');
+        } catch(e) {}
     }
 
-    // 3. CITAT
     const quotes = [
         { text: "Ditt liv är vad dina tankar gör det till.", author: "Marcus Aurelius" },
         { text: "Lycka är inte något färdigt. Det kommer från dina egna handlingar.", author: "Dalai Lama" },
@@ -183,14 +179,14 @@
 
             let hHtml = '';
             for(let i=currH; i<currH+5; i++){
-                hHtml += `<div style="text-align:center"><span style="font-size:0.8rem;color:var(--text-dim)">${i%24}:00</span><br><i data-lucide="${data.hourly.weathercode[i]<=1?'sun':'cloud'}" style="width:20px;color:var(--accent);margin:8px 0"></i><br><b>${Math.round(data.hourly.temperature_2m[i])}°</b></div>`;
+                hHtml += `<div style="text-align:center"><span style="font-size:0.7rem">${i%24}:00</span><br><i data-lucide="${data.hourly.weathercode[i]<=1?'sun':'cloud'}" style="width:20px;color:var(--accent);margin:5px 0"></i><br><b>${Math.round(data.hourly.temperature_2m[i])}°</b></div>`;
             }
             document.getElementById('hourly-list').innerHTML = hHtml;
 
             let dHtml = '';
             for(let i=1; i<4; i++){
-                const d = new Date(data.daily.time[i]).toLocaleDateString('sv-SE', {weekday:'long'});
-                dHtml += `<div class="weather-row"><span style="text-transform:capitalize">${d}</span><span><b>${Math.round(data.daily.temperature_2m_max[i])}°</b> / <small style="color:var(--text-dim)">${Math.round(data.daily.temperature_2m_min[i])}°</small></span></div>`;
+                const d = new Date(data.daily.time[i]).toLocaleDateString('sv-SE', {weekday:'short'});
+                dHtml += `<div class="weather-row"><span style="text-transform:capitalize">${d}</span><span><b>${Math.round(data.daily.temperature_2m_max[i])}°</b> / <small>${Math.round(data.daily.temperature_2m_min[i])}°</small></span></div>`;
             }
             document.getElementById('daily-list').innerHTML = dHtml;
             lucide.createIcons();
@@ -209,10 +205,8 @@
 
     let news = []; let idx = 0;
     async function getNews() {
-        try {
-            const r = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.svt.se/nyheter/rss.xml');
-            const d = await r.json(); news = d.items; rotate();
-        } catch(e) {}
+        const r = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.svt.se/nyheter/rss.xml');
+        const d = await r.json(); news = d.items; rotate();
     }
     function rotate() {
         const c = document.getElementById('news-content'); const p = document.getElementById('news-progress');
@@ -220,10 +214,10 @@
         setTimeout(() => {
             if(news[idx]) c.innerText = news[idx].title;
             c.style.opacity = 1; p.style.transition = 'none'; p.style.width = '0%';
-            p.offsetHeight; p.style.transition = 'width 8000ms linear'; p.style.width = '100%';
+            p.offsetHeight; p.style.transition = 'width 10000ms linear'; p.style.width = '100%';
             idx = (idx + 1) % news.length;
         }, 500);
-        setTimeout(rotate, 8000);
+        setTimeout(rotate, 10000);
     }
     getNews();
 </script>
