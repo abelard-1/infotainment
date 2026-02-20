@@ -12,7 +12,7 @@
     }
     body{ margin:0; background:linear-gradient(180deg,#070a0f, var(--bg)); color:var(--text); }
     .wrap{ padding:24px; display:grid; gap:18px; grid-template-columns: 1.1fr .9fr; }
-    .col{ display:grid; gap:18px; }
+    .col{ display:grid; gap:18px; align-content:start; }
     .card{ background:rgba(18,25,36,.92); border:1px solid rgba(255,255,255,.06); border-radius:var(--radius);
            padding:18px; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
     .title{ font-size:14px; color:var(--muted); text-transform:uppercase; letter-spacing:.12em; margin-bottom:12px; }
@@ -28,13 +28,14 @@
     .events{ display:flex; flex-direction:column; gap:10px; }
     .event{ display:flex; gap:10px; align-items:flex-start; padding:10px; border-radius:14px;
             background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.06); }
-    .when{ min-width:130px; color:var(--accent); font-weight:700; }
+    .when{ min-width:140px; color:var(--accent); font-weight:750; }
     .what{ flex:1; }
     .what .s{ color:var(--muted); font-size:13px; margin-top:2px; }
     code{ color:#cfe1ff; }
     @media (max-width: 980px){
       .wrap{ grid-template-columns: 1fr; }
       .forecast{ grid-template-columns: repeat(3, 1fr); }
+      .when{ min-width:130px; }
     }
   </style>
 </head>
@@ -60,12 +61,12 @@
 
     <div class="col">
       <div class="card">
-        <div class="title">Kalender (nästa)</div>
+        <div class="title">Kalender (7 dagar)</div>
         <div class="events" id="events">
           <div class="meta">Laddar kalender…</div>
         </div>
         <div class="meta" style="margin-top:12px">
-          Tips: Lägg din iCal-länk i <code>ICS_URL</code> i koden.
+          Lägg din iCal-länk i <code>ICS_URL_RAW</code> i koden.
         </div>
       </div>
     </div>
@@ -73,13 +74,19 @@
 
 <script>
   // ================== INSTÄLLNINGAR ==================
-  // Plats (Lomma ungefär):
+  // Plats (Lomma ungefär) – ändra om du vill:
   const LAT = 55.672;
   const LON = 13.068;
+
+  // Kalender: klistra in din "offentliga iCal-adress" (eller annan iCal-länk) här:
   const ICS_URL_RAW = "https://calendar.google.com/calendar/ical/rezgarhayder%40gmail.com/public/basic.ics";
-const ICS_URL = "https://api.allorigins.win/raw?url=" + encodeURIComponent(ICS_URL_RAW);
+
+  // CORS-proxy för GitHub Pages (behövs ofta för Google Calendar ICS)
+  const ICS_URL = "https://api.allorigins.win/raw?url=" + encodeURIComponent(ICS_URL_RAW);
+
+  // Hur långt fram vi visar:
   const DAYS_AHEAD = 7;
-const MAX_EVENTS = 30;
+  const MAX_EVENTS = 30;
 
   // ================== KLOCKA ==================
   function pad(n){ return String(n).padStart(2,'0'); }
@@ -157,15 +164,20 @@ const MAX_EVENTS = 30;
   }
   function parseICSDate(s){
     if(!s) return null;
+
+    // YYYYMMDD
     if(/^\d{8}$/.test(s)){
       const y=s.slice(0,4), m=s.slice(4,6), d=s.slice(6,8);
       return new Date(`${y}-${m}-${d}T00:00:00`);
     }
+
+    // YYYYMMDDTHHMMSSZ or YYYYMMDDTHHMMSS
     const m = s.match(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})(Z)?$/);
     if(m){
       const dt = new Date(Date.UTC(+m[1], +m[2]-1, +m[3], +m[4], +m[5], +m[6]));
       return m[7] ? dt : new Date(+m[1], +m[2]-1, +m[3], +m[4], +m[5], +m[6]);
     }
+
     return new Date(s);
   }
   function esc(s){
@@ -182,41 +194,53 @@ const MAX_EVENTS = 30;
   async function loadCalendar(){
     const holder = document.getElementById('events');
 
-    if(!ICS_URL || ICS_URL.includes("KLIStra")){
-      holder.innerHTML = `<div class="meta">Sätt <code>ICS_URL</code> i koden (din secret iCal-länk).</div>`;
+    if(!ICS_URL_RAW || ICS_URL_RAW.includes("KLIStra")){
+      holder.innerHTML = `<div class="meta">Sätt <code>ICS_URL_RAW</code> i koden (din iCal-länk).</div>`;
       return;
     }
 
     try{
       const res = await fetch(ICS_URL);
       const text = unfoldICS(await res.text());
+
+      if(!text.includes("BEGIN:VCALENDAR")){
+        holder.innerHTML = `<div class="meta">Kalendersvaret ser inte ut som en iCal-fil. Kontrollera länken.</div>`;
+        return;
+      }
+
       const blocks = text.split("BEGIN:VEVENT").slice(1);
       const events = [];
 
       for(const b of blocks){
         const part = b.split("END:VEVENT")[0];
+
+        // Fångar DTSTART oavsett parametrar (TZID, VALUE=DATE, etc.)
         const get = (k) => {
-          const r = new RegExp(`${k}(;[^:]*)?:([^\\r\\n]+)`, 'i');
+          const r = new RegExp(`^${k}[^:]*:([^\\r\\n]+)`, 'im');
           const m = part.match(r);
-          return m ? m[2].trim() : "";
+          return m ? m[1].trim() : "";
         };
 
         const summary = get("SUMMARY");
         const location = get("LOCATION");
         const dtstart = parseICSDate(get("DTSTART"));
-
         if(!dtstart) continue;
-        if(dtstart < new Date(Date.now() - 60*60*1000)) continue;
+
+        const now = new Date();
+        const until = new Date(now.getTime() + DAYS_AHEAD*24*60*60*1000);
+
+        if(dtstart < now) continue;
+        if(dtstart > until) continue;
 
         events.push({summary, location, dtstart});
       }
 
       events.sort((a,b)=>a.dtstart-b.dtstart);
-      const top = events.slice(0, 8);
+      const top = events.slice(0, MAX_EVENTS);
 
       holder.innerHTML = "";
       if(top.length === 0){
-        holder.innerHTML = `<div class="meta">Inga kommande händelser.</div>`;
+        holder.innerHTML = `<div class="meta">Inga händelser kommande ${DAYS_AHEAD} dagar.</div>`;
         return;
       }
 
@@ -232,7 +256,7 @@ const MAX_EVENTS = 30;
         holder.appendChild(row);
       }
     }catch(err){
-      holder.innerHTML = `<div class="meta">Kunde inte läsa kalendern. Kontrollera att iCal-länken är korrekt och delningsbar.</div>`;
+      holder.innerHTML = `<div class="meta">Kunde inte läsa kalendern (CORS/proxy). Testa att byta proxy till corsproxy.io.</div>`;
     }
   }
 
