@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Kiosk 2.0</title>
+    <title>Staffanstorp Kiosk Pro - Final</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
@@ -35,20 +35,27 @@
 
         .card { background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1); border-radius: 30px; padding: 25px; box-shadow: 0 15px 50px rgba(0,0,0,0.6); overflow: hidden; }
         
-        /* Kalender */
-        .event-item { margin-bottom: 15px; padding-left: 12px; border-left: 3px solid var(--accent); }
-        .event-date { font-size: 0.75rem; color: var(--accent); text-transform: uppercase; }
-        .event-title { font-size: 1.1rem; font-weight: 600; margin-top: 2px; }
+        /* Kalender Styling */
+        .event-item { margin-bottom: 18px; padding-left: 15px; border-left: 3px solid var(--accent); }
+        .event-date { font-size: 0.75rem; color: var(--accent); text-transform: uppercase; font-weight: 600; }
+        .event-title { font-size: 1.15rem; font-weight: 600; margin-top: 2px; color: #fff; }
 
-        /* Klocka */
-        #big-time { font-size: 9rem; font-weight: 800; line-height: 0.8; letter-spacing: -4px; margin: 0; }
-        #big-date { font-size: 2rem; color: var(--accent); margin-top: 15px; font-weight: 300; text-transform: capitalize; }
+        /* Mittensektion */
+        #big-time { font-size: 9.5rem; font-weight: 800; line-height: 0.8; letter-spacing: -5px; margin: 0; }
+        #big-date { font-size: 2.2rem; color: var(--accent); margin-top: 15px; font-weight: 300; text-transform: capitalize; }
         
+        /* Väder & Buss */
         .weather-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .bus-pill { background: #ffcd00; color: #000; padding: 6px 15px; border-radius: 15px; font-weight: 800; font-size: 1.5rem; }
 
         #news-card { grid-column: 1/4; grid-row: 2; display: flex; align-items: center; position: relative; }
-        #news-progress { position: absolute; bottom: 0; left: 0; height: 6px; background: var(--accent); width: 0%; }
+        #news-progress { position: absolute; bottom: 0; left: 0; height: 6px; background: var(--accent); width: 0%; transition: width 10s linear; }
+
+        /* Snöanimation */
+        @keyframes fall {
+            to { transform: translateY(110vh) translateX(20px); }
+        }
+        .snow-flake { position: fixed; top: -20px; color: white; pointer-events: none; z-index: 100; }
     </style>
 </head>
 <body>
@@ -57,10 +64,11 @@
     <div class="card">
         <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
             <i data-lucide="bus" style="color:#ffcd00; width:20px;"></i>
-            <span style="font-size:0.7rem; letter-spacing:2px; color:var(--text-dim)">166 LUND C</span>
+            <span style="font-size:0.75rem; letter-spacing:2px; color:var(--text-dim)">166 LUND C</span>
         </div>
-        <div style="display:flex; gap:10px;">
+        <div style="display:flex; gap:12px;">
             <div class="bus-pill">4</div><div class="bus-pill" style="opacity:0.7">18</div><div class="bus-pill" style="opacity:0.4">32</div>
+            <span style="align-self: flex-end; color: var(--text-dim); margin-bottom: 5px;">min</span>
         </div>
     </div>
 
@@ -73,18 +81,18 @@
 <div class="center-content" style="display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center;">
     <div id="big-time">00:00</div>
     <div id="big-date">...</div>
-    <div id="quote-text" style="font-size:1.6rem; font-style:italic; margin-top:40px; font-weight:300; max-width:550px; color:#eee;">"Laddar dagens tanke..."</div>
+    <div id="quote-text" style="font-size:1.7rem; font-style:italic; margin-top:45px; font-weight:300; max-width:600px; color:#eee;"></div>
 </div>
 
 <div class="calendar-panel">
     <div class="card" style="height:100%;">
-        <h3 style="margin:0 0 20px 0; text-transform:uppercase; letter-spacing:2px; font-size:0.8rem; color:var(--text-dim)">Kommande 7 dagar</h3>
+        <h3 style="margin:0 0 20px 0; text-transform:uppercase; letter-spacing:2px; font-size:0.85rem; color:var(--accent)">Kommande 7 dagar</h3>
         <div id="custom-calendar-list">Laddar kalender...</div>
     </div>
 </div>
 
 <div class="card" id="news-card">
-    <div id="news-content" style="font-size: 1.5rem; padding: 0 20px;">Laddar SVT Nyheter...</div>
+    <div id="news-content" style="font-size: 1.6rem; padding: 0 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%;">Laddar SVT Nyheter...</div>
     <div id="news-progress"></div>
 </div>
 
@@ -99,7 +107,7 @@
         document.getElementById('big-date').innerText = now.toLocaleDateString('sv-SE', {weekday:'long', day:'numeric', month:'long'});
     }
 
-    // 2. KALENDER (7 DAGAR)
+    // 2. KALENDER (Hämtar exakt 7 dagar)
     async function updateCalendar() {
         const listEl = document.getElementById('custom-calendar-list');
         const now = new Date();
@@ -112,26 +120,29 @@
             const res = await fetch(url);
             const data = await res.json();
             if (data.items && data.items.length > 0) {
-                document.getElementById('custom-calendar-list').innerHTML = data.items.map(event => {
+                listEl.innerHTML = data.items.map(event => {
                     const d = new Date(event.start.dateTime || event.start.date);
+                    const day = d.toLocaleDateString('sv-SE', {weekday:'short', day:'numeric', month:'short'});
+                    const time = event.start.dateTime ? d.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'}) : 'Heldag';
                     return `<div class="event-item">
-                        <div class="event-date">${d.toLocaleDateString('sv-SE', {weekday:'short', day:'numeric', month:'short'})} • ${event.start.dateTime ? d.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'}) : 'Heldag'}</div>
+                        <div class="event-date">${day} • ${time}</div>
                         <div class="event-title">${event.summary || "Bokad"}</div>
                     </div>`;
                 }).join('');
             } else {
-                document.getElementById('custom-calendar-list').innerHTML = "Inga händelser i veckan.";
+                listEl.innerHTML = "<div style='color:var(--text-dim)'>Inga händelser inplanerade.</div>";
             }
-        } catch (e) { document.getElementById('custom-calendar-list').innerHTML = "Kalenderfel."; }
+        } catch (e) { listEl.innerHTML = "Kalenderfel."; }
     }
 
-    // 3. VÄDER
+    // 3. VÄDER & SNÖ
     function getWeatherIcon(code) {
         if (code <= 1) return 'sun';
         if (code <= 3) return 'cloud-sun';
         if (code <= 48) return 'cloud';
-        if (code <= 67) return 'cloud-rain';
-        return 'snowflake';
+        if (code >= 51 && code <= 67) return 'cloud-rain';
+        if (code >= 71 && code <= 77) return 'snowflake';
+        return 'cloud-lightning';
     }
 
     async function updateWeather() {
@@ -139,28 +150,46 @@
             const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=55.64&longitude=13.21&daily=weathercode,temperature_2m_max,temperature_2m_min&hourly=temperature_2m,weathercode&timezone=auto');
             const data = await res.json();
             const currH = new Date().getHours();
-            
-            // Bakgrundsbild
             const code = data.hourly.weathercode[currH];
+
+            // Bakgrundsbild baserat på väder
             let bg = "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?q=80&w=1920";
             if(code <= 1) bg = "https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?q=80&w=1920";
-            if(code >= 51) bg = "https://images.unsplash.com/photo-1433838552652-f9a46b332c40?q=80&w=1920";
+            if(code >= 51 && code <= 67) bg = "https://images.unsplash.com/photo-1433838552652-f9a46b332c40?q=80&w=1920";
+            if(code >= 71) bg = "https://images.unsplash.com/photo-1491002052546-bf38f186af56?q=80&w=1920";
             document.body.style.backgroundImage = `url('${bg}')`;
 
+            // Snö-animation om kod är 71-77
+            document.querySelectorAll('.snow-flake').forEach(f => f.remove());
+            if (code >= 71 && code <= 77) {
+                for (let i = 0; i < 40; i++) {
+                    let flake = document.createElement('div');
+                    flake.className = 'snow-flake';
+                    flake.innerHTML = '•';
+                    flake.style.left = Math.random() * 100 + 'vw';
+                    flake.style.opacity = Math.random();
+                    flake.style.fontSize = (Math.random() * 20 + 10) + 'px';
+                    flake.style.animation = `fall ${Math.random() * 3 + 3}s linear infinite`;
+                    document.body.appendChild(flake);
+                }
+            }
+
+            // Tim-prognos
             let hHtml = '';
             for(let i=currH; i<currH+5; i++) {
-                hHtml += `<div style="text-align:center"><span style="font-size:0.7rem;color:var(--text-dim)">${i%24}:00</span><br><i data-lucide="${getWeatherIcon(data.hourly.weathercode[i])}" style="width:18px;color:var(--accent);margin:4px 0"></i><br><b>${Math.round(data.hourly.temperature_2m[i])}°</b></div>`;
+                hHtml += `<div style="text-align:center"><span style="font-size:0.75rem;color:var(--text-dim)">${i%24}:00</span><br><i data-lucide="${getWeatherIcon(data.hourly.weathercode[i])}" style="width:20px;color:var(--accent);margin:5px 0"></i><br><b>${Math.round(data.hourly.temperature_2m[i])}°</b></div>`;
             }
             document.getElementById('hourly-list').innerHTML = hHtml;
 
+            // 7-dagars-prognos
             let dHtml = '';
             for(let i=0; i<7; i++) {
                 const d = new Date(data.daily.time[i]).toLocaleDateString('sv-SE', {weekday:'short'});
-                dHtml += `<div class="weather-row"><span style="text-transform:capitalize; width:60px">${i===0?'Idag':d}</span><i data-lucide="${getWeatherIcon(data.daily.weathercode[i])}" style="width:18px;color:var(--accent)"></i><span style="width:70px;text-align:right"><b>${Math.round(data.daily.temperature_2m_max[i])}°</b></span></div>`;
+                dHtml += `<div class="weather-row"><span style="text-transform:capitalize; width:75px">${i===0?'Idag':d}</span><i data-lucide="${getWeatherIcon(data.daily.weathercode[i])}" style="width:20px;color:var(--accent)"></i><span style="width:85px;text-align:right"><b>${Math.round(data.daily.temperature_2m_max[i])}°</b> <small style="color:var(--text-dim);margin-left:5px">${Math.round(data.daily.temperature_2m_min[i])}°</small></span></div>`;
             }
             document.getElementById('daily-list').innerHTML = dHtml;
             lucide.createIcons();
-        } catch(e) {}
+        } catch(e) { console.log("Väderfel"); }
     }
 
     // 4. NYHETER & CITAT
@@ -180,16 +209,16 @@
         setTimeout(rotate, 10000);
     }
 
-    const quotes = ["Det vi tänker, blir vi.", "Allt har skönhet, men inte alla ser det.", "Ingenting är omöjligt."];
+    const quotes = ["Det vi tänker, blir vi.", "Allt har skönhet, men inte alla ser det.", "Ingenting är omöjligt.", "Gör varje dag till ditt mästerverk."];
     function updateQuote() { document.getElementById('quote-text').innerText = `"${quotes[Math.floor(Math.random()*quotes.length)]}"`; }
 
-    // START
+    // INITIALISERING
     document.addEventListener('DOMContentLoaded', () => {
         updateClock(); setInterval(updateClock, 1000);
         updateWeather(); setInterval(updateWeather, 1800000);
         updateCalendar(); setInterval(updateCalendar, 600000);
         updateQuote(); getNews();
-        lucide.createIcons();
+        setInterval(updateQuote, 3600000); // Nytt citat varje timme
     });
 </script>
 </body>
