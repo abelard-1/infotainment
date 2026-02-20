@@ -12,8 +12,8 @@
 
     <style>
         :root {
-            --bg-overlay: rgba(10, 10, 10, 0.75); /* Mörkt filter över bilden */
-            --card-bg: rgba(20, 20, 20, 0.85); /* Halvgenomskinliga kort */
+            --bg-overlay: rgba(0, 0, 0, 0.7);
+            --card-bg: rgba(25, 25, 25, 0.8);
             --card-border: rgba(255, 255, 255, 0.1);
             --accent: #5e92f3;
             --bus-yellow: #ffcd00;
@@ -23,74 +23,76 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background: url('http://googleusercontent.com/image_collection/image_retrieval/10500817500833228787_0') no-repeat center center fixed;
+            /* Ny, mer stabil bildkälla */
+            background: url('https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
             background-size: cover;
             margin: 0;
             height: 100vh;
             color: var(--text-main);
+            /* Tre kolumner: Sidebar (380px), Center (1fr), Kalender (33%) */
             display: grid;
-            grid-template-columns: 400px 1fr;
+            grid-template-columns: 380px 1fr 33%;
             grid-template-rows: 1fr 100px;
-            gap: 20px;
-            padding: 20px;
+            gap: 25px;
+            padding: 25px;
             box-sizing: border-box;
             overflow: hidden;
         }
 
-        /* Skapa ett mörkt filter och oskärpa bakom innehållet */
         body::before {
             content: "";
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
             background: var(--bg-overlay);
-            backdrop-filter: blur(8px);
+            backdrop-filter: blur(10px);
             z-index: -1;
         }
 
-        .sidebar { display: flex; flex-direction: column; gap: 20px; grid-row: 1; z-index: 1; }
+        /* Paneler */
+        .sidebar { display: flex; flex-direction: column; gap: 20px; grid-column: 1; }
+        .center-content { display: flex; flex-direction: column; justify-content: center; align-items: center; grid-column: 2; text-align: center; }
+        .calendar-panel { grid-column: 3; display: flex; flex-direction: column; height: 100%; }
+        
         .card { 
             background: var(--card-bg); 
             border: 1px solid var(--card-border); 
-            border-radius: 24px; 
-            padding: 25px; 
-            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            border-radius: 28px; 
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
         }
 
-        #time { font-size: 4.5rem; font-weight: 800; letter-spacing: -2px; line-height: 1; margin-bottom: 5px; }
-        #date { font-size: 1.2rem; color: var(--accent); font-weight: 500; text-transform: capitalize; }
+        /* Tid & Datum i Center för "Wow"-faktor */
+        #big-time { font-size: 7rem; font-weight: 800; line-height: 1; margin: 0; color: #fff; }
+        #big-date { font-size: 1.8rem; color: var(--accent); margin-top: 10px; font-weight: 300; }
 
-        /* Buss Styling - Clean Single Row */
-        .bus-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-        .bus-header h3 { margin: 0; font-size: 0.75rem; text-transform: uppercase; color: var(--text-dim); letter-spacing: 1px; }
-        .bus-clean-row { display: flex; align-items: center; gap: 15px; background: rgba(255,255,255,0.05); padding: 12px 18px; border-radius: 15px; }
-        .bus-number { background: var(--bus-yellow); color: #000; font-weight: 800; padding: 2px 8px; border-radius: 6px; font-size: 0.9rem; }
+        /* Buss - Slimmad rad */
+        .bus-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+        .bus-header h3 { margin: 0; font-size: 0.7rem; text-transform: uppercase; color: var(--text-dim); letter-spacing: 1.5px; }
+        .bus-clean-row { display: flex; align-items: center; gap: 15px; background: rgba(255,255,255,0.05); padding: 12px 20px; border-radius: 18px; }
+        .bus-number { background: var(--bus-yellow); color: #000; font-weight: 800; padding: 3px 10px; border-radius: 8px; font-size: 0.9rem; }
         .bus-times-wrapper { display: flex; gap: 12px; font-size: 1.1rem; font-weight: 600; color: var(--accent); }
-        .bus-time-next::after { content: "•"; margin-left: 12px; color: var(--card-border); }
+        .bus-time-next::after { content: "•"; margin-left: 12px; color: rgba(255,255,255,0.2); }
         .bus-time-next:last-child::after { content: ""; }
 
-        /* Väder Styling */
-        #weather h3 { margin: 15px 0 10px 0; font-weight: 400; color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase; }
-        #weather h3:first-child { margin-top: 0; }
-        .hourly-container { display: flex; gap: 18px; padding-bottom: 10px; border-bottom: 1px solid var(--card-border); }
-        .hourly-item { display: flex; flex-direction: column; align-items: center; font-size: 0.85rem; }
-        .weather-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 0.9rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        /* Väder */
+        .hourly-container { display: flex; justify-content: space-between; padding-bottom: 15px; border-bottom: 1px solid var(--card-border); margin-bottom: 15px; }
+        .weather-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 0.95rem; }
 
-        #calendar-container { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 24px; padding: 25px; grid-row: 1; z-index: 1; }
-        #news-card { grid-column: 1 / 3; grid-row: 2; display: flex; align-items: center; padding: 0 40px; z-index: 1; }
+        /* Kalender - Anpassad för 33% */
+        #calendar-container { height: 100%; overflow: hidden; }
+        .fc { font-size: 0.9rem; }
+        .fc-header-toolbar { display: none !important; }
+        .fc-list-day-cushion { background: rgba(255,255,255,0.08) !important; padding: 12px !important; }
+        .fc-list-event-title { font-weight: 500 !important; }
+
+        /* Nyheter */
+        #news-card { grid-column: 1 / 4; grid-row: 2; display: flex; align-items: center; padding: 0 40px; }
         .progress-bar { position: absolute; bottom: 0; left: 0; height: 4px; background: var(--accent); width: 0%; }
-
-        .fc-theme-standard td, .fc-theme-standard th { border: none !important; }
-        .fc-list-day-cushion { background: rgba(255,255,255,0.05) !important; }
     </style>
 </head>
 <body>
 
 <div class="sidebar">
-    <div class="card">
-        <div id="time">00:00</div>
-        <div id="date">Laddar...</div>
-    </div>
-
     <div class="card">
         <div class="bus-header">
             <h3>Tingsvägen ➞ Lund</h3>
@@ -99,22 +101,30 @@
         <div class="bus-clean-row">
             <span class="bus-number">166</span>
             <div id="bus-times" class="bus-times-wrapper">
-                <span class="bus-time-next">Laddar...</span>
+                <span class="bus-time-next">...</span>
             </div>
         </div>
     </div>
     
-    <div class="card" id="weather">
-        <h3>Nästa 8 timmar</h3>
+    <div class="card">
+        <h3 style="font-size: 0.7rem; text-transform: uppercase; color: var(--text-dim); margin-top:0">Prognos</h3>
         <div id="hourly-list" class="hourly-container"></div>
-        
-        <h3>Kommande dagar</h3>
         <div id="daily-list"></div>
     </div>
 </div>
 
-<div id="calendar-container">
-    <div id="calendar"></div>
+<div class="center-content">
+    <div id="big-time">00:00</div>
+    <div id="big-date">Laddar...</div>
+    <div style="margin-top: 40px; color: var(--text-dim); font-style: italic; font-weight: 300;">
+        "En bra dag i Staffanstorp börjar här."
+    </div>
+</div>
+
+<div class="calendar-panel">
+    <div class="card" id="calendar-container">
+        <div id="calendar"></div>
+    </div>
 </div>
 
 <div class="card" id="news-card">
@@ -128,16 +138,16 @@
 
     function updateClock() {
         const now = new Date();
-        document.getElementById('time').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
-        document.getElementById('date').innerText = now.toLocaleDateString('sv-SE', {weekday:'long', day:'numeric', month:'long'});
+        const timeStr = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
+        const dateStr = now.toLocaleDateString('sv-SE', {weekday:'long', day:'numeric', month:'long'});
+        document.getElementById('big-time').innerText = timeStr;
+        document.getElementById('big-date').innerText = dateStr;
     }
     setInterval(updateClock, 1000); updateClock();
 
-    async function updateBuses() {
-        // Simulerad data för Linje 166. Här visas de tre tiderna på en rad.
-        const times = ["6 min", "18 min", "32 min"]; 
-        let html = times.map(t => `<span class="bus-time-next">${t}</span>`).join('');
-        document.getElementById('bus-times').innerHTML = html;
+    function updateBuses() {
+        const times = ["5 min", "19 min", "34 min"]; 
+        document.getElementById('bus-times').innerHTML = times.map(t => `<span class="bus-time-next">${t}</span>`).join('');
     }
     updateBuses();
 
@@ -145,24 +155,19 @@
         try {
             const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=55.64&longitude=13.21&daily=weathercode,temperature_2m_max,temperature_2m_min&hourly=temperature_2m,weathercode&timezone=auto');
             const data = await res.json();
-            
-            // 1. Timme för timme
-            let hHtml = '';
             const currH = new Date().getHours();
-            for(let i=currH; i<currH+7; i++){
-                const code = data.hourly.weathercode[i];
-                const icon = code <= 1 ? 'sun' : code <= 3 ? 'cloud-sun' : 'cloud';
-                hHtml += `<div class="hourly-item"><span>${i%24}:00</span><i data-lucide="${icon}" style="width:16px;color:var(--accent);margin:4px 0"></i><span>${Math.round(data.hourly.temperature_2m[i])}°</span></div>`;
+            
+            let hHtml = '';
+            for(let i=currH; i<currH+5; i++){
+                const icon = data.hourly.weathercode[i] <= 1 ? 'sun' : 'cloud';
+                hHtml += `<div class="hourly-item"><span style="font-size:0.7rem;color:var(--text-dim)">${i%24}:00</span><i data-lucide="${icon}" style="width:16px;color:var(--accent);margin:5px 0"></i><span style="font-weight:600">${Math.round(data.hourly.temperature_2m[i])}°</span></div>`;
             }
             document.getElementById('hourly-list').innerHTML = hHtml;
 
-            // 2. Dag för dag (Återinförd)
             let dHtml = '';
-            for(let i=1; i<6; i++){
+            for(let i=1; i<5; i++){
                 const d = new Date(data.daily.time[i]).toLocaleDateString('sv-SE', {weekday:'short'});
-                const code = data.daily.weathercode[i];
-                const icon = code <= 1 ? 'sun' : 'cloud';
-                dHtml += `<div class="weather-row"><span>${d}</span><i data-lucide="${icon}" style="width:14px;color:var(--text-dim)"></i><span><b>${Math.round(data.daily.temperature_2m_max[i])}°</b> / ${Math.round(data.daily.temperature_2m_min[i])}°</span></div>`;
+                dHtml += `<div class="weather-row"><span>${d}</span><span><b>${Math.round(data.daily.temperature_2m_max[i])}°</b> <small style="color:var(--text-dim)">/ ${Math.round(data.daily.temperature_2m_min[i])}°</small></span></div>`;
             }
             document.getElementById('daily-list').innerHTML = dHtml;
             lucide.createIcons();
@@ -179,15 +184,18 @@
 
     let news = []; let idx = 0;
     async function getNews() {
-        const r = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.svt.se/nyheter/rss.xml');
-        const d = await r.json(); news = d.items; rotate();
+        try {
+            const r = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.svt.se/nyheter/rss.xml');
+            const d = await r.json(); news = d.items; rotate();
+        } catch(e) {}
     }
     function rotate() {
         const c = document.getElementById('news-content');
         const p = document.getElementById('news-progress');
         c.style.opacity = 0;
         setTimeout(() => {
-            c.innerText = news[idx].title; c.style.opacity = 1;
+            if(news[idx]) c.innerText = news[idx].title;
+            c.style.opacity = 1;
             p.style.transition = 'none'; p.style.width = '0%';
             p.offsetHeight; p.style.transition = 'width 8000ms linear'; p.style.width = '100%';
             idx = (idx + 1) % news.length;
