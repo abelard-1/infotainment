@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8">
+  <title>Hemdisplay</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body{
+      margin:0;
+      background:#0b0f14;
+      color:white;
+      font-family:system-ui, sans-serif;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      height:100vh;
+    }
+    .clock{
+      font-size:80px;
+      font-weight:700;
+    }
+  </style>
+</head>
+<body>
+  <div class="clock" id="clock">--:--</div>
+
+<script>
+function tick(){
+  const now = new Date();
+  document.getElementById("clock").textContent =
+    now.toLocaleTimeString("sv-SE",{hour:"2-digit",minute:"2-digit"});
+}
+tick();
+setInterval(tick,1000);
+</script>
+</body>
+</html>
