@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Elite Dashboard</title>
+    <title>Staffanstorp Elite Dashboard - Weather Pro</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
@@ -15,7 +15,6 @@
             --text-main: #ffffff;
         }
 
-        /* Friday Mode - Triggat av JS */
         body.friday-mode {
             --glass-border: rgba(255, 204, 51, 0.4);
             --accent: var(--friday-gold);
@@ -25,7 +24,7 @@
             font-family: 'Inter', sans-serif;
             background-color: #000; background-size: cover; background-position: center;
             margin: 0; height: 100vh; width: 100vw; color: var(--text-main);
-            display: grid; grid-template-columns: 1.1fr 0.9fr; grid-template-rows: 100px 1fr 100px; 
+            display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 100px 1fr 100px; 
             gap: 25px; padding: 25px; box-sizing: border-box; overflow: hidden;
             transition: background-image 2s ease-in-out;
         }
@@ -40,7 +39,6 @@
             -webkit-backdrop-filter: blur(25px) saturate(160%);
             border: 1px solid var(--glass-border); border-radius: 40px;
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
-            transition: border 1s ease-in-out;
         }
 
         .top-bar { grid-column: 1/3; display: flex; justify-content: space-between; align-items: center; padding: 0 40px; }
@@ -49,32 +47,44 @@
         #weekend-tag { font-size: 1.2rem; color: var(--friday-gold); font-weight: 600; display: none; }
         #mini-date { font-size: 1.8rem; color: var(--accent); font-weight: 300; text-transform: capitalize; }
         
-        #top-quote { flex-grow: 1; text-align: center; padding: 0 30px; font-style: italic; font-size: 1.1rem; color: #eee; font-weight: 300; max-width: 500px; line-height: 1.3; }
+        #top-quote { flex-grow: 1; text-align: center; padding: 0 30px; font-style: italic; font-size: 1.1rem; color: #eee; font-weight: 300; max-width: 500px; }
 
-        .panel { padding: 35px; display: flex; flex-direction: column; height: 100%; box-sizing: border-box; }
-        .panel-header { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; opacity: 0.6; }
-        .panel-header h2 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 4px; margin: 0; }
+        .panel { padding: 35px; display: flex; flex-direction: column; height: 100%; box-sizing: border-box; overflow: hidden; }
+        .panel-header { display: flex; align-items: center; gap: 10px; margin-bottom: 25px; opacity: 0.6; }
+        .panel-header h2 { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 4px; margin: 0; }
 
-        .event-item { display: flex; align-items: center; gap: 30px; padding: 18px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
-        .event-time-block { min-width: 200px; }
-        .event-day { font-size: 1.3rem; color: var(--accent); font-weight: 800; }
-        .event-time { font-size: 3.2rem; font-weight: 800; line-height: 1; margin-top: 4px; }
-        .event-title { font-size: 1.7rem; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        /* KALENDER */
+        .event-item { display: flex; align-items: center; gap: 30px; padding: 20px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
+        .event-time-block { min-width: 180px; }
+        .event-day { font-size: 1.2rem; color: var(--accent); font-weight: 800; }
+        .event-time { font-size: 3rem; font-weight: 800; line-height: 1; }
 
-        #hourly-forecast { display: flex; justify-content: space-between; margin-bottom: 30px; padding: 20px; background: rgba(255,255,255,0.05); border-radius: 25px; }
-        .hour-item { text-align: center; }
-        .weather-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; }
-        .weather-temp { font-size: 2rem; font-weight: 800; width: 110px; text-align: right; }
+        /* VÄDER OPTIMERING */
+        #hourly-forecast { 
+            display: flex; justify-content: space-between; margin-bottom: 35px; 
+            padding: 25px; background: rgba(255,255,255,0.07); border-radius: 30px; 
+        }
+        .hour-item { text-align: center; display: flex; flex-direction: column; gap: 8px; }
+        .hour-time { font-size: 1rem; opacity: 0.7; }
+        .hour-temp { font-size: 1.8rem; font-weight: 800; }
 
-        #history-mini { margin-top: auto; padding: 20px; background: rgba(255, 255, 255, 0.05); border-radius: 20px; }
+        #daily-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+        .weather-row { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 14px 20px; background: rgba(255,255,255,0.03); border-radius: 20px;
+        }
+        .weather-day { font-size: 1.6rem; width: 150px; text-transform: capitalize; font-weight: 400; }
+        .weather-temp-max { font-size: 1.8rem; font-weight: 800; width: 80px; text-align: right; }
+        .weather-temp-min { font-size: 1.2rem; opacity: 0.5; width: 60px; text-align: right; }
+
+        #history-mini { margin-top: auto; padding: 15px 25px; background: rgba(0, 0, 0, 0.2); border-radius: 25px; border: 1px solid rgba(255,255,255,0.05); }
+
         #news-card { grid-column: 1/3; display: flex; align-items: center; padding: 0 35px; overflow: hidden; position: relative; }
         #news-progress { position: absolute; bottom: 0; left: 0; height: 4px; background: var(--accent); width: 0%; transition: width 10s linear; }
 
-        /* ANIMATIONER: SNÖ & REGN */
         @keyframes fall { to { transform: translateY(110vh) translateX(30px); } }
         @keyframes rain-fall { to { transform: translateY(110vh); } }
-
-        .snow-flake { position: fixed; top: -20px; color: white; pointer-events: none; z-index: 100; opacity: 0.8; font-size: 1.2rem; animation: fall linear infinite; }
+        .snow-flake { position: fixed; top: -20px; color: white; pointer-events: none; z-index: 100; opacity: 0.8; animation: fall linear infinite; }
         .rain-drop { position: fixed; top: -20px; background-color: rgba(174, 194, 224, 0.5); width: 1px; height: 15px; pointer-events: none; z-index: 100; animation: rain-fall linear infinite; }
     </style>
 </head>
@@ -90,21 +100,19 @@
 </header>
 
 <section class="panel glass-panel">
-    <div class="panel-header"><i data-lucide="calendar" style="width:16px"></i><h2>SCHEMA</h2></div>
+    <div class="panel-header"><i data-lucide="calendar"></i><h2>SCHEMA & MÖTEN</h2></div>
     <div id="custom-calendar-list"></div>
 </section>
 
 <section class="panel glass-panel">
-    <div class="panel-header"><i data-lucide="cloud-sun" style="width:16px"></i><h2>VÄDER & HISTORIA</h2></div>
-    <div class="sun-row" style="display:flex; gap:35px; margin-bottom:25px; font-size:1.4rem;">
-        <span><i data-lucide="sunrise" style="color:#ffcd00; width:22px; vertical-align:middle;"></i> <span id="sunrise-val">--:--</span></span>
-        <span><i data-lucide="sunset" style="color:#ff9d00; width:22px; vertical-align:middle;"></i> <span id="sunset-val">--:--</span></span>
-    </div>
+    <div class="panel-header"><i data-lucide="cloud-sun"></i><h2>VÄDERPROGNOS STAFFANSTORP</h2></div>
+    
     <div id="hourly-forecast"></div>
     <div id="daily-list"></div>
+
     <div id="history-mini">
-        <div style="color:var(--accent); font-size:0.75rem; text-transform:uppercase; letter-spacing:2px; margin-bottom:8px;">Idag i historien</div>
-        <div id="history-text" style="font-size:1.1rem; font-weight:300; color:#ddd;">Hämtar historisk händelse...</div>
+        <div style="color:var(--accent); font-size:0.7rem; text-transform:uppercase; letter-spacing:2px; margin-bottom:4px;">Idag i historien</div>
+        <div id="history-text" style="font-size:1rem; font-weight:300; color:#eee;">Laddar historia...</div>
     </div>
 </section>
 
@@ -121,30 +129,9 @@
         const now = new Date();
         document.getElementById('mini-clock').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
         document.getElementById('mini-date').innerText = now.toLocaleDateString('sv-SE', {weekday:'long', day:'numeric', month:'long'});
-        
-        const isFriday = now.getDay() === 5;
-        const isAfterLunch = now.getHours() >= 13;
-        
-        if (isFriday && isAfterLunch) {
-            document.getElementById('main-body').classList.add('friday-mode');
-            document.getElementById('weekend-tag').style.display = 'block';
-        } else {
-            document.getElementById('main-body').classList.remove('friday-mode');
-            document.getElementById('weekend-tag').style.display = 'none';
-        }
-    }
-
-    const quotes = [
-        "Det vi gör i livet, ekar i evigheten.",
-        "Lycka är inte något färdiglagat. Den kommer från dina egna handlingar.",
-        "Människan lider mer i fantasin än i verkligheten.",
-        "Den som har ett 'varför' att leva för kan uthärda nästan vilket 'hur' som helst.",
-        "Du har makt över ditt sinne – inte externa händelser.",
-        "Problemet är inte att vi har lite tid, utan att vi slösar bort mycket av den."
-    ];
-
-    function updateQuote() {
-        document.getElementById('top-quote').innerText = `"${quotes[Math.floor(Math.random() * quotes.length)]}"`;
+        const isFriday = now.getDay() === 5 && now.getHours() >= 13;
+        document.getElementById('main-body').classList.toggle('friday-mode', isFriday);
+        document.getElementById('weekend-tag').style.display = isFriday ? 'block' : 'none';
     }
 
     async function updateCalendar() {
@@ -153,9 +140,9 @@
             const res = await fetch(url);
             const data = await res.json();
             if (data.items) {
-                document.getElementById('custom-calendar-list').innerHTML = data.items.slice(0, 6).map(event => {
+                document.getElementById('custom-calendar-list').innerHTML = data.items.slice(0, 5).map(event => {
                     const d = new Date(event.start.dateTime || event.start.date);
-                    return `<div class="event-item"><div class="event-time-block"><div class="event-day">${d.toLocaleDateString('sv-SE', {weekday:'short', day:'numeric'})}</div><div class="event-time">${event.start.dateTime ? d.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'}) : 'HELDAG'}</div></div><div class="event-title">${event.summary}</div></div>`;
+                    return `<div class="event-item"><div class="event-time-block"><div class="event-day">${d.toLocaleDateString('sv-SE', {weekday:'short', day:'numeric'})}</div><div class="event-time">${event.start.dateTime ? d.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'}) : 'HELDAG'}</div></div><div class="event-title" style="font-size:1.9rem;">${event.summary}</div></div>`;
                 }).join('');
             }
         } catch (e) {}
@@ -163,43 +150,37 @@
 
     async function updateWeather() {
         try {
-            const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=55.64&longitude=13.21&daily=weathercode,temperature_2m_max,sunrise,sunset&hourly=temperature_2m,weathercode&timezone=auto');
+            const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=55.64&longitude=13.21&daily=weathercode,temperature_2m_max,temperature_2m_min&hourly=temperature_2m,weathercode&timezone=auto');
             const data = await res.json();
             const currH = new Date().getHours();
+            
+            // Animationer & Bakgrund
             const code = data.hourly.weathercode[currH];
-
-            // Rensa gamla animationer
             document.querySelectorAll('.snow-flake, .rain-drop').forEach(f => f.remove());
+            if(code >= 51 && code <= 67 || code >= 80) spawnRain();
+            if(code >= 71 && code <= 77) spawnSnow();
 
-            // Väder-logik: Bakgrund & Animation
-            let bg = "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?q=80&w=1920"; 
-            if(code <= 3) {
-                bg = "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=1920";
-            } else if(code >= 51 && code <= 67) {
-                bg = "https://images.unsplash.com/photo-1428592953211-077101b2021b?q=80&w=1920";
-                spawnRain();
-            } else if(code >= 71 && code <= 77) {
-                bg = "https://images.unsplash.com/photo-1483664852095-d6cc6870702d?q=80&w=1920";
-                spawnSnow();
-            } else if(code >= 80) {
-                bg = "https://images.unsplash.com/photo-1511289080610-b9834a1b0d71?q=80&w=1920";
-                spawnRain();
-            }
-            document.body.style.backgroundImage = `url('${bg}')`;
-
-            document.getElementById('sunrise-val').innerText = new Date(data.daily.sunrise[0]).toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
-            document.getElementById('sunset-val').innerText = new Date(data.daily.sunset[0]).toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
-
+            // Hourly (Dagens timmar)
             let hHtml = '';
             for(let i=currH; i<currH+6; i++) {
-                hHtml += `<div class="hour-item"><div>${i%24}:00</div><i data-lucide="${getWeatherIcon(data.hourly.weathercode[i])}" style="width:20px; color:var(--accent)"></i><div>${Math.round(data.hourly.temperature_2m[i])}°</div></div>`;
+                hHtml += `<div class="hour-item"><div class="hour-time">${i%24}:00</div><i data-lucide="${getWeatherIcon(data.hourly.weathercode[i])}" style="width:28px; color:var(--accent)"></i><div class="hour-temp">${Math.round(data.hourly.temperature_2m[i])}°</div></div>`;
             }
             document.getElementById('hourly-forecast').innerHTML = hHtml;
 
+            // Daily (7 dagar)
             let dHtml = '';
-            for(let i=0; i<5; i++) {
-                const d = new Date(data.daily.time[i]).toLocaleDateString('sv-SE', {weekday:'short'});
-                dHtml += `<div class="weather-row"><span style="font-size:1.4rem; text-transform:capitalize;">${i===0?'Idag':d}</span><i data-lucide="${getWeatherIcon(data.daily.weathercode[i])}" style="width:24px"></i><span class="weather-temp">${Math.round(data.daily.temperature_2m_max[i])}°</span></div>`;
+            for(let i=0; i<7; i++) {
+                const d = new Date(data.daily.time[i]);
+                const dayName = i === 0 ? 'Idag' : d.toLocaleDateString('sv-SE', {weekday:'long'});
+                dHtml += `
+                    <div class="weather-row">
+                        <span class="weather-day">${dayName}</span>
+                        <i data-lucide="${getWeatherIcon(data.daily.weathercode[i])}" style="width:32px"></i>
+                        <div style="display:flex; align-items:baseline;">
+                            <span class="weather-temp-max">${Math.round(data.daily.temperature_2m_max[i])}°</span>
+                            <span class="weather-temp-min">${Math.round(data.daily.temperature_2m_min[i])}°</span>
+                        </div>
+                    </div>`;
             }
             document.getElementById('daily-list').innerHTML = dHtml;
             lucide.createIcons();
@@ -207,20 +188,17 @@
     }
 
     function spawnSnow() {
-        for (let i = 0; i < 40; i++) {
+        for (let i = 0; i < 30; i++) {
             let f = document.createElement('div'); f.className = 'snow-flake'; f.innerHTML = '•';
-            f.style.left = Math.random() * 100 + 'vw';
-            f.style.animationDuration = (Math.random() * 5 + 5) + 's';
+            f.style.left = Math.random() * 100 + 'vw'; f.style.animationDuration = (Math.random() * 5 + 5) + 's';
             document.body.appendChild(f);
         }
     }
 
     function spawnRain() {
-        for (let i = 0; i < 80; i++) {
+        for (let i = 0; i < 60; i++) {
             let r = document.createElement('div'); r.className = 'rain-drop';
-            r.style.left = Math.random() * 100 + 'vw';
-            r.style.animationDuration = (Math.random() * 0.5 + 0.5) + 's';
-            r.style.opacity = Math.random() * 0.5;
+            r.style.left = Math.random() * 100 + 'vw'; r.style.animationDuration = (Math.random() * 0.5 + 0.5) + 's';
             document.body.appendChild(r);
         }
     }
@@ -236,7 +214,7 @@
         try {
             const res = await fetch(`https://en.wikipedia.org/api/rest_v1/feed/onthisday/events/${new Date().getMonth()+1}/${new Date().getDate()}`);
             const data = await res.json();
-            const event = data.events[Math.floor(Math.random() * Math.min(data.events.length, 15))];
+            const event = data.events[Math.floor(Math.random() * 10)];
             document.getElementById('history-text').innerHTML = `<b>${event.year}:</b> ${event.text}`;
         } catch(e) {}
     }
@@ -249,19 +227,17 @@
         } catch(e) {}
     }
     function rotate() {
-        const c = document.getElementById('news-content'); const p = document.getElementById('news-progress');
-        if(news[idx]) c.innerText = news[idx].title;
-        p.style.transition = 'none'; p.style.width = '0%';
+        if(news[idx]) document.getElementById('news-content').innerText = news[idx].title;
+        const p = document.getElementById('news-progress'); p.style.transition = 'none'; p.style.width = '0%';
         p.offsetHeight; p.style.transition = 'width 10000ms linear'; p.style.width = '100%';
-        idx = (idx + 1) % news.length;
-        setTimeout(rotate, 10000);
+        idx = (idx + 1) % news.length; setTimeout(rotate, 10000);
     }
 
     document.addEventListener('DOMContentLoaded', () => {
         updateClock(); setInterval(updateClock, 1000);
         updateWeather(); setInterval(updateWeather, 600000);
         updateCalendar(); setInterval(updateCalendar, 600000);
-        updateHistory(); updateQuote(); getNews();
+        updateHistory(); getNews();
     });
 </script>
 </body>
