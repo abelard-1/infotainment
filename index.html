@@ -291,6 +291,32 @@
         setTimeout(rotate, 8000);
     }
     getNews();
+    // --- TESTVERKTYG (Ta bort dessa när du är nöjd) ---
+const testControls = document.createElement('div');
+testControls.style.position = 'fixed';
+testControls.style.bottom = '120px';
+testControls.style.right = '20px';
+testControls.style.display = 'flex';
+testControls.style.gap = '10px';
+testControls.style.zIndex = '1000';
+
+const btnRain = document.createElement('button');
+btnRain.innerText = 'Testa Regn';
+btnRain.onclick = () => setWeatherTheme(61); // 61 = Regn
+
+const btnSnow = document.createElement('button');
+btnSnow.innerText = 'Testa Snö';
+btnSnow.onclick = () => setWeatherTheme(71); // 71 = Snö
+
+const btnSun = document.createElement('button');
+btnSun.innerText = 'Testa Sol';
+btnSun.onclick = () => setWeatherTheme(1);  // 1 = Sol
+
+testControls.appendChild(btnRain);
+testControls.appendChild(btnSnow);
+testControls.appendChild(btnSun);
+document.body.appendChild(testControls);
+// ------------------------------------------------
 </script>
 </body>
 </html>
