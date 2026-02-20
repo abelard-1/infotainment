@@ -2,117 +2,126 @@
 <html lang="sv">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Info-Kiosk Staffanstorp</title>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/google-calendar@6.1.10/index.global.min.js"></script>
+    
     <style>
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --accent: #4a90e2;
+            --text: #ffffff;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #1a1a1a;
-            color: white;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text);
             margin: 0;
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            height: 100vh;
+            gap: 15px;
+            padding: 15px;
+            box-sizing: border-box;
+        }
+
+        /* Vänsterkolumn: Klocka + Väder */
+        .sidebar {
             display: flex;
             flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
-        }
-        .container {
-            display: grid;
-            grid-template-columns: 1fr 2fr;
-            grid-template-rows: auto 1fr;
-            gap: 20px;
-            padding: 20px;
-            height: 100%;
-        }
-        #clock-section {
-            grid-column: 1 / 2;
-            text-align: center;
-            background: #2a2a2a;
-            padding: 20px;
-            border-radius: 15px;
-        }
-        #time { font-size: 4rem; font-weight: bold; margin: 0; }
-        #date { font-size: 1.5rem; color: #aaa; }
-
-        #weather-section {
-            grid-column: 1 / 2;
-            background: #2a2a2a;
-            padding: 20px;
-            border-radius: 15px;
-            overflow-y: auto;
-        }
-        .forecast-day {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid #444;
+            gap: 15px;
         }
 
-        #calendar-section {
-            grid-column: 2 / 3;
-            grid-row: 1 / 3;
-            background: #fff;
-            border-radius: 15px;
-            overflow: hidden;
+        .card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
-        iframe { width: 100%; height: 100%; border: none; }
+
+        #time { font-size: 3.5rem; font-weight: 800; margin: 0; color: var(--accent); }
+        #date { font-size: 1.2rem; opacity: 0.7; margin-bottom: 10px; }
+
+        /* Högerkolumn: Kalender */
+        #calendar-container {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        /* Styla FullCalendar så det ser modernt ut */
+        .fc { --fc-border-color: #333; --fc-today-bg-color: rgba(74, 144, 226, 0.1); }
+        .fc-event { border: none; padding: 3px; font-size: 0.9em; cursor: default; }
+        .fc-toolbar-title { font-size: 1.2em !important; }
+        .fc-header-toolbar { margin-bottom: 1em !important; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div id="clock-section">
+<div class="sidebar">
+    <div class="card">
         <div id="time">00:00</div>
-        <div id="date">Måndag 1 Januari</div>
+        <div id="date">Laddar...</div>
     </div>
-
-    <div id="weather-section">
-        <h3>Väder: Staffanstorp</h3>
+    
+    <div class="card" id="weather">
+        <h3 style="margin-top:0">Staffanstorp</h3>
         <div id="weather-list">Laddar väder...</div>
-    </div>
-
-    <div id="calendar-section">
-        <iframe src="https://calendar.google.com/calendar/embed?src=rezgarhayder%40gmail.com&ctz=Europe%2FStockholm"></iframe>
     </div>
 </div>
 
+<div id="calendar-container">
+    <div id="calendar"></div>
+</div>
+
 <script>
-    // Klock-funktion
+    // 1. Inställningar - FYLL I DESSA
+    const GOOGLE_API_KEY = 'AIzaSyAC3QiGhqOM2F2ZrnFq3xWUu6_1bAwOvSw';
+    const CALENDAR_ID = 'rezgarhayder@gmail.com';
+
+    // 2. Klocka
     function updateClock() {
         const now = new Date();
-        const timeStr = now.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' });
-        const dateStr = now.toLocaleDateString('sv-SE', { weekday: 'long', day: 'numeric', month: 'long' });
-        
-        document.getElementById('time').textContent = timeStr;
-        document.getElementById('date').textContent = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
+        document.getElementById('time').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
+        document.getElementById('date').innerText = now.toLocaleDateString('sv-SE', {weekday:'long', day:'numeric', month:'long'});
     }
     setInterval(updateClock, 1000);
     updateClock();
 
-    // Väder-funktion (Staffanstorp: Lat 55.64, Lon 13.21)
-    async function updateWeather() {
-        try {
-            const response = await fetch('https://api.open-meteo.com/v1/forecast?latitude=55.64&longitude=13.21&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=Europe%2FBerlin');
-            const data = await response.json();
-            const list = document.getElementById('weather-list');
-            list.innerHTML = '';
+    // 3. Kalender (FullCalendar)
+    document.addEventListener('DOMContentLoaded', function() {
+        const calendarEl = document.getElementById('calendar');
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'listWeek', // Eller 'dayGridMonth' för vanlig månadsvy
+            locale: 'sv',
+            firstDay: 1,
+            googleCalendarApiKey: GOOGLE_API_KEY,
+            events: { googleCalendarId: CALENDAR_ID },
+            height: '100%',
+            headerToolbar: { left: 'title', center: '', right: 'listWeek,dayGridMonth' },
+            eventClick: function(info) { info.jsEvent.preventDefault(); } // Hindra klick till Google
+        });
+        calendar.render();
+    });
 
-            for (let i = 0; i < 7; i++) {
-                const date = new Date(data.daily.time[i]).toLocaleDateString('sv-SE', { weekday: 'short' });
-                const max = Math.round(data.daily.temperature_2m_max[i]);
-                const min = Math.round(data.daily.temperature_2m_min[i]);
-                
-                list.innerHTML += `
-                    <div class="forecast-day">
-                        <span>${date}</span>
-                        <span>${max}° / ${min}°</span>
-                    </div>`;
-            }
-        } catch (error) {
-            document.getElementById('weather-list').textContent = "Kunde inte ladda väder.";
+    // 4. Väder (samma som tidigare men med lat/long för Staffanstorp)
+    async function updateWeather() {
+        const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=55.64&longitude=13.21&daily=temperature_2m_max,temperature_2m_min&timezone=auto');
+        const data = await res.json();
+        let html = '';
+        for(let i=0; i<7; i++) {
+            const d = new Date(data.daily.time[i]).toLocaleDateString('sv-SE', {weekday:'short'});
+            html += `<div style="display:flex; justify-content:space-between; margin: 8px 0; border-bottom: 1px solid #333;">
+                        <span>${d}</span>
+                        <span><b>${Math.round(data.daily.temperature_2m_max[i])}°</b> / ${Math.round(data.daily.temperature_2m_min[i])}°</span>
+                     </div>`;
         }
+        document.getElementById('weather-list').innerHTML = html;
     }
     updateWeather();
-    setInterval(updateWeather, 1800000); // Uppdatera var 30:e minut
 </script>
 
 </body>
