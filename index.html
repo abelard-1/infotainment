@@ -2,17 +2,18 @@
 <html lang="sv">
 <head>
     <meta charset="UTF-8">
-    <title>Staffanstorp Dashboard 27-tum</title>
+    <title>Staffanstorp Dashboard Elite</title>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/google-calendar@6.1.10/index.global.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-overlay: rgba(0, 0, 0, 0.6);
-            --card-bg: rgba(20, 20, 20, 0.8);
+            --bg-overlay: rgba(0, 0, 0, 0.65);
+            --card-bg: rgba(20, 20, 20, 0.85);
             --accent: #5e92f3;
             --text-main: #ffffff;
+            --text-dim: #b0b0b0;
         }
 
         body {
@@ -20,63 +21,45 @@
             background-color: #000;
             background-size: cover;
             background-position: center;
-            margin: 0; 
-            height: 100vh; 
-            width: 100vw;
-            color: var(--text-main);
+            margin: 0; height: 100vh; width: 100vw; color: var(--text-main);
             display: grid; 
-            /* Justerad för 27 tum: Något smalare kolumner för att ge mitten plats */
-            grid-template-columns: 350px 1fr 30%; 
-            grid-template-rows: 1fr 80px; 
-            gap: 20px; 
-            padding: 20px; 
-            box-sizing: border-box; 
-            overflow: hidden;
+            grid-template-columns: 380px 1fr 33%; 
+            grid-template-rows: 1fr 90px; 
+            gap: 20px; padding: 25px; box-sizing: border-box; overflow: hidden;
         }
 
         body::before {
             content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            background: var(--bg-overlay); backdrop-filter: blur(8px); z-index: -2;
+            background: var(--bg-overlay); backdrop-filter: blur(10px); z-index: -2;
         }
 
-        /* Väder-effekter */
         #weather-effects { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 100; }
         .drop { position: absolute; background: rgba(255,255,255,0.4); width: 2px; height: 15px; animation: fall linear infinite; }
-        .snow { position: absolute; background: white; border-radius: 50%; opacity: 0.8; animation: fall linear infinite; }
         @keyframes fall { to { transform: translateY(100vh); } }
 
-        /* Paneler */
-        .sidebar { display: flex; flex-direction: column; gap: 15px; grid-column: 1; min-height: 0; }
-        .center-content { display: flex; flex-direction: column; justify-content: center; align-items: center; grid-column: 2; text-align: center; padding: 0 20px; }
+        .sidebar { display: flex; flex-direction: column; gap: 20px; grid-column: 1; min-height: 0; }
+        .center-content { display: flex; flex-direction: column; justify-content: center; align-items: center; grid-column: 2; text-align: center; }
         .calendar-panel { grid-column: 3; height: 100%; min-height: 0; }
         
-        .card { 
-            background: var(--card-bg); 
-            border: 1px solid rgba(255,255,255,0.1); 
-            border-radius: 25px; 
-            padding: 20px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            overflow: hidden;
-        }
+        .card { background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1); border-radius: 30px; padding: 25px; box-shadow: 0 15px 40px rgba(0,0,0,0.5); overflow: hidden; }
 
-        /* Typography anpassad för datorskärm */
-        #big-time { font-size: 7rem; font-weight: 800; line-height: 0.8; letter-spacing: -3px; margin: 0; }
-        #big-date { font-size: 1.8rem; color: var(--accent); margin-top: 10px; font-weight: 300; }
+        #big-time { font-size: 8rem; font-weight: 800; line-height: 0.8; letter-spacing: -4px; margin: 0; }
+        #big-date { font-size: 2rem; color: var(--accent); margin-top: 15px; font-weight: 300; text-transform: capitalize; }
         
-        #quote-text { font-size: 1.4rem; font-weight: 300; font-style: italic; line-height: 1.4; color: #eee; margin-top: 30px; max-width: 500px; }
-        #quote-author { font-size: 0.9rem; color: var(--accent); text-transform: uppercase; margin-top: 10px; letter-spacing: 2px; }
+        #quote-text { font-size: 1.6rem; font-weight: 300; font-style: italic; line-height: 1.4; color: #eee; margin-top: 40px; max-width: 600px; }
+        #quote-author { font-size: 1rem; color: var(--accent); text-transform: uppercase; margin-top: 15px; letter-spacing: 2px; }
 
-        .match-item { font-size: 1rem; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .weather-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 1.1rem; }
+        .match-item { font-size: 1.1rem; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #4ade80; }
+        .weather-row { display: flex; justify-content: space-between; padding: 10px 0; font-size: 1.2rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .weather-row:last-child { border: none; }
         
-        #news-card { grid-column: 1 / 4; grid-row: 2; display: flex; align-items: center; padding: 0 30px; position: relative; border-radius: 20px; }
-        #news-content { font-size: 1.3rem; font-weight: 400; }
-        .progress-bar { position: absolute; bottom: 0; left: 0; height: 5px; background: var(--accent); width: 0%; }
+        #news-card { grid-column: 1 / 4; grid-row: 2; display: flex; align-items: center; padding: 0 40px; position: relative; border-radius: 25px; }
+        .progress-bar { position: absolute; bottom: 0; left: 0; height: 6px; background: var(--accent); width: 0%; }
         
-        /* Kalender skalning */
-        .fc { font-size: 0.9rem !important; }
-        .fc-list-event-title { font-size: 1rem !important; }
-        .fc-list-day-cushion { padding: 10px !important; }
+        /* Kalender Styling */
+        .fc-list-event-title { color: #fff !important; font-size: 1.1rem !important; font-weight: 400 !important; }
+        .fc-list-day-cushion { background: rgba(255,255,255,0.1) !important; padding: 12px !important; }
+        .fc-list-event-time { color: var(--accent) !important; }
     </style>
 </head>
 <body>
@@ -85,15 +68,15 @@
 
 <div class="sidebar">
     <div class="card">
-        <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
-            <i data-lucide="trophy" style="width:18px; color:#2ecc71"></i>
-            <span style="font-size:0.7rem; text-transform:uppercase; letter-spacing:1px; color:var(--text-dim)">Toppmatcher</span>
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:15px;">
+            <i data-lucide="trophy" style="width:20px; color:#4ade80"></i>
+            <span style="font-size:0.8rem; text-transform:uppercase; letter-spacing:2px; color:var(--text-dim)">Toppmatcher Europa</span>
         </div>
-        <div id="match-list">Hämtar...</div>
+        <div id="match-list">Laddar matcher...</div>
     </div>
 
-    <div class="card" style="flex-grow: 1;">
-        <div id="hourly-list" style="display:flex; justify-content:space-between; margin-bottom:15px; padding-bottom:15px; border-bottom:1px solid rgba(255,255,255,0.1)"></div>
+    <div class="card" style="flex-grow: 1; overflow-y: auto;">
+        <div id="hourly-list" style="display:flex; justify-content:space-between; margin-bottom:20px; padding-bottom:15px; border-bottom:1px solid rgba(255,255,255,0.1)"></div>
         <div id="daily-list"></div>
     </div>
 </div>
@@ -112,54 +95,88 @@
 </div>
 
 <div class="card" id="news-card">
-    <div id="news-content">Hämtar nyheter...</div>
+    <div id="news-content" style="font-size: 1.5rem;">Hämtar nyheter...</div>
     <div id="news-progress" class="progress-bar"></div>
 </div>
 
 <script>
-    // Samma logik som tidigare, men med optimerade hämtningar för 27"
     const GOOGLE_API_KEY = 'AIzaSyAC3QiGhqOM2F2ZrnFq3xWUu6_1bAwOvSw';
     const CALENDAR_ID = 'rezgarhayder@gmail.com';
 
-    function setWeatherTheme(code) {
-        const body = document.body;
-        const effects = document.getElementById('weather-effects');
-        effects.innerHTML = ''; 
-        let bgUrl = "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?q=80&w=1920";
-        let type = null;
+    // 1. VÄDER & TEMA
+    async function updateWeather() {
+        try {
+            const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=55.64&longitude=13.21&daily=weathercode,temperature_2m_max,temperature_2m_min&hourly=temperature_2m,weathercode&timezone=auto');
+            const data = await res.json();
+            const currH = new Date().getHours();
+            
+            // Set Background
+            const code = data.hourly.weathercode[currH];
+            const body = document.body;
+            let bgUrl = "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?q=80&w=1920";
+            if (code <= 1) bgUrl = "https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?q=80&w=1920";
+            else if (code <= 3) bgUrl = "https://images.unsplash.com/photo-1504608524841-42fe6f032b4b?q=80&w=1920";
+            else if (code >= 51) bgUrl = "https://images.unsplash.com/photo-1433838552652-f9a46b332c40?q=80&w=1920";
+            body.style.backgroundImage = `url('${bgUrl}')`;
 
-        if (code <= 1) bgUrl = "https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?q=80&w=1920";
-        else if (code <= 3) bgUrl = "https://images.unsplash.com/photo-1504608524841-42fe6f032b4b?q=80&w=1920";
-        else if (code >= 51 && code <= 67) { bgUrl = "https://images.unsplash.com/photo-1433838552652-f9a46b332c40?q=80&w=1920"; type = 'rain'; }
-        else if (code >= 71 && code <= 77) { bgUrl = "https://images.unsplash.com/photo-1491002052546-bf38f186af56?q=80&w=1920"; type = 'snow'; }
-
-        body.style.backgroundImage = `url('${bgUrl}')`;
-        if (type === 'rain') {
-            for(let i=0; i<40; i++) {
-                let d = document.createElement('div'); d.className = 'drop';
-                d.style.left = Math.random()*100+'vw'; d.style.animationDuration = Math.random()*0.4+0.3+'s';
-                effects.appendChild(d);
+            // Hourly
+            let hHtml = '';
+            for(let i=currH; i<currH+5; i++){
+                hHtml += `<div style="text-align:center"><span style="font-size:0.8rem">${i%24}:00</span><br><b style="font-size:1.2rem">${Math.round(data.hourly.temperature_2m[i])}°</b></div>`;
             }
-        }
+            document.getElementById('hourly-list').innerHTML = hHtml;
+
+            // Daily (7 dagar)
+            let dHtml = '';
+            for(let i=0; i<7; i++){
+                const d = new Date(data.daily.time[i]).toLocaleDateString('sv-SE', {weekday:'short'});
+                dHtml += `<div class="weather-row"><span style="text-transform:capitalize">${d}</span><span><b>${Math.round(data.daily.temperature_2m_max[i])}°</b> / <small>${Math.round(data.daily.temperature_2m_min[i])}°</small></span></div>`;
+            }
+            document.getElementById('daily-list').innerHTML = dHtml;
+        } catch(e) { console.error(e); }
     }
 
+    // 2. FOTBOLL (Stabilare flöde)
     async function updateFootball() {
         try {
-            const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://push.api.bbci.co.uk/p0089855/football/rss.xml');
+            const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.skysports.com/rss/12040');
             const data = await res.json();
-            document.getElementById('match-list').innerHTML = data.items.slice(0, 3).map(m => `<div class="match-item">${m.title.split(':').pop()}</div>`).join('');
-        } catch(e) {}
+            const matches = data.items.slice(0, 4);
+            document.getElementById('match-list').innerHTML = matches.map(m => `<div class="match-item">${m.title}</div>`).join('');
+        } catch(e) { document.getElementById('match-list').innerText = "Just nu inga livematcher"; }
     }
 
+    // 3. KALENDER (Fix för "Undefined")
+    function initCalendar() {
+        const calendarEl = document.getElementById('calendar');
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'listMonth',
+            locale: 'sv',
+            googleCalendarApiKey: GOOGLE_API_KEY,
+            events: { googleCalendarId: CALENDAR_ID },
+            eventDataTransform: function(eventData) {
+                // Säkerställer att titeln alltid hämtas korrekt
+                return {
+                    title: eventData.title || eventData.summary || "Bokad händelse",
+                    start: eventData.start,
+                    end: eventData.end
+                };
+            },
+            height: '100%',
+            headerToolbar: false
+        });
+        calendar.render();
+    }
+
+    // ÖVRIG LOGIK
     const quotes = [
         { text: "Ditt liv är vad dina tankar gör det till.", author: "Marcus Aurelius" },
-        { text: "Lycka är inte något färdigt. Det kommer från dina egna handlingar.", author: "Dalai Lama" },
-        { text: "Den som har ett 'varför' att leva för kan uthärda nästan vilket 'hur' som helst.", author: "Viktor Frankl" },
-        { text: "Att känna sig själv är början på all visdom.", author: "Aristoteles" }
+        { text: "Lycka kommer från dina egna handlingar.", author: "Dalai Lama" },
+        { text: "Känn dig själv.", author: "Sokrates" }
     ];
 
     function updateQuote() {
-        const q = quotes[Math.floor(new Date().getHours() / 6) % quotes.length];
+        const q = quotes[Math.floor(new Date().getHours() / 8) % quotes.length];
         document.getElementById('quote-text').innerText = `"${q.text}"`;
         document.getElementById('quote-author').innerText = q.author;
     }
@@ -170,43 +187,22 @@
         document.getElementById('big-date').innerText = now.toLocaleDateString('sv-SE', {weekday:'long', day:'numeric', month:'long'});
     }
 
-    async function updateWeather() {
-        try {
-            const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=55.64&longitude=13.21&daily=weathercode,temperature_2m_max,temperature_2m_min&hourly=temperature_2m,weathercode&timezone=auto');
-            const data = await res.json();
-            const currH = new Date().getHours();
-            setWeatherTheme(data.hourly.weathercode[currH]);
-
-            let hHtml = '';
-            for(let i=currH; i<currH+5; i++){
-                hHtml += `<div style="text-align:center"><span style="font-size:0.7rem">${i%24}:00</span><br><i data-lucide="${data.hourly.weathercode[i]<=1?'sun':'cloud'}" style="width:20px;color:var(--accent);margin:5px 0"></i><br><b>${Math.round(data.hourly.temperature_2m[i])}°</b></div>`;
-            }
-            document.getElementById('hourly-list').innerHTML = hHtml;
-
-            let dHtml = '';
-            for(let i=1; i<4; i++){
-                const d = new Date(data.daily.time[i]).toLocaleDateString('sv-SE', {weekday:'short'});
-                dHtml += `<div class="weather-row"><span style="text-transform:capitalize">${d}</span><span><b>${Math.round(data.daily.temperature_2m_max[i])}°</b> / <small>${Math.round(data.daily.temperature_2m_min[i])}°</small></span></div>`;
-            }
-            document.getElementById('daily-list').innerHTML = dHtml;
-            lucide.createIcons();
-        } catch(e) {}
-    }
-
     document.addEventListener('DOMContentLoaded', () => {
         updateClock(); setInterval(updateClock, 1000);
         updateWeather(); setInterval(updateWeather, 1800000);
-        updateQuote(); updateFootball();
-        new FullCalendar.Calendar(document.getElementById('calendar'), {
-            initialView: 'listMonth', locale: 'sv', googleCalendarApiKey: GOOGLE_API_KEY,
-            events: { googleCalendarId: CALENDAR_ID }, height: '100%', headerToolbar: false
-        }).render();
+        updateFootball(); setInterval(updateFootball, 3600000);
+        updateQuote();
+        initCalendar();
+        lucide.createIcons();
     });
 
+    // NYHETER
     let news = []; let idx = 0;
     async function getNews() {
-        const r = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.svt.se/nyheter/rss.xml');
-        const d = await r.json(); news = d.items; rotate();
+        try {
+            const r = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.svt.se/nyheter/rss.xml');
+            const d = await r.json(); news = d.items; rotate();
+        } catch(e) {}
     }
     function rotate() {
         const c = document.getElementById('news-content'); const p = document.getElementById('news-progress');
