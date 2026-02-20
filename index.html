@@ -12,9 +12,9 @@
 
     <style>
         :root {
-            --bg-overlay: rgba(0, 0, 0, 0.7);
-            --card-bg: rgba(20, 20, 20, 0.85);
-            --card-border: rgba(255, 255, 255, 0.12);
+            --bg-overlay: rgba(0, 0, 0, 0.6);
+            --card-bg: rgba(15, 15, 15, 0.82);
+            --card-border: rgba(255, 255, 255, 0.15);
             --accent: #5e92f3;
             --bus-yellow: #ffcd00;
             --text-main: #ffffff;
@@ -23,13 +23,15 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background: url('https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
+            background-color: #000;
             background-size: cover;
+            background-position: center;
+            transition: background-image 2s ease-in-out;
             margin: 0;
             height: 100vh;
             color: var(--text-main);
             display: grid;
-            grid-template-columns: 420px 1fr 33%; /* Något bredare sidebar för luft */
+            grid-template-columns: 420px 1fr 33%;
             grid-template-rows: 1fr 110px;
             gap: 30px;
             padding: 30px;
@@ -37,80 +39,79 @@
             overflow: hidden;
         }
 
+        /* Overlay och Blur */
         body::before {
             content: "";
             position: absolute; top: 0; left: 0; right: 0; bottom: 0;
             background: var(--bg-overlay);
-            backdrop-filter: blur(12px);
+            backdrop-filter: blur(8px);
             z-index: -1;
         }
 
-        .sidebar { display: flex; flex-direction: column; gap: 25px; grid-column: 1; }
-        .center-content { display: flex; flex-direction: column; justify-content: center; align-items: center; grid-column: 2; text-align: center; }
-        .calendar-panel { grid-column: 3; height: 100%; }
+        /* Väder-effekter behållare */
+        #weather-effects {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .drop {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.4);
+            width: 2px; height: 15px;
+            animation: fall linear infinite;
+        }
+
+        .snow {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.8;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            to { transform: translateY(100vh); }
+        }
+
+        .sidebar { display: flex; flex-direction: column; gap: 25px; grid-column: 1; z-index: 10; }
+        .center-content { display: flex; flex-direction: column; justify-content: center; align-items: center; grid-column: 2; text-align: center; z-index: 10; }
+        .calendar-panel { grid-column: 3; height: 100%; z-index: 10; }
         
         .card { 
             background: var(--card-bg); 
             border: 1px solid var(--card-border); 
             border-radius: 32px; 
             padding: 30px;
-            box-shadow: 0 15px 50px rgba(0,0,0,0.5);
+            box-shadow: 0 15px 50px rgba(0,0,0,0.6);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
 
-        /* Tid & Datum Center */
-        #big-time { font-size: 8rem; font-weight: 800; line-height: 0.9; margin: 0; letter-spacing: -4px; }
-        #big-date { font-size: 2rem; color: var(--accent); margin-top: 15px; font-weight: 300; text-transform: capitalize; }
+        #big-time { font-size: 8.5rem; font-weight: 800; line-height: 0.9; margin: 0; letter-spacing: -4px; text-shadow: 0 4px 20px rgba(0,0,0,0.8); }
+        #big-date { font-size: 2.2rem; color: var(--accent); margin-top: 15px; font-weight: 300; text-transform: capitalize; }
 
-        /* Buss - Luftigare layout */
-        .bus-header { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
-        .bus-header h3 { margin: 0; font-size: 0.8rem; text-transform: uppercase; color: var(--text-dim); letter-spacing: 2px; }
-        .bus-clean-row { display: flex; align-items: center; gap: 20px; background: rgba(255,255,255,0.07); padding: 18px 25px; border-radius: 22px; }
+        .bus-clean-row { display: flex; align-items: center; gap: 20px; background: rgba(255,255,255,0.08); padding: 18px 25px; border-radius: 22px; }
         .bus-number { background: var(--bus-yellow); color: #000; font-weight: 800; padding: 4px 12px; border-radius: 10px; font-size: 1rem; }
         .bus-times-wrapper { display: flex; gap: 15px; font-size: 1.3rem; font-weight: 600; color: var(--accent); }
-        .bus-time-next::after { content: "•"; margin-left: 15px; color: rgba(255,255,255,0.15); }
-        .bus-time-next:last-child::after { content: ""; }
 
-        /* Väder - 30% Större */
         .weather-section-title { font-size: 0.85rem; text-transform: uppercase; color: var(--text-dim); margin-bottom: 20px; letter-spacing: 1.5px; }
-        .hourly-container { 
-            display: flex; 
-            justify-content: space-between; 
-            padding-bottom: 25px; 
-            border-bottom: 1px solid var(--card-border); 
-            margin-bottom: 25px; 
-        }
-        .hourly-item { display: flex; flex-direction: column; align-items: center; }
-        .hourly-time { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 8px; }
-        .hourly-temp { font-size: 1.2rem; font-weight: 700; }
-        .hourly-icon { width: 24px !important; height: 24px !important; color: var(--accent); margin: 8px 0; }
+        .hourly-container { display: flex; justify-content: space-between; padding-bottom: 25px; border-bottom: 1px solid var(--card-border); margin-bottom: 25px; }
+        .weather-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; font-size: 1.2rem; }
 
-        .daily-list { display: flex; flex-direction: column; gap: 12px; }
-        .weather-row { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center;
-            padding: 10px 0; 
-            font-size: 1.2rem; /* Större text för prognos */
-        }
-        .weather-row b { font-weight: 700; }
-        .weather-row small { font-size: 0.9rem; color: var(--text-dim); margin-left: 5px; }
-
-        /* Kalender */
-        #calendar-container { height: 100%; }
-        .fc-list-day-cushion { background: rgba(255,255,255,0.1) !important; padding: 15px !important; }
-        .fc-list-event-title { font-size: 1.1rem !important; }
-
-        /* Nyheter */
-        #news-card { grid-column: 1 / 4; grid-row: 2; display: flex; align-items: center; padding: 0 50px; }
-        #news-content { font-size: 1.5rem; font-weight: 400; }
+        #news-card { grid-column: 1 / 4; grid-row: 2; display: flex; align-items: center; padding: 0 50px; z-index: 10; }
+        #news-content { font-size: 1.5rem; }
+        .progress-bar { position: absolute; bottom: 0; left: 0; height: 6px; background: var(--accent); width: 0%; }
     </style>
 </head>
 <body>
 
+<div id="weather-effects"></div>
+
 <div class="sidebar">
     <div class="card">
-        <div class="bus-header">
-            <h3>Tingsvägen ➞ Lund</h3>
+        <div class="bus-header" style="display:flex; align-items:center; gap:12px; margin-bottom:15px;">
+            <h3 style="margin:0; font-size:0.8rem; text-transform:uppercase; color:var(--text-dim);">Tingsvägen ➞ Lund</h3>
             <i data-lucide="bus" style="width:18px; color:var(--bus-yellow)"></i>
         </div>
         <div class="bus-clean-row">
@@ -122,10 +123,8 @@
     </div>
     
     <div class="card">
-        <div class="weather-section-title">Nästa 6 timmar</div>
+        <div class="weather-section-title">Prognos Staffanstorp</div>
         <div id="hourly-list" class="hourly-container"></div>
-        
-        <div class="weather-section-title">Veckans prognos</div>
         <div id="daily-list" class="daily-list"></div>
     </div>
 </div>
@@ -133,26 +132,81 @@
 <div class="center-content">
     <div id="big-time">00:00</div>
     <div id="big-date">Laddar...</div>
-    <div style="margin-top: 50px; color: var(--text-dim); font-size: 1.2rem; font-style: italic; font-weight: 300; opacity: 0.6;">
-        Staffanstorp
+    <div id="weather-status-text" style="margin-top: 50px; color: var(--text-dim); font-size: 1.4rem; font-weight: 300; opacity: 0.8;">
+        Välkommen hem
     </div>
 </div>
 
 <div class="calendar-panel">
-    <div class="card" id="calendar-container">
+    <div class="card" style="height:100%">
         <div id="calendar"></div>
     </div>
 </div>
 
 <div class="card" id="news-card">
-    <div id="news-content">Hämtar senaste nytt...</div>
-    <div id="news-progress" class="progress-bar" style="position: absolute; bottom: 0; left: 0; height: 5px; background: var(--accent); width: 0%;"></div>
+    <div id="news-content">Hämtar nyheter...</div>
+    <div id="news-progress" class="progress-bar"></div>
 </div>
 
 <script>
     const GOOGLE_API_KEY = 'AIzaSyAC3QiGhqOM2F2ZrnFq3xWUu6_1bAwOvSw';
     const CALENDAR_ID = 'rezgarhayder@gmail.com';
 
+    // 1. DYNAMISK BAKGRUND & EFFEKTER
+    function setWeatherTheme(code) {
+        const body = document.body;
+        const effects = document.getElementById('weather-effects');
+        const statusText = document.getElementById('weather-status-text');
+        effects.innerHTML = ''; // Rensa gamla effekter
+
+        let bgUrl = "";
+        let effectType = null;
+
+        if (code <= 1) { // Soligt
+            bgUrl = "https://images.unsplash.com/photo-1470252649358-96753a782901?auto=format&fit=crop&w=1920&q=80";
+            statusText.innerText = "Det ser ut att bli en solig dag";
+        } else if (code <= 3) { // Molnigt
+            bgUrl = "https://images.unsplash.com/photo-1534088568595-a066f410bcda?auto=format&fit=crop&w=1920&q=80";
+            statusText.innerText = "Lite moln över Staffanstorp";
+        } else if (code >= 51 && code <= 67) { // Regn
+            bgUrl = "https://images.unsplash.com/photo-1534274988757-a28bf1f539cf?auto=format&fit=crop&w=1920&q=80";
+            statusText.innerText = "Kom ihåg paraplyet idag";
+            effectType = 'rain';
+        } else if (code >= 71 && code <= 77) { // Snö
+            bgUrl = "https://images.unsplash.com/photo-1483664852095-d6cc6870702d?auto=format&fit=crop&w=1920&q=80";
+            statusText.innerText = "Snön faller fint ute";
+            effectType = 'snow';
+        } else { // Annat/Oväder
+            bgUrl = "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=1920&q=80";
+            statusText.innerText = "Ha en fin dag";
+        }
+
+        body.style.backgroundImage = `url('${bgUrl}')`;
+
+        if (effectType === 'rain') {
+            for(let i=0; i<50; i++) {
+                let drop = document.createElement('div');
+                drop.className = 'drop';
+                drop.style.left = Math.random() * 100 + 'vw';
+                drop.style.animationDuration = (Math.random() * 0.5 + 0.5) + 's';
+                drop.style.animationDelay = Math.random() * 2 + 's';
+                effects.appendChild(drop);
+            }
+        } else if (effectType === 'snow') {
+            for(let i=0; i<50; i++) {
+                let flake = document.createElement('div');
+                flake.className = 'snow';
+                let size = Math.random() * 5 + 2 + 'px';
+                flake.style.width = size; flake.style.height = size;
+                flake.style.left = Math.random() * 100 + 'vw';
+                flake.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                flake.style.animationDelay = Math.random() * 2 + 's';
+                effects.appendChild(flake);
+            }
+        }
+    }
+
+    // 2. KLOCKA
     function updateClock() {
         const now = new Date();
         document.getElementById('big-time').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
@@ -160,25 +214,23 @@
     }
     setInterval(updateClock, 1000); updateClock();
 
-    function updateBuses() {
-        const times = ["4 min", "18 min", "33 min"]; 
-        document.getElementById('bus-times').innerHTML = times.map(t => `<span class="bus-time-next">${t}</span>`).join('');
-    }
-    updateBuses();
-
+    // 3. VÄDER HÄMTNING
     async function updateWeather() {
         try {
             const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=55.64&longitude=13.21&daily=weathercode,temperature_2m_max,temperature_2m_min&hourly=temperature_2m,weathercode&timezone=auto');
             const data = await res.json();
-            const currH = new Date().getHours();
             
+            // Sätt tema baserat på nuvarande väderkod
+            setWeatherTheme(data.hourly.weathercode[new Date().getHours()]);
+
             let hHtml = '';
+            const currH = new Date().getHours();
             for(let i=currH; i<currH+6; i++){
                 const icon = data.hourly.weathercode[i] <= 1 ? 'sun' : data.hourly.weathercode[i] <= 3 ? 'cloud-sun' : 'cloud';
                 hHtml += `<div class="hourly-item">
                     <span class="hourly-time">${i%24}:00</span>
-                    <i data-lucide="${icon}" class="hourly-icon"></i>
-                    <span class="hourly-temp">${Math.round(data.hourly.temperature_2m[i])}°</span>
+                    <i data-lucide="${icon}" class="hourly-icon" style="width:24px;margin:8px 0;color:var(--accent)"></i>
+                    <span class="hourly-temp" style="font-size:1.2rem;font-weight:700">${Math.round(data.hourly.temperature_2m[i])}°</span>
                 </div>`;
             }
             document.getElementById('hourly-list').innerHTML = hHtml;
@@ -191,7 +243,7 @@
                     <span style="text-transform: capitalize;">${d}</span>
                     <div style="display:flex; align-items:center; gap:15px;">
                         <i data-lucide="${icon}" style="width:20px; color:var(--text-dim)"></i>
-                        <span><b>${Math.round(data.daily.temperature_2m_max[i])}°</b><small>/ ${Math.round(data.daily.temperature_2m_min[i])}°</small></span>
+                        <span><b>${Math.round(data.daily.temperature_2m_max[i])}°</b><small style="font-size:0.9rem;color:var(--text-dim)">/ ${Math.round(data.daily.temperature_2m_min[i])}°</small></span>
                     </div>
                 </div>`;
             }
@@ -200,15 +252,24 @@
         } catch(e) { console.log(e); }
     }
     updateWeather();
+    setInterval(updateWeather, 1800000);
 
+    // 4. BUSSAR (Mock)
+    function updateBuses() {
+        const times = ["3 min", "17 min", "32 min"]; 
+        document.getElementById('bus-times').innerHTML = times.map(t => `<span class="bus-time-next">${t}</span>`).join('');
+    }
+    updateBuses();
+
+    // 5. KALENDER
     document.addEventListener('DOMContentLoaded', () => {
         new FullCalendar.Calendar(document.getElementById('calendar'), {
             initialView: 'listMonth', locale: 'sv', googleCalendarApiKey: GOOGLE_API_KEY,
-            events: { googleCalendarId: CALENDAR_ID }, height: '100%',
-            noEventsContent: 'Inga planerade händelser'
+            events: { googleCalendarId: CALENDAR_ID }, height: '100%'
         }).render();
     });
 
+    // 6. NYHETER
     let news = []; let idx = 0;
     async function getNews() {
         try {
