@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Elite Dashboard v23</title>
+    <title>Staffanstorp Elite Dashboard v24</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;600;800&display=swap" rel="stylesheet">
     <style>
@@ -13,7 +13,7 @@
             --accent: #5e92f3;
             --text-main: #ffffff;
             --easter-gold: #ffaa33;
-            --bus-soft: rgba(226, 176, 66, 0.85);
+            --price-color: #44ff88; /* Dynamisk */
         }
 
         body {
@@ -42,7 +42,6 @@
         .event-item { display: flex; align-items: center; gap: 20px; padding: 18px 25px; border-radius: 20px; margin-bottom: 8px; }
         .event-item.is-today { background: rgba(255,255,255,0.08); position: relative; z-index: 1; }
         
-        /* Border Beam Animation */
         .event-item.is-today::before {
             content: ""; position: absolute; inset: 0; border-radius: 20px; padding: 2px;
             background: conic-gradient(from var(--angle), transparent 70%, var(--accent), #fff, var(--accent));
@@ -55,26 +54,23 @@
         @keyframes rotate-angle { to { --angle: 360deg; } }
 
         .event-time { font-weight: 800; font-size: 2rem; color: #fff; }
-        .event-day { font-size: 0.9rem; font-weight: 800; color: var(--accent); text-transform: uppercase; }
         .event-title { font-size: 1.6rem; font-weight: 400; flex-grow: 1; }
 
-        /* Buss */
-        .bus-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 25px; background: rgba(255,255,255,0.03); border-radius: 20px; margin-bottom: 6px; }
-        .bus-time { font-size: 2.2rem; font-weight: 300; color: var(--bus-soft); letter-spacing: -1px; }
+        /* ELPRIS-MÄTARE */
+        .energy-display { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; }
+        .price-value { font-size: 3.8rem; font-weight: 200; line-height: 1; color: var(--price-color); }
+        .price-unit { font-size: 1rem; opacity: 0.5; font-weight: 800; letter-spacing: 2px; margin-top: 5px; }
+        .gauge-container { width: 80%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; margin-top: 20px; position: relative; overflow: hidden; }
+        #gauge-fill { height: 100%; width: 0%; background: var(--price-color); transition: width 1s ease-in-out, background 1s; box-shadow: 0 0 15px var(--price-color); }
 
-        /* Nyheter */
-        .news-container { display: flex; align-items: center; gap: 15px; }
-        .live-dot { width: 10px; height: 10px; background: #ff4444; border-radius: 50%; animation: pulse 2s infinite; box-shadow: 0 0 10px #ff4444; }
-        @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(1.2); } 100% { opacity: 1; transform: scale(1); } }
-        #news-static { font-size: 1.3rem; transition: opacity 0.8s; }
-
-        /* Bildspel */
-        #slideshow-container { position: absolute; inset: 0; z-index: 1; }
+        /* Bildspel & Nyheter */
         .slide { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transition: opacity 2.5s; }
         .slide.active { opacity: 1; }
+        .news-container { display: flex; align-items: center; gap: 15px; }
+        .live-dot { width: 10px; height: 10px; background: #ff4444; border-radius: 50%; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
-        /* Påsklov - Justerad padding */
-        .easter-box { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid rgba(255,170,51,0.25); padding: 25px 0; }
+        /* Påsklov */
         .easter-days { font-size: 4.2rem; font-weight: 900; line-height: 0.8; margin: 12px 0; }
 
         /* Väderanimationer */
@@ -102,19 +98,23 @@
         <div id="custom-calendar-list"></div>
     </section>
     <section class="glass-panel" style="padding: 20px;">
-        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px; opacity: 0.5;">
-            <i data-lucide="bus" style="width:18px;"></i><span style="font-size: 0.8rem; letter-spacing: 2px; font-weight: 800;">174 LUND C</span>
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px; opacity: 0.5;">
+            <i data-lucide="zap" style="width:18px;"></i><span style="font-size: 0.8rem; letter-spacing: 2px; font-weight: 800;">ELPRIS SE4 / KWH</span>
         </div>
-        <div id="bus-list"></div>
+        <div class="energy-display">
+            <div id="el-price" class="price-value">--</div>
+            <div class="price-unit">ÖRE / KWH</div>
+            <div class="gauge-container"><div id="gauge-fill"></div></div>
+        </div>
     </section>
 </div>
 
 <main class="main-content glass-panel">
     <div id="slideshow-container"></div>
     <div style="position: absolute; inset: 0; background: linear-gradient(transparent 50%, rgba(0,0,0,0.6)); z-index: 2;"></div>
-    <div class="quote-overlay" style="position: absolute; bottom: 35px; left: 50%; transform: translateX(-50%); z-index: 10; width: 85%; text-align: center; background: rgba(0,0,0,0.3); backdrop-filter: blur(12px); padding: 25px; border-radius: 25px; border: 1px solid rgba(255,255,255,0.05);">
-        <div id="quote-text" style="font-size: 1.4rem; font-style: italic; font-weight: 300; margin-bottom: 8px; line-height: 1.4;">"Laddar visdom..."</div>
-        <div id="quote-author" style="font-size: 0.8rem; color: var(--accent); letter-spacing: 3px; text-transform: uppercase; font-weight: 600;">--</div>
+    <div class="quote-overlay" style="position: absolute; bottom: 35px; left: 50%; transform: translateX(-50%); z-index: 10; width: 85%; text-align: center; background: rgba(0,0,0,0.3); backdrop-filter: blur(12px); padding: 25px; border-radius: 25px;">
+        <div id="quote-text" style="font-size: 1.4rem; font-style: italic; font-weight: 300; margin-bottom: 8px;">"Laddar visdom..."</div>
+        <div id="quote-author" style="font-size: 0.8rem; color: var(--accent); letter-spacing: 3px; text-transform: uppercase;">--</div>
     </div>
 </main>
 
@@ -125,7 +125,7 @@
 </div>
 
 <div style="grid-column: 2/3; grid-row: 3/4; display: flex; gap: 15px;">
-    <div class="glass-panel easter-box">
+    <div class="glass-panel" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid rgba(255,170,51,0.25); padding: 25px 0;">
         <div style="font-size: 1.1rem; letter-spacing: 4px; color: var(--easter-gold); font-weight: 800;">PÅSKLOV OM</div>
         <div id="countdown" class="easter-days">00</div>
         <div style="font-size: 1rem; letter-spacing: 3px; font-weight: 600; opacity: 0.8;">DAGAR</div>
@@ -138,54 +138,40 @@
 <script>
     const API_KEY = 'AIzaSyAC3QiGhqOM2F2ZrnFq3xWUu6_1bAwOvSw';
     const CAL_ID = 'rezgarhayder@gmail.com';
-    
     const quotes = [
         { text: "Lyckan beror på kvaliteten av dina tankar.", author: "Marcus Aurelius" },
         { text: "Vi lider mer i fantasin än i verkligheten.", author: "Seneca" },
-        { text: "Din vision blir klar endast när du ser in i ditt hjärta.", author: "Carl Jung" },
         { text: "Den som har ett 'varför' kan uthärda nästan vilket 'hur' som helst.", author: "Friedrich Nietzsche" },
         { text: "Du har makt över ditt sinne – inte över yttre händelser.", author: "Marcus Aurelius" },
-        { text: "Att vara sig själv i en värld som ständigt försöker göra dig till något annat är den största prestationen.", author: "Ralph Waldo Emerson" },
-        { text: "Livet är det som händer medan du är upptagen med att göra andra planer.", author: "John Lennon" },
-        { text: "Svårigheter stärker sinnet, liksom arbete stärker kroppen.", author: "Seneca" },
-        { text: "Allt vi ser eller verkar vara är bara en dröm i en dröm.", author: "Edgar Allan Poe" },
-        { text: "Den enda sanna visdomen är att veta att du ingenting vet.", author: "Sokrates" },
-        { text: "Det är inte döden man ska frukta, utan att man aldrig börjar leva.", author: "Marcus Aurelius" },
-        { text: "Välj ett jobb du älskar, och du kommer aldrig att behöva arbeta en dag i ditt liv.", author: "Konfucius" },
         { text: "Varje ögonblick är en ny början.", author: "T.S. Eliot" },
-        { text: "Det förflutna kan göra ont. Men så som jag ser det kan du antingen springa ifrån det eller lära dig av det.", author: "Rafiki" },
-        { text: "Slösa inte mer tid på att diskutera vad en bra människa bör vara. Var en.", author: "Marcus Aurelius" },
-        { text: "Inget är så enkelt att det inte blir svårt om du gör det motvilligt.", author: "Terentius" },
-        { text: "Lyckan är inte något färdigt. Den kommer från dina egna handlingar.", author: "Dalai Lama" },
-        { text: "Ett liv utan undersökning är inte värt att leva.", author: "Sokrates" },
-        { text: "Hinder är de skrämmande saker du ser när du tar ögonen från ditt mål.", author: "Henry Ford" },
-        { text: "Gör det du kan, där du är, med det du har.", author: "Theodore Roosevelt" },
-        { text: "Människan lider bara för att hon tar på allvar det gudarna skapade för skojs skull.", author: "Alan Watts" },
-        { text: "Ingen människa går i samma flod två gånger.", author: "Herakleitos" },
-        { text: "Det finns inget gott eller ont, men tänkandet gör det så.", author: "William Shakespeare" },
-        { text: "Mitten av varje svårighet ligger möjligheten.", author: "Albert Einstein" },
-        { text: "Den som är nöjd med det lilla har mest rikedom.", author: "Sokrates" },
-        { text: "Vi är vad vi ständigt gör. Excellens är därför inte en handling, utan en vana.", author: "Aristoteles" },
-        { text: "Det viktigaste är att inte sluta ställa frågor.", author: "Albert Einstein" }
+        { text: "Slösa inte mer tid på att diskutera vad en bra människa bör vara. Var en.", author: "Marcus Aurelius" }
     ];
 
-    async function updateSlide() {
-        const container = document.getElementById('slideshow-container');
-        const url = `https://picsum.photos/seed/${Math.random()}/1200/800`;
-        const newSlide = document.createElement('div');
-        newSlide.className = 'slide';
-        newSlide.style.backgroundImage = `url('${url}')`;
-        container.appendChild(newSlide);
-        const img = new Image(); img.src = url;
-        img.onload = () => {
-            const active = container.querySelector('.slide.active');
-            if(active) active.classList.remove('active');
-            newSlide.classList.add('active');
-            const q = quotes[Math.floor(Math.random()*quotes.length)];
-            document.getElementById('quote-text').innerText = `"${q.text}"`;
-            document.getElementById('quote-author').innerText = q.author;
-            setTimeout(() => { container.querySelectorAll('.slide:not(.active)').forEach(s => s.remove()); }, 2500);
-        };
+    async function updateElpris() {
+        try {
+            // Hämtar data för SE4 (Malmö/Skåne)
+            const today = new Date();
+            const dateStr = today.toISOString().split('T')[0];
+            const [y, m, d] = dateStr.split('-');
+            const res = await fetch(`https://www.elprisetjustnu.se/api/v1/prices/${y}/${m}-${d}_SE4.json`);
+            const data = await res.json();
+            const currentHour = today.getHours();
+            const priceKwh = data[currentHour].SEK_per_kWh * 100 * 1.25; // Inkl moms, öre
+            const price = Math.round(priceKwh);
+
+            const elEl = document.getElementById('el-price');
+            const fillEl = document.getElementById('gauge-fill');
+            elEl.innerText = price;
+
+            // Färglogik och Mätar-fyllning (0-300 öre skala)
+            let color = '#44ff88'; // Grön
+            if (price > 100) color = '#ffcc33'; // Gul
+            if (price > 200) color = '#ff4444'; // Röd
+            
+            document.documentElement.style.setProperty('--price-color', color);
+            const percent = Math.min((price / 300) * 100, 100);
+            fillEl.style.width = percent + '%';
+        } catch(e) { console.error("Elpris fel", e); }
     }
 
     async function updateWeather() {
@@ -196,12 +182,12 @@
             const code = data.hourly.weathercode[hIdx];
             document.querySelectorAll('.snow-flake, .rain-drop').forEach(el => el.remove());
             if (code >= 51) {
-                for(let i=0; i<30; i++) {
+                for(let i=0; i<40; i++) {
                     let f = document.createElement('div');
                     f.className = (code >= 71 && code <= 77) ? 'snow-flake' : 'rain-drop';
                     if(code >= 71) f.innerHTML = '•';
                     f.style.left = Math.random() * 100 + 'vw';
-                    f.style.animationDuration = (Math.random() * 5 + 2) + 's';
+                    f.style.animationDuration = (Math.random() * 3 + 1) + 's';
                     document.body.appendChild(f);
                 }
             }
@@ -218,18 +204,34 @@
         } catch(e) {}
     }
 
+    async function updateSlide() {
+        const container = document.getElementById('slideshow-container');
+        const url = `https://picsum.photos/seed/${Math.random()}/1200/800`;
+        const newSlide = document.createElement('div');
+        newSlide.className = 'slide'; newSlide.style.backgroundImage = `url('${url}')`;
+        container.appendChild(newSlide);
+        const img = new Image(); img.src = url;
+        img.onload = () => {
+            const active = container.querySelector('.slide.active');
+            if(active) active.classList.remove('active');
+            newSlide.classList.add('active');
+            const q = quotes[Math.floor(Math.random()*quotes.length)];
+            document.getElementById('quote-text').innerText = `"${q.text}"`;
+            document.getElementById('quote-author').innerText = q.author;
+            setTimeout(() => { container.querySelectorAll('.slide:not(.active)').forEach(s => s.remove()); }, 2500);
+        };
+    }
+
     async function updateNews() {
         try {
             const r = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.svt.se/nyheter/rss.xml');
             const d = await r.json();
-            let items = d.items.map(i => i.title);
-            let idx = 0;
+            let items = d.items.map(i => i.title), idx = 0;
             const rotate = () => {
                 const el = document.getElementById('news-static');
                 el.style.opacity = 0;
                 setTimeout(() => {
-                    el.innerText = items[idx].toUpperCase();
-                    el.style.opacity = 1;
+                    el.innerText = items[idx].toUpperCase(); el.style.opacity = 1;
                     idx = (idx + 1) % items.length;
                 }, 800);
             };
@@ -275,18 +277,11 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-        updateTime(); updateWeather(); updateCalendar(); updateNews(); updateSlide(); updateHistory();
+        updateTime(); updateWeather(); updateCalendar(); updateNews(); updateSlide(); updateHistory(); updateElpris();
         setInterval(updateTime, 60000);
         setInterval(updateWeather, 600000);
         setInterval(updateSlide, 60000);
-        setInterval(() => {
-            const now = new Date();
-            let dep = [15, 35, 55].map(m => {
-                let d = new Date(); d.setMinutes(m); if(d<now) d.setHours(now.getHours()+1);
-                return d.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
-            }).sort();
-            document.getElementById('bus-list').innerHTML = dep.map(t => `<div class="bus-row"><span style="font-size:0.9rem; opacity:0.5;">LUND C</span><span class="bus-time">${t}</span></div>`).join('');
-        }, 1000);
+        setInterval(updateElpris, 1800000); // Varje 30 min
     });
 </script>
 </body>
