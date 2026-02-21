@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Elite Dashboard v14</title>
+    <title>Staffanstorp Elite Dashboard v15</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
@@ -34,27 +34,37 @@
         .weather-node div:first-child { font-size: 0.7rem; opacity: 0.6; }
         .weather-node div:last-child { font-weight: 800; font-size: 1.1rem; }
 
-        /* Sidebar */
-        .sidebar-container { grid-column: 1/2; grid-row: 2/3; display: grid; grid-template-rows: 1fr 220px; gap: 20px; }
+        /* Sidebar - Justerad fördelning */
+        .sidebar-container { grid-column: 1/2; grid-row: 2/3; display: grid; grid-template-rows: 1fr 280px; gap: 20px; }
         
-        /* Kalender - Återställd storlek */
-        .event-item { display: flex; align-items: center; gap: 15px; padding: 15px; border-radius: 15px; margin-bottom: 8px; }
+        /* Kalender */
+        .event-item { display: flex; align-items: center; gap: 15px; padding: 12px; border-radius: 15px; margin-bottom: 5px; }
         .event-item.is-today { background: rgba(255,255,255,0.08); border-left: 4px solid var(--accent); }
-        .event-time { font-weight: 800; font-size: 1.6rem; color: var(--accent); min-width: 75px; }
-        .event-title { font-size: 1.3rem; font-weight: 400; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .event-time { font-weight: 800; font-size: 1.4rem; color: var(--accent); min-width: 65px; }
+        .event-title { font-size: 1.2rem; font-weight: 400; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        /* Buss */
-        .bus-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; background: rgba(255,255,255,0.05); border-radius: 15px; margin-bottom: 8px; }
-        .bus-time { font-size: 1.8rem; font-weight: 800; color: #ffcc33; }
+        /* Buss - Högre fält */
+        .bus-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: rgba(255,255,255,0.05); border-radius: 18px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.05); }
+        .bus-time { font-size: 2rem; font-weight: 800; color: #ffcc33; }
 
         /* Main & Bildspel */
         #slideshow-container { position: absolute; inset: 0; z-index: 1; }
-        .slide { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transition: opacity 2s; }
+        .slide { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transition: opacity 2.5s ease-in-out; }
         .slide.active { opacity: 1; }
+
+        /* Citat-fält (Subtelt i bildspel) */
+        .quote-overlay {
+            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+            z-index: 10; width: 80%; text-align: center;
+            background: rgba(0,0,0,0.3); backdrop-filter: blur(5px);
+            padding: 15px 30px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05);
+        }
+        #quote-text { font-size: 1.1rem; font-style: italic; font-weight: 300; margin-bottom: 5px; color: rgba(255,255,255,0.9); }
+        #quote-author { font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); opacity: 0.8; }
 
         /* Ticker */
         .ticker-wrap { width: 100%; overflow: hidden; white-space: nowrap; }
-        .ticker-content { display: inline-block; animation: ticker 60s linear infinite; font-size: 1.2rem; }
+        .ticker-content { display: inline-block; animation: ticker 70s linear infinite; font-size: 1.1rem; }
         @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
     </style>
 </head>
@@ -62,27 +72,27 @@
 
 <header class="top-bar glass-panel">
     <div>
-        <div id="mini-date" style="font-size: 1rem; color: var(--accent); text-transform: uppercase; letter-spacing: 1px;">Laddar...</div>
+        <div id="mini-date" style="font-size: 0.9rem; color: var(--accent); text-transform: uppercase; letter-spacing: 1px;">Laddar...</div>
         <div id="mini-clock" style="font-size: 3rem; font-weight: 800; line-height: 1;">00:00</div>
     </div>
     <div id="header-hourly"></div>
     <div style="text-align: right;">
         <div id="tom-temp" style="font-weight: 800; font-size: 1.4rem;">--°</div>
-        <div style="font-size: 0.7rem; opacity: 0.6; letter-spacing: 1px;">IMORGON</div>
+        <div style="font-size: 0.6rem; opacity: 0.6; letter-spacing: 2px;">IMORGON</div>
     </div>
 </header>
 
 <div class="sidebar-container">
-    <section class="glass-panel" style="padding: 25px;">
-        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px; opacity: 0.5;">
-            <i data-lucide="calendar"></i><span style="font-size: 0.7rem; letter-spacing: 2px; font-weight: 800;">SCHEMA</span>
+    <section class="glass-panel" style="padding: 20px;">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px; opacity: 0.5;">
+            <i data-lucide="calendar" style="width:16px;"></i><span style="font-size: 0.6rem; letter-spacing: 2px; font-weight: 800;">SCHEMA</span>
         </div>
         <div id="custom-calendar-list"></div>
     </section>
 
-    <section class="glass-panel" style="padding: 25px;">
+    <section class="glass-panel" style="padding: 20px;">
         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px; opacity: 0.5;">
-            <i data-lucide="bus"></i><span style="font-size: 0.7rem; letter-spacing: 2px; font-weight: 800;">166 LUND (TINGVÄGEN)</span>
+            <i data-lucide="bus" style="width:16px;"></i><span style="font-size: 0.6rem; letter-spacing: 2px; font-weight: 800;">166 LUND (TINGVÄGEN)</span>
         </div>
         <div id="bus-list"></div>
     </section>
@@ -90,7 +100,12 @@
 
 <main class="main-content glass-panel">
     <div id="slideshow-container"></div>
-    <div style="position: absolute; inset: 0; background: linear-gradient(transparent 60%, rgba(0,0,0,0.8)); z-index: 2;"></div>
+    <div style="position: absolute; inset: 0; background: linear-gradient(transparent 50%, rgba(0,0,0,0.6)); z-index: 2;"></div>
+    
+    <div class="quote-overlay">
+        <div id="quote-text">"Det är inte för att saker är svåra som vi inte vågar, det är för att vi inte vågar som de är svåra."</div>
+        <div id="quote-author">Seneca</div>
+    </div>
 </main>
 
 <div style="grid-column: 1/2; grid-row: 3/4;">
@@ -102,12 +117,12 @@
 <div style="grid-column: 2/3; grid-row: 3/4; display: flex; gap: 20px;">
     <div class="glass-panel" style="flex: 0.8; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,170,51,0.2);">
         <div style="text-align:center;">
-            <div style="font-size: 0.6rem; letter-spacing: 2px; color: #ffaa33; margin-bottom: 5px;">PÅSKLOV OM</div>
+            <div style="font-size: 0.5rem; letter-spacing: 2px; color: #ffaa33; margin-bottom: 5px;">PÅSKLOV OM</div>
             <div id="countdown" style="font-size: 1.8rem; font-weight: 800;">00:00:00</div>
         </div>
     </div>
     <div class="glass-panel" style="flex: 1.2; padding: 25px; display: flex; align-items: center;">
-        <div id="history-fact" style="font-size: 1rem; line-height: 1.4; font-weight: 300;">Hämtar historiska händelser...</div>
+        <div id="history-fact" style="font-size: 0.95rem; line-height: 1.4; font-weight: 300; opacity: 0.9;">Hämtar historiska händelser...</div>
     </div>
 </div>
 
@@ -115,13 +130,22 @@
     const API_KEY = 'AIzaSyAC3QiGhqOM2F2ZrnFq3xWUu6_1bAwOvSw';
     const CAL_ID = 'rezgarhayder@gmail.com';
 
+    const quotes = [
+        { text: "Lyckan beror på kvaliteten av dina tankar.", author: "Marcus Aurelius" },
+        { text: "Den som har ett 'varför' att leva för kan uthärda nästan vilket 'hur' som helst.", author: "Friedrich Nietzsche" },
+        { text: "Din vision blir klar endast när du kan se in i ditt eget hjärta.", author: "Carl Jung" },
+        { text: "Vi lider mer i fantasin än i verkligheten.", author: "Seneca" },
+        { text: "Det oforskade livet är inte värt att leva.", author: "Sokrates" },
+        { text: "Människan lider bara för att hon tar på allvar det gudarna skapade för skojs skull.", author: "Alan Watts" },
+        { text: "Allt som irriterar oss hos andra kan leda till en förståelse av oss själva.", author: "Carl Jung" },
+        { text: "Du har makt över ditt sinne – inte över yttre händelser. Inse detta, och du kommer att finna styrka.", author: "Marcus Aurelius" }
+    ];
+
     async function updateWeather() {
         try {
             const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=55.64&longitude=13.21&daily=weathercode,temperature_2m_max&hourly=temperature_2m,weathercode&timezone=auto');
             const data = await res.json();
             const hIdx = new Date().getHours();
-            
-            // Header Hourly
             let hHtml = '';
             for(let i=1; i<=6; i++) {
                 const idx = hIdx + i;
@@ -139,10 +163,10 @@
         const now = new Date();
         let times = [];
         for(let i=0; i<3; i++) {
-            let busTime = new Date(now.getTime() + (15 + i*20) * 60000);
+            let busTime = new Date(now.getTime() + (12 + i*20) * 60000);
             times.push(busTime.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'}));
         }
-        document.getElementById('bus-list').innerHTML = times.map(t => `<div class="bus-row"><span style="font-size:1rem;opacity:0.6">Mot Lund</span><span class="bus-time">${t}</span></div>`).join('');
+        document.getElementById('bus-list').innerHTML = times.map(t => `<div class="bus-row"><span style="font-size:0.9rem;opacity:0.5;font-weight:600">MOT LUND</span><span class="bus-time">${t}</span></div>`).join('');
     }
 
     async function updateCalendar() {
@@ -150,7 +174,7 @@
             const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CAL_ID)}/events?key=${API_KEY}&timeMin=${new Date().toISOString()}&singleEvents=true&orderBy=startTime`);
             const data = await res.json();
             if (data.items) {
-                document.getElementById('custom-calendar-list').innerHTML = data.items.slice(0, 5).map(event => {
+                document.getElementById('custom-calendar-list').innerHTML = data.items.slice(0, 4).map(event => {
                     const start = new Date(event.start.dateTime || event.start.date);
                     const isToday = start.toDateString() === new Date().toDateString();
                     return `<div class="event-item ${isToday ? 'is-today' : ''}"><div class="event-time">${event.start.dateTime ? start.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'}) : 'DAG'}</div><div class="event-title">${event.summary}</div></div>`;
@@ -159,22 +183,10 @@
         } catch (e) {}
     }
 
-    async function updateHistory() {
-        try {
-            const res = await fetch(`https://en.wikipedia.org/api/rest_v1/feed/onthisday/events/${new Date().getMonth()+1}/${new Date().getDate()}`);
-            const data = await res.json();
-            const event = data.events[Math.floor(Math.random() * 5)];
-            document.getElementById('history-fact').innerHTML = `<b style="color:var(--accent)">${event.year}:</b> ${event.text}`;
-        } catch(e) {}
-    }
-
-    async function getNews() {
-        try {
-            const r = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.svt.se/nyheter/rss.xml');
-            const d = await r.json();
-            const titles = d.items.map(i => `<span style="padding:0 40px">• ${i.title.toUpperCase()}</span>`).join('');
-            document.getElementById('ticker-content').innerHTML = titles + titles;
-        } catch(e) {}
+    function rotateQuote() {
+        const quote = quotes[Math.floor(Math.random() * quotes.length)];
+        document.getElementById('quote-text').innerText = `"${quote.text}"`;
+        document.getElementById('quote-author').innerText = quote.author;
     }
 
     async function updateSlide() {
@@ -189,8 +201,18 @@
             const active = container.querySelector('.slide.active');
             if(active) active.classList.remove('active');
             newSlide.classList.add('active');
-            setTimeout(() => { container.querySelectorAll('.slide:not(.active)').forEach(s => s.remove()); }, 2000);
+            rotateQuote();
+            setTimeout(() => { container.querySelectorAll('.slide:not(.active)').forEach(s => s.remove()); }, 2500);
         };
+    }
+
+    async function getNews() {
+        try {
+            const r = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.svt.se/nyheter/rss.xml');
+            const d = await r.json();
+            const titles = d.items.map(i => `<span style="padding:0 50px">• ${i.title.toUpperCase()}</span>`).join('');
+            document.getElementById('ticker-content').innerHTML = titles + titles;
+        } catch(e) {}
     }
 
     function updateTime() {
@@ -209,7 +231,15 @@
         updateWeather(); setInterval(updateWeather, 600000);
         updateCalendar(); setInterval(updateCalendar, 600000);
         updateBus(); setInterval(updateBus, 60000);
-        updateHistory(); getNews(); updateSlide(); setInterval(updateSlide, 60000);
+        updateSlide(); setInterval(updateSlide, 60000);
+        getNews(); setInterval(getNews, 1800000);
+        
+        // Wikipedia History
+        fetch(`https://en.wikipedia.org/api/rest_v1/feed/onthisday/events/${new Date().getMonth()+1}/${new Date().getDate()}`)
+            .then(r => r.json()).then(d => {
+                const e = d.events[Math.floor(Math.random() * 5)];
+                document.getElementById('history-fact').innerHTML = `<b style="color:var(--accent)">${e.year}:</b> ${e.text}`;
+            });
     });
 </script>
 </body>
