@@ -3,16 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Elite v37 - SkyScan</title>
+    <title>Staffanstorp Command Center v38 - The Full Package</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
             --glass-bg: rgba(10, 10, 10, 0.85);
-            --glass-border: rgba(255, 255, 255, 0.3);
+            --glass-border: rgba(255, 255, 255, 0.25);
             --accent: #5e92f3;
             --text-main: #ffffff;
             --radar-green: #00ff66;
+            --easter-gold: #ffaa33;
         }
 
         * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
@@ -20,7 +21,7 @@
             font-family: 'Inter', sans-serif; background-color: #000; margin: 0; 
             height: 100vh; width: 100vw; color: var(--text-main);
             display: grid; grid-template-columns: 520px 1fr; 
-            grid-template-rows: 14vh minmax(0, 1fr) 12vh;
+            grid-template-rows: 15vh minmax(0, 1fr) 12vh;
             gap: 15px; padding: 15px; overflow: hidden;
         }
 
@@ -30,37 +31,56 @@
             position: relative; overflow: hidden;
         }
 
-        /* Radar Animation */
-        .radar-box { position: relative; width: 100px; height: 100px; border-radius: 50%; border: 1px solid rgba(0,255,102,0.3); background: radial-gradient(circle, rgba(0,255,102,0.1) 0%, transparent 70%); }
-        .radar-sweep { position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(from 0deg, rgba(0,255,102,0.4) 0deg, transparent 90deg); animation: rotate-radar 4s linear infinite; }
-        @keyframes rotate-radar { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        
-        /* Flight Details */
-        .flight-info { display: flex; flex-direction: column; justify-content: center; }
-        .flight-id { font-size: 1.8rem; font-weight: 900; line-height: 1; color: var(--accent); }
-        .flight-meta { font-size: 0.8rem; opacity: 0.6; text-transform: uppercase; letter-spacing: 1px; margin-top: 5px; }
-
-        /* General Layout */
+        /* Top Bar & Weather */
         .top-bar { grid-column: 1/3; display: grid; grid-template-columns: 350px 1fr 280px; align-items: center; padding: 0 40px; }
-        #header-hourly { display: flex; justify-content: space-around; border-left: 1px solid var(--glass-border); border-right: 1px solid var(--glass-border); height: 75%; }
+        #header-hourly { display: flex; justify-content: space-around; align-items: center; border-left: 1px solid var(--glass-border); border-right: 1px solid var(--glass-border); height: 70%; }
+        .weather-node { text-align: center; min-width: 65px; }
+        .w-time { font-size: 0.75rem; opacity: 0.6; font-weight: 600; }
+        .w-temp { font-weight: 800; font-size: 1.4rem; }
+        .weather-icon { width: 28px; height: 28px; color: var(--accent); margin: 2px 0; }
+
+        /* Sidebar Elements */
         .sidebar-container { grid-column: 1/2; grid-row: 2/3; display: grid; grid-template-rows: 1fr 240px; gap: 15px; min-height: 0; }
+        .event-item { display: flex; align-items: center; gap: 20px; padding: 15px 25px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 10px; }
+        .event-item.is-today { background: rgba(255,255,255,0.1); border-color: var(--accent); }
+        .event-time { font-weight: 800; font-size: 1.8rem; }
+        .event-title { font-size: 1.4rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        /* SkyScan Radar */
+        .radar-box { position: relative; width: 80px; height: 80px; border-radius: 50%; border: 1px solid rgba(0,255,102,0.2); }
+        .radar-sweep { position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(from 0deg, rgba(0,255,102,0.3) 0deg, transparent 90deg); animation: rotate-radar 4s linear infinite; }
+        @keyframes rotate-radar { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        /* Main Slideshow */
         .main-content { position: relative; }
-        #slideshow-container { position: absolute; inset: 0; background: #000; }
-        .slide { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transition: opacity 2.5s; }
+        #slideshow-container { position: absolute; inset: 0; z-index: 1; }
+        .slide { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transition: opacity 2s ease-in-out; }
         .slide.active { opacity: 1; }
+        .quote-overlay { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 10; width: 80%; text-align: center; background: rgba(0,0,0,0.5); backdrop-filter: blur(15px); padding: 25px; border-radius: 25px; border: 1px solid var(--glass-border); }
+
+        /* News Ticker */
+        .news-container { display: flex; align-items: center; gap: 15px; width: 100%; }
+        #news-text { font-size: 0.95rem; font-weight: 600; letter-spacing: 0.5px; transition: opacity 0.5s; }
+
+        /* Easter Countdown */
+        .easter-box { border: 1px solid var(--easter-gold); display: flex; flex-direction: column; justify-content: center; align-items: center; min-width: 120px; }
     </style>
 </head>
 <body>
 
 <header class="top-bar glass-panel">
     <div>
-        <div id="mini-date" style="font-size: 0.8rem; color: var(--accent); font-weight: 600;">--</div>
+        <div id="mini-date" style="font-size: 0.8rem; color: var(--accent); font-weight: 700; text-transform: uppercase;">--</div>
         <div id="mini-clock" style="font-size: 4rem; font-weight: 900; line-height: 1;">00:00</div>
     </div>
     <div id="header-hourly"></div>
-    <div class="current-details" style="text-align: right;">
-        <div style="font-size: 0.7rem; opacity: 0.5; font-weight: 800;">TOMORROW</div>
+    <div style="text-align: right;">
+        <div style="font-size: 0.7rem; opacity: 0.5; font-weight: 800;">IMORGON MAX</div>
         <div id="tom-temp" style="font-weight: 900; font-size: 2.2rem; line-height: 1;">--°</div>
+        <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 5px;">
+            <span id="cur-wind" style="font-size: 0.8rem; opacity: 0.6;">-- m/s</span>
+            <span id="cur-hum" style="font-size: 0.8rem; opacity: 0.6;">-- %</span>
+        </div>
     </div>
 </header>
 
@@ -69,82 +89,125 @@
         <div id="custom-calendar-list"></div>
     </section>
     
-    <section class="glass-panel" style="padding: 25px; display: grid; grid-template-columns: 100px 1fr; gap: 20px; align-items: center;">
+    <section class="glass-panel" style="padding: 20px; display: flex; align-items: center; gap: 20px;">
         <div class="radar-box">
             <div class="radar-sweep"></div>
-            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 4px; height: 4px; background: white; border-radius: 50%;"></div>
         </div>
-        <div class="flight-info">
-            <div style="font-size: 0.6rem; font-weight: 800; opacity: 0.5; letter-spacing: 2px;">AIRSPACE / STAFFANSTORP</div>
-            <div id="flight-callsign" class="flight-id">SCANNING</div>
-            <div id="flight-desc" class="flight-meta">Waiting for signal...</div>
-            <div id="flight-alt" style="font-size: 0.7rem; color: var(--radar-green); font-weight: 700; margin-top: 5px;">ALTITUDE: -- FT</div>
+        <div>
+            <div style="font-size: 0.6rem; font-weight: 800; opacity: 0.5; letter-spacing: 2px;">SKYSCAN STAFFANSTORP</div>
+            <div id="flight-callsign" style="font-size: 1.6rem; font-weight: 900; color: var(--accent);">SCANNING...</div>
+            <div id="flight-desc" style="font-size: 0.75rem; opacity: 0.7; white-space: nowrap;">Searching airspace</div>
+            <div id="flight-alt" style="font-size: 0.7rem; color: var(--radar-green); font-weight: 700; margin-top: 3px;">-- FT</div>
         </div>
     </section>
 </div>
 
 <main class="main-content glass-panel">
     <div id="slideshow-container"></div>
-    <div style="position: absolute; inset: 0; background: linear-gradient(transparent 50%, rgba(0,0,0,0.9));"></div>
-    <div style="position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); width: 80%; text-align: center;">
-        <div id="quote-text" style="font-size: 1.5rem; font-weight: 300; font-style: italic; opacity: 0.9;"></div>
+    <div style="position: absolute; inset: 0; background: linear-gradient(transparent 50%, rgba(0,0,0,0.8)); z-index: 2;"></div>
+    <div class="quote-overlay">
+        <div id="quote-text" style="font-size: 1.4rem; font-weight: 300; font-style: italic;">"Hämtar dagens tanke..."</div>
     </div>
 </main>
 
 <div style="grid-column: 1/2; grid-row: 3/4;">
-    <footer class="glass-panel" style="height: 100%; display: flex; align-items: center; padding: 0 30px;">
-        <div id="news-static" style="font-size: 0.9rem; font-weight: 600; letter-spacing: 1px; color: var(--accent);">STAY TUNED...</div>
+    <footer class="glass-panel" style="height: 100%; display: flex; align-items: center; padding: 0 35px;">
+        <div class="news-container">
+            <div style="width: 10px; height: 10px; background: #ff4444; border-radius: 50%; box-shadow: 0 0 10px #ff4444;"></div>
+            <div id="news-text">LADDAR NYHETER FRÅN SVT...</div>
+        </div>
     </footer>
 </div>
 
 <div style="grid-column: 2/3; grid-row: 3/4; display: flex; gap: 15px;">
-    <div class="glass-panel" style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; border: 1px solid #ffaa33;">
-        <div style="font-size: 0.7rem; font-weight: 900; color: #ffaa33;">PÅSKLOV</div>
+    <div class="glass-panel easter-box">
+        <div style="font-size: 0.65rem; font-weight: 900; color: var(--easter-gold); letter-spacing: 2px;">PÅSKLOV</div>
         <div id="countdown" style="font-size: 4rem; font-weight: 900; line-height: 1;">--</div>
     </div>
-    <div class="glass-panel" style="flex: 2; padding: 25px; display: flex; align-items: center;">
-        <div id="history-fact" style="font-size: 1rem; font-weight: 300; line-height: 1.4;"></div>
+    <div class="glass-panel" style="flex: 1; padding: 20px; display: flex; align-items: center;">
+        <div id="history-fact" style="font-size: 1rem; font-weight: 300; line-height: 1.5;">Hämtar historisk fakta...</div>
     </div>
 </div>
 
 <script>
-    // Live Flight Data (OpenSky Network - täcker Skåne/CPH bra)
+    const API_KEY = 'AIzaSyAC3QiGhqOM2F2ZrnFq3xWUu6_1bAwOvSw';
+    const CAL_ID = 'rezgarhayder@gmail.com';
+
     async function updateSkyScan() {
         try {
-            // Box för luftrummet över Staffanstorp/Lund (ca koordinater)
             const res = await fetch('https://opensky-network.org/api/states/all?lamin=55.5&lomin=13.0&lamax=55.8&lomax=13.5');
             const data = await res.json();
             if (data.states && data.states.length > 0) {
-                const flight = data.states[0]; // Ta det flygplan som är närmast
-                document.getElementById('flight-callsign').innerText = flight[1].trim() || "UNKNOWN";
-                document.getElementById('flight-desc').innerText = `Origin: ${flight[2] || 'International'}`;
-                document.getElementById('flight-alt').innerText = `ALTITUDE: ${Math.round(flight[7] * 3.28084)} FT`;
+                const flight = data.states[0];
+                document.getElementById('flight-callsign').innerText = flight[1].trim() || "N/A";
+                document.getElementById('flight-desc').innerText = `Från: ${flight[2] || 'Okänd'}`;
+                document.getElementById('flight-alt').innerText = `${Math.round(flight[7] * 3.28084)} FT`;
             } else {
                 document.getElementById('flight-callsign').innerText = "CLEAR SKY";
-                document.getElementById('flight-desc').innerText = "No aircraft detected above";
-                document.getElementById('flight-alt').innerText = "ALTITUDE: 0 FT";
+                document.getElementById('flight-desc').innerText = "Inga flygplan just nu";
             }
-        } catch(e) { console.log("SkyScan error"); }
+        } catch(e) {}
     }
 
-    // Basfunktioner
-    function updateTime() {
-        const now = new Date();
-        document.getElementById('mini-clock').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
-        document.getElementById('mini-date').innerText = now.toLocaleDateString('sv-SE', {weekday:'long', day:'numeric', month:'short'}).toUpperCase();
-        document.getElementById('countdown').innerText = Math.ceil((new Date('2026-03-30') - now) / 86400000);
+    async function updateNews() {
+        try {
+            const r = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.svt.se/nyheter/rss.xml');
+            const d = await r.json();
+            let items = d.items.map(i => i.title), idx = 0;
+            const el = document.getElementById('news-text');
+            setInterval(() => {
+                el.style.opacity = 0;
+                setTimeout(() => { el.innerText = items[idx].toUpperCase(); el.style.opacity = 1; idx = (idx + 1) % items.length; }, 500);
+            }, 8000);
+        } catch(e) {}
     }
 
     async function updateWeather() {
-        const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=55.64&longitude=13.21&hourly=temperature_2m&daily=temperature_2m_max&timezone=auto');
-        const data = await res.json();
-        document.getElementById('tom-temp').innerText = Math.round(data.daily.temperature_2m_max[1]) + '°';
-        let hHtml = '';
-        for(let i=1; i<=5; i++) {
-            const temp = Math.round(data.hourly.temperature_2m[new Date().getHours() + i]);
-            hHtml += `<div style="text-align:center"><div>${new Date().getHours()+i}:00</div><div style="font-size:1.5rem; font-weight:800;">${temp}°</div></div>`;
-        }
-        document.getElementById('header-hourly').innerHTML = hHtml;
+        try {
+            const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=55.64&longitude=13.21&current=temperature_2m,relative_humidity_2m,wind_speed_10m&hourly=temperature_2m,weathercode&daily=temperature_2m_max&timezone=auto');
+            const data = await res.json();
+            document.getElementById('cur-wind').innerText = Math.round(data.current.wind_speed_10m) + ' m/s';
+            document.getElementById('cur-hum').innerText = data.current.relative_humidity_2m + ' %';
+            document.getElementById('tom-temp').innerText = Math.round(data.daily.temperature_2m_max[1]) + '°';
+
+            const hIdx = new Date().getHours();
+            let hHtml = '';
+            for(let i=1; i<=6; i++) {
+                const idx = hIdx + i;
+                const time = new Date(data.hourly.time[idx]).getHours() + ':00';
+                const code = data.hourly.weathercode[idx];
+                const icon = code <= 3 ? 'sun' : 'cloud-rain';
+                hHtml += `<div class="weather-node"><div class="w-time">${time}</div><i data-lucide="${icon}" class="weather-icon"></i><div class="w-temp">${Math.round(data.hourly.temperature_2m[idx])}°</div></div>`;
+            }
+            document.getElementById('header-hourly').innerHTML = hHtml;
+            lucide.createIcons();
+        } catch(e) {}
+    }
+
+    async function updateCalendar() {
+        try {
+            const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CAL_ID)}/events?key=${API_KEY}&timeMin=${new Date().toISOString()}&singleEvents=true&orderBy=startTime`);
+            const data = await res.json();
+            if (data.items) {
+                document.getElementById('custom-calendar-list').innerHTML = data.items.slice(0, 4).map(event => {
+                    const start = new Date(event.start.dateTime || event.start.date);
+                    const isToday = start.toDateString() === new Date().toDateString();
+                    return `<div class="event-item ${isToday ? 'is-today' : ''}">
+                        <div style="min-width: 80px;"><div style="font-size: 0.7rem; font-weight:800; color:var(--accent);">${isToday ? 'IDAG' : start.toLocaleDateString('sv-SE', {weekday:'short', day:'numeric'})}</div>
+                        <div class="event-time">${event.start.dateTime ? start.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'}) : 'DAG'}</div></div>
+                        <div class="event-title">${event.summary}</div></div>`;
+                }).join('');
+            }
+        } catch(e) {}
+    }
+
+    async function updateHistory() {
+        try {
+            const r = await fetch(`https://en.wikipedia.org/api/rest_v1/feed/onthisday/events/${new Date().getMonth()+1}/${new Date().getDate()}`);
+            const d = await r.json();
+            const e = d.events[Math.floor(Math.random()*d.events.length)];
+            document.getElementById('history-fact').innerHTML = `<b style="color:var(--accent)">${e.year}:</b> ${e.text}`;
+        } catch(e) {}
     }
 
     async function updateSlide() {
@@ -156,13 +219,23 @@
         setTimeout(() => {
             if(container.children.length > 1) container.removeChild(container.children[0]);
             newSlide.classList.add('active');
+            fetch('https://api.quotable.io/random?maxLength=100').then(r => r.json()).then(q => {
+                document.getElementById('quote-text').innerText = `"${q.content}"`;
+            });
         }, 100);
     }
 
+    function updateTime() {
+        const now = new Date();
+        document.getElementById('mini-clock').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
+        document.getElementById('mini-date').innerText = now.toLocaleDateString('sv-SE', {weekday:'long', day:'numeric', month:'short'});
+        document.getElementById('countdown').innerText = Math.ceil((new Date('2026-03-30') - now) / 86400000);
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
-        updateTime(); updateWeather(); updateSkyScan(); updateSlide();
+        updateTime(); updateWeather(); updateCalendar(); updateNews(); updateHistory(); updateSkyScan(); updateSlide();
         setInterval(updateTime, 10000);
-        setInterval(updateSkyScan, 30000); // Flygplan uppdateras var 30:e sek
+        setInterval(updateSkyScan, 30000);
         setInterval(updateWeather, 600000);
         setInterval(updateSlide, 60000);
     });
