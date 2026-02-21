@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Elite Dashboard v33 - Mars Edition</title>
+    <title>Staffanstorp Elite Dashboard v34 - Bright Mars Edition</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
     <style>
@@ -13,7 +13,7 @@
             --accent: #5e92f3;
             --text-main: #ffffff;
             --easter-gold: #ffaa33;
-            --mars-red: #ff6644;
+            --mars-red: #ff7b5a; /* Något ljusare röd för bättre synlighet */
         }
 
         * { box-sizing: border-box; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
@@ -49,38 +49,51 @@
         .current-details { display: flex; flex-direction: column; align-items: flex-end; justify-content: center; }
         .detail-item { font-size: 0.75rem; font-weight: 600; opacity: 0.5; display: flex; align-items: center; gap: 6px; text-transform: uppercase; letter-spacing: 1px; }
 
-        /* Sidebar Elements */
+        /* Sidebar & Mars Space Tracker */
         .sidebar-container { grid-column: 1/2; grid-row: 2/3; display: grid; grid-template-rows: 1fr 240px; gap: 15px; min-height: 0; }
         .event-item { display: flex; align-items: center; gap: 20px; padding: 14px 25px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 8px; }
         .event-item.is-today { background: rgba(255,255,255,0.12); border-color: transparent; }
         .event-time { font-weight: 800; font-size: 1.9rem; }
         .event-title { font-size: 1.5rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        /* Mars Planet Animation */
-        .space-grid { display: grid; grid-template-columns: 1fr 120px; align-items: center; height: 100%; padding: 0 5px; }
-        .mars-container { position: relative; width: 100px; height: 100px; perspective: 1000px; }
+        .space-grid { display: grid; grid-template-columns: 1fr 140px; align-items: center; height: 100%; padding: 0 5px; }
+        
+        /* Den nya tydligare Mars-animeringen */
+        .mars-container { position: relative; width: 110px; height: 110px; perspective: 1000px; filter: drop-shadow(0 0 15px rgba(255,102,68,0.4)); }
         .mars-sphere { 
             width: 100%; height: 100%; border-radius: 50%; 
             background: url('https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Map_of_Mars_2010.jpg/1024px-Map_of_Mars_2010.jpg');
             background-size: 210% 100%;
-            box-shadow: inset -15px -15px 30px #000, inset 5px 5px 15px rgba(255,102,68,0.2);
-            animation: rotateMars 45s linear infinite;
+            /* Förbättrade skuggor för 3D-djup och synlighet */
+            box-shadow: 
+                inset -10px -10px 25px #000, 
+                inset 10px 10px 25px rgba(255,255,255,0.2),
+                inset 0 0 40px rgba(255,102,68,0.2);
+            animation: rotateMars 50s linear infinite;
+            filter: brightness(1.2) contrast(1.1); /* Gör ytan tydligare */
         }
         .mars-glow { 
-            position: absolute; inset: -8px; border-radius: 50%; 
-            background: radial-gradient(circle, rgba(255,102,68,0.25) 0%, transparent 70%); 
-            animation: pulseGlow 4s ease-in-out infinite; z-index: -1;
+            position: absolute; inset: -12px; border-radius: 50%; 
+            background: radial-gradient(circle, rgba(255,102,68,0.3) 0%, transparent 75%); 
+            animation: pulseGlow 5s ease-in-out infinite; z-index: -1;
         }
         @keyframes rotateMars { from { background-position: 0% 0%; } to { background-position: 200% 0%; } }
-        @keyframes pulseGlow { 0%, 100% { transform: scale(1); opacity: 0.4; } 50% { transform: scale(1.1); opacity: 0.7; } }
+        @keyframes pulseGlow { 0%, 100% { transform: scale(1); opacity: 0.4; } 50% { transform: scale(1.15); opacity: 0.8; } }
 
-        /* Main Content area */
+        /* Slideshow & Overlays */
         .main-content { position: relative; }
         #slideshow-container { position: absolute; inset: 0; background: #000; }
         .slide { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transition: opacity 2.5s ease-in-out; }
         .slide.active { opacity: 1; }
 
-        /* Påsklov Modul */
+        .quote-overlay { 
+            position: absolute; bottom: 35px; left: 50%; transform: translateX(-50%); z-index: 10; 
+            width: 85%; text-align: center; background: rgba(0,0,0,0.4); 
+            backdrop-filter: blur(20px); padding: 30px; border-radius: 30px; 
+            border: 1px solid var(--glass-border); 
+        }
+
+        /* Påsklov */
         .easter-box { flex: 1; border: 1px solid rgba(255,170,51,0.5); display: flex; align-items: center; justify-content: center; gap: 20px; }
         .easter-label-vert { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 0.8rem; letter-spacing: 4px; font-weight: 900; color: var(--easter-gold); opacity: 0.8; }
         .easter-days { font-size: 5rem; font-weight: 900; color: var(--text-main); line-height: 1; }
@@ -122,8 +135,8 @@
                 </div>
                 <div style="font-size: 0.65rem; opacity: 0.5; font-weight: 800;">ISS POSITION</div>
                 <div id="iss-coords" style="font-size: 1.4rem; font-weight: 200; letter-spacing: 1px; line-height: 1.2;">
-                    <span id="iss-lat" style="color: var(--accent);">0.00 N</span><br>
-                    <span id="iss-lng">0.00 E</span>
+                    <span id="iss-lat" style="color: var(--accent);">0.000 N</span><br>
+                    <span id="iss-lng">0.000 E</span>
                 </div>
                 <div style="margin-top: 10px; font-size: 0.65rem; opacity: 0.5; font-weight: 800; letter-spacing: 1px;">DISTANCE TO MARS</div>
                 <div id="mars-dist" style="font-size: 1.4rem; font-weight: 600; color: var(--mars-red);">--- M KM</div>
@@ -139,7 +152,7 @@
 <main class="main-content glass-panel">
     <div id="slideshow-container"></div>
     <div style="position: absolute; inset: 0; background: linear-gradient(transparent 30%, rgba(0,0,0,0.8)); z-index: 2;"></div>
-    <div class="quote-overlay" style="position: absolute; bottom: 35px; left: 50%; transform: translateX(-50%); z-index: 10; width: 85%; text-align: center; background: rgba(0,0,0,0.4); backdrop-filter: blur(20px); padding: 30px; border-radius: 30px; border: 1px solid var(--glass-border);">
+    <div class="quote-overlay">
         <div id="quote-text" style="font-size: 1.6rem; font-style: italic; font-weight: 300; margin-bottom: 10px; line-height: 1.4;">"Hämtar visdom..."</div>
         <div id="quote-author" style="font-size: 0.85rem; color: var(--accent); letter-spacing: 3px; text-transform: uppercase; font-weight: 600;">--</div>
     </div>
