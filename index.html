@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Elite Dashboard v7</title>
+    <title>Staffanstorp Elite Dashboard v8 - Sidebar Mode</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
@@ -16,137 +16,120 @@
             --text-main: #ffffff;
         }
 
-        body.friday-mode {
-            --glass-border: rgba(255, 204, 51, 0.4);
-            --accent: var(--friday-gold);
-        }
+        body.friday-mode { --glass-border: rgba(255, 204, 51, 0.4); --accent: var(--friday-gold); }
 
         body {
             font-family: 'Inter', sans-serif;
             background-color: #000; background-size: cover; background-position: center;
             margin: 0; height: 100vh; width: 100vw; color: var(--text-main);
             display: grid; 
-            grid-template-columns: 1fr 1fr; 
+            grid-template-columns: 450px 1fr; /* Vänster sidebar 450px, Resten höger */
             grid-template-rows: 100px 1fr 120px; 
             gap: 20px; padding: 20px; box-sizing: border-box; overflow: hidden;
             transition: background-image 2s ease-in-out;
         }
 
-        body::before {
-            content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.4); z-index: -2;
-        }
+        body::before { content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); z-index: -2; }
 
         .glass-panel {
             background: var(--glass-bg); backdrop-filter: blur(25px) saturate(160%);
             -webkit-backdrop-filter: blur(25px) saturate(160%);
-            border: 1px solid var(--glass-border); border-radius: 35px;
+            border: 1px solid var(--glass-border); border-radius: 30px;
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
         }
 
-        /* Top Bar */
+        /* Layout-sektioner */
         .top-bar { grid-column: 1/3; display: flex; justify-content: space-between; align-items: center; padding: 0 40px; }
-        #mini-clock { font-size: 4rem; font-weight: 800; letter-spacing: -2px; }
-        #mini-date { font-size: 1.8rem; color: var(--accent); font-weight: 300; text-transform: capitalize; }
-        #quote-container { flex-grow: 1; text-align: center; padding: 0 40px; max-width: 600px; }
-        #top-quote { font-style: italic; font-size: 1.05rem; color: #eee; line-height: 1.4; margin-bottom: 4px; }
-        #quote-author { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; color: var(--accent); font-weight: 600; }
+        .sidebar-container { grid-column: 1/2; grid-row: 2/3; display: flex; flex-direction: column; gap: 20px; overflow-y: auto; }
+        .main-content { grid-column: 2/3; grid-row: 2/3; display: flex; flex-direction: column; gap: 20px; }
+        .bottom-bar-left { grid-column: 1/2; grid-row: 3/4; }
+        .bottom-bar-right { grid-column: 2/3; grid-row: 3/4; display: flex; gap: 20px; }
 
-        .panel { padding: 30px; display: flex; flex-direction: column; height: 100%; box-sizing: border-box; overflow: hidden; }
-        .panel-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; opacity: 0.6; }
-        .panel-header h2 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 3px; margin: 0; }
+        /* Typography */
+        #mini-clock { font-size: 3.5rem; font-weight: 800; letter-spacing: -2px; }
+        #mini-date { font-size: 1.5rem; color: var(--accent); font-weight: 300; }
+        #quote-container { text-align: center; max-width: 500px; }
+        #top-quote { font-style: italic; font-size: 1rem; opacity: 0.9; }
+        #quote-author { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; color: var(--accent); }
 
-        /* Schema-justeringar */
-        #custom-calendar-list { display: flex; flex-direction: column; gap: 10px; }
+        .panel-header { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; opacity: 0.5; }
+        .panel-header h2 { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 3px; margin: 0; }
+
+        /* Kompakt Kalender */
+        .event-item { display: flex; align-items: center; gap: 15px; padding: 10px; border-radius: 15px; margin-bottom: 5px; border-left: 3px solid transparent; }
+        .event-item.is-today { background: rgba(255,255,255,0.05); border-left-color: var(--accent); }
+        .event-item:first-child { background: rgba(255,255,255,0.08); padding: 15px; }
+        .event-item:first-child .event-time { font-size: 2.2rem; }
+        .event-item:not(:first-child) { transform: scale(0.95); transform-origin: left; opacity: 0.8; }
+        .event-time { font-weight: 800; font-size: 1.6rem; line-height: 1; }
+        .event-title { font-size: 1.2rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        /* Kompakt Väder */
+        #hourly-forecast { display: flex; justify-content: space-between; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 20px; margin-bottom: 15px; }
+        .weather-row { display: flex; justify-content: space-between; padding: 8px 15px; background: rgba(255,255,255,0.02); border-radius: 12px; margin-bottom: 4px; font-size: 0.9rem; }
         
-        .event-item { 
-            display: flex; align-items: center; gap: 20px; padding: 12px 15px; 
-            border-radius: 20px; transition: all 0.3s ease;
-            border-left: 4px solid transparent;
-        }
-
-        /* Framhäv om händelsen är idag */
-        .event-item.is-today {
-            background: rgba(255, 255, 255, 0.05);
-            border-left-color: var(--accent);
-            box-shadow: inset 10px 0 20px -10px rgba(94, 146, 243, 0.2);
-        }
-        body.friday-mode .event-item.is-today { box-shadow: inset 10px 0 20px -10px rgba(255, 204, 51, 0.2); }
-
-        /* Första händelsen (Full storlek) */
-        .event-item:first-child { padding: 20px; margin-bottom: 5px; }
-        .event-item:first-child .event-time { font-size: 2.8rem; }
-        .event-item:first-child .event-title { font-size: 2rem; }
-
-        /* Övriga händelser (20% mindre) */
-        .event-item:not(:first-child) { opacity: 0.8; transform: scale(0.98); transform-origin: left; }
-        .event-item:not(:first-child) .event-time { font-size: 2rem; }
-        .event-item:not(:first-child) .event-title { font-size: 1.5rem; }
-        .event-item:not(:first-child) .event-day { font-size: 0.9rem; }
-
-        .event-time-block { min-width: 140px; }
-        .event-day { font-size: 1.1rem; color: var(--accent); font-weight: 800; display: flex; align-items: center; gap: 5px; }
-        .event-time { font-weight: 800; line-height: 1; }
-        .event-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 400; }
-
-        /* Väder */
-        #hourly-forecast { display: flex; justify-content: space-between; margin-bottom: 25px; padding: 20px; background: rgba(255,255,255,0.07); border-radius: 25px; }
-        .weather-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; background: rgba(255,255,255,0.03); border-radius: 15px; margin-bottom: 5px; }
-        .weather-day { font-size: 1.4rem; width: 130px; text-transform: capitalize; }
-
-        /* Botten */
-        #news-card { grid-column: 1/2; display: flex; align-items: center; padding: 0 30px; position: relative; overflow: hidden; }
-        #countdown-card { grid-column: 2/3; display: flex; flex-direction: column; justify-content: center; align-items: center; border: 1px solid rgba(255, 170, 51, 0.3); }
-        #news-progress { position: absolute; bottom: 0; left: 0; height: 4px; background: var(--accent); width: 0%; transition: width 10s linear; }
-        .countdown-timer { font-size: 2.2rem; font-weight: 800; display: flex; gap: 15px; }
-        .timer-unit { font-size: 0.6rem; opacity: 0.5; text-transform: uppercase; display: block; text-align: center; }
+        /* Botten-element */
+        #news-card { height: 100%; display: flex; align-items: center; padding: 0 25px; position: relative; overflow: hidden; }
+        #news-progress { position: absolute; bottom: 0; left: 0; height: 3px; background: var(--accent); width: 0%; transition: width 10s linear; }
+        #countdown-card { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; border: 1px solid rgba(255, 170, 51, 0.2); }
 
         /* Animationer */
-        .snow-flake { position: fixed; top: -20px; color: white; pointer-events: none; z-index: 100; opacity: 0.6; animation: fall linear infinite; }
-        .rain-drop { position: fixed; top: -20px; background-color: rgba(174, 194, 224, 0.4); width: 1px; height: 15px; pointer-events: none; z-index: 100; animation: rain-fall linear infinite; }
-        @keyframes fall { to { transform: translateY(110vh) translateX(30px); } }
-        @keyframes rain-fall { to { transform: translateY(110vh); } }
+        .snow-flake { position: fixed; top: -20px; color: white; pointer-events: none; z-index: 100; opacity: 0.5; animation: fall linear infinite; }
+        @keyframes fall { to { transform: translateY(110vh) translateX(20px); } }
     </style>
 </head>
 <body id="main-body">
 
-<header class="top-bar glass-panel" style="height: 85px;">
+<header class="top-bar glass-panel">
     <div id="mini-date">Laddar...</div>
     <div id="quote-container">
-        <div id="top-quote">"Det enda vi vet är att vi ingenting vet."</div>
-        <div id="quote-author">Sokrates</div>
+        <div id="top-quote">"Citat laddas..."</div>
+        <div id="quote-author">Författare</div>
     </div>
-    <div id="mini-clock-container" style="display:flex; align-items:baseline; gap:10px;">
-        <div id="mini-clock">00:00</div>
-        <div id="weekend-tag" style="font-size:1rem; color:var(--friday-gold); display:none; font-weight:800;">HELGLÄGE</div>
-    </div>
+    <div id="mini-clock">00:00</div>
 </header>
 
-<section class="panel glass-panel">
-    <div class="panel-header"><i data-lucide="calendar"></i><h2>SCHEMA</h2></div>
-    <div id="custom-calendar-list"></div>
-</section>
+<div class="sidebar-container">
+    <section class="panel glass-panel" style="flex: 1.2;">
+        <div class="panel-header"><i data-lucide="calendar"></i><h2>SCHEMA</h2></div>
+        <div id="custom-calendar-list"></div>
+    </section>
 
-<section class="panel glass-panel">
-    <div class="panel-header"><i data-lucide="cloud-sun"></i><h2>VÄDER STAFFANSTORP</h2></div>
-    <div id="hourly-forecast"></div>
-    <div id="daily-list"></div>
-    <div id="history-mini" style="margin-top:auto; font-size:0.9rem; opacity:0.8;">
-        <div id="history-text">Laddar historia...</div>
+    <section class="panel glass-panel" style="flex: 1;">
+        <div class="panel-header"><i data-lucide="cloud-sun"></i><h2>VÄDER</h2></div>
+        <div id="hourly-forecast"></div>
+        <div id="daily-list"></div>
+    </section>
+</div>
+
+<main class="main-content">
+    <section class="panel glass-panel" style="height: 100%; display: flex; justify-content: center; align-items: center; text-align: center;">
+        <div>
+            <h1 style="font-size: 3rem; font-weight: 800; margin-bottom: 10px; opacity: 0.9;">Välkommen Hem</h1>
+            <p style="font-size: 1.2rem; font-weight: 300; opacity: 0.6; max-width: 400px; margin: 0 auto;">Denna yta är redo för dina framtida moduler. Elpriser? Smarta hem-kontroller? Du bestämmer.</p>
+        </div>
+    </section>
+</main>
+
+<div class="bottom-bar-left">
+    <footer id="news-card" class="glass-panel">
+        <div id="news-content" style="font-size:1.1rem; font-weight:300;">Hämtar nyheter...</div>
+        <div id="news-progress"></div>
+    </footer>
+</div>
+
+<div class="bottom-bar-right">
+    <div id="countdown-card" class="glass-panel">
+        <div style="font-size: 0.6rem; text-transform: uppercase; letter-spacing: 2px; color: var(--easter-accent); margin-bottom: 5px;">Påsklov (30 Mars)</div>
+        <div style="display: flex; gap: 15px; font-size: 1.8rem; font-weight: 800;" id="easter-countdown">
+            <div style="text-align:center;"><span id="days">00</span><small style="display:block; font-size:0.5rem; opacity:0.5;">DAGAR</small></div>
+            <div style="text-align:center;"><span id="hours">00</span><small style="display:block; font-size:0.5rem; opacity:0.5;">TIM</small></div>
+            <div style="text-align:center;"><span id="mins">00</span><small style="display:block; font-size:0.5rem; opacity:0.5;">MIN</small></div>
+        </div>
     </div>
-</section>
-
-<footer id="news-card" class="glass-panel">
-    <div id="news-content" style="font-size:1.4rem; font-weight:300;">Hämtar nyheter...</div>
-    <div id="news-progress"></div>
-</footer>
-
-<div id="countdown-card" class="glass-panel">
-    <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; color: var(--easter-accent); margin-bottom: 5px;">Påsklov (30 Mars)</div>
-    <div class="countdown-timer" id="easter-countdown">
-        <div><span id="days">00</span><span class="timer-unit">Dagar</span></div>
-        <div><span id="hours">00</span><span class="timer-unit">Tim</span></div>
-        <div><span id="mins">00</span><span class="timer-unit">Min</span></div>
+    
+    <div class="glass-panel" style="flex: 1; padding: 15px 25px; display: flex; align-items: center;">
+        <div id="history-text" style="font-size: 0.85rem; font-weight: 300; line-height: 1.3;">Laddar historia...</div>
     </div>
 </div>
 
@@ -156,25 +139,17 @@
 
     const quotes = [
         { q: "Det vi gör i livet, ekar i evigheten.", a: "Marcus Aurelius" },
-        { q: "Lycka kommer från dina egna handlingar.", a: "Dalai Lama" },
         { q: "Människan lider mer i fantasin än i verkligheten.", a: "Seneca" },
         { q: "Du har makt över ditt sinne – inte externa händelser.", a: "Marcus Aurelius" },
         { q: "Varje morgon föds vi på nytt.", a: "Buddha" }
     ];
-
-    function updateQuote() {
-        const quote = quotes[Math.floor(Math.random() * quotes.length)];
-        document.getElementById('top-quote').innerText = `"${quote.q}"`;
-        document.getElementById('quote-author').innerText = quote.a;
-    }
 
     function updateClock() {
         const now = new Date();
         document.getElementById('mini-clock').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
         document.getElementById('mini-date').innerText = now.toLocaleDateString('sv-SE', {weekday:'long', day:'numeric', month:'long'});
         const isFriday = now.getDay() === 5 && now.getHours() >= 13;
-        document.getElementById('main-body').classList.toggle('friday-mode', isFriday);
-        document.getElementById('weekend-tag').style.display = isFriday ? 'block' : 'none';
+        document.body.classList.toggle('friday-mode', isFriday);
     }
 
     async function updateCalendar() {
@@ -184,15 +159,13 @@
             const data = await res.json();
             if (data.items) {
                 const now = new Date();
-                document.getElementById('custom-calendar-list').innerHTML = data.items.slice(0, 5).map(event => {
+                document.getElementById('custom-calendar-list').innerHTML = data.items.slice(0, 5).map((event, i) => {
                     const start = new Date(event.start.dateTime || event.start.date);
                     const isToday = start.toDateString() === now.toDateString();
-                    const dayStr = isToday ? '<span style="color:var(--accent)">IDAG</span>' : start.toLocaleDateString('sv-SE', {day:'numeric', month:'short'});
-                    
                     return `
                         <div class="event-item ${isToday ? 'is-today' : ''}">
-                            <div class="event-time-block">
-                                <div class="event-day">${dayStr}</div>
+                            <div style="min-width: 80px;">
+                                <div style="font-size: 0.7rem; color: var(--accent); font-weight: 800;">${isToday ? 'IDAG' : start.toLocaleDateString('sv-SE', {day:'numeric', month:'short'})}</div>
                                 <div class="event-time">${event.start.dateTime ? start.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'}) : 'HELDAG'}</div>
                             </div>
                             <div class="event-title">${event.summary}</div>
@@ -207,61 +180,56 @@
             const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=55.64&longitude=13.21&daily=weathercode,temperature_2m_max,temperature_2m_min&hourly=temperature_2m,weathercode&timezone=auto');
             const data = await res.json();
             const now = new Date();
-            const hourStartIndex = data.hourly.time.findIndex(t => new Date(t).getHours() === now.getHours() && new Date(t).getDate() === now.getDate());
-            const code = data.hourly.weathercode[hourStartIndex];
+            const hourIdx = data.hourly.time.findIndex(t => new Date(t).getHours() === now.getHours());
+            const code = data.hourly.weathercode[hourIdx];
 
+            // Bakgrund
             let bg = "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?q=80&w=1920";
             if(code <= 3) bg = "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=1920";
             if(code >= 51 && code <= 67) bg = "https://images.unsplash.com/photo-1428592953211-077101b2021b?q=80&w=1920";
             if(code >= 71 && code <= 77) bg = "https://images.unsplash.com/photo-1483664852095-d6cc6870702d?q=80&w=1920";
-            if(code >= 80) bg = "https://images.unsplash.com/photo-1511289080610-b9834a1b0d71?q=80&w=1920";
             document.body.style.backgroundImage = `url('${bg}')`;
 
-            document.querySelectorAll('.snow-flake, .rain-drop').forEach(f => f.remove());
-            if(code >= 51 && code <= 67 || code >= 80) spawnRain();
-            if(code >= 71 && code <= 77) spawnSnow();
-
+            // Hourly (Kompakt)
             let hHtml = '';
-            for(let i = 0; i < 6; i++) {
-                const idx = hourStartIndex + i;
-                if(data.hourly.time[idx]) {
-                    const t = new Date(data.hourly.time[idx]).toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
-                    hHtml += `<div class="hour-item"><div>${t}</div><i data-lucide="${getWeatherIcon(data.hourly.weathercode[idx])}" style="width:24px; color:var(--accent)"></i><div>${Math.round(data.hourly.temperature_2m[idx])}°</div></div>`;
-                }
+            for(let i=0; i<5; i++) {
+                const idx = hourIdx + i;
+                const t = new Date(data.hourly.time[idx]).getHours() + ":00";
+                hHtml += `<div style="text-align:center;"><div style="font-size:0.7rem; opacity:0.6;">${t}</div><i data-lucide="${getWeatherIcon(data.hourly.weathercode[idx])}" style="width:20px; color:var(--accent); margin:4px 0;"></i><div style="font-weight:800;">${Math.round(data.hourly.temperature_2m[idx])}°</div></div>`;
             }
             document.getElementById('hourly-forecast').innerHTML = hHtml;
 
+            // Daily (Kompakt)
             let dHtml = '';
-            for(let i=0; i<6; i++) {
+            for(let i=0; i<4; i++) {
                 const d = new Date(data.daily.time[i]);
-                dHtml += `<div class="weather-row"><span class="weather-day">${i===0?'Idag':d.toLocaleDateString('sv-SE',{weekday:'short'})}</span><i data-lucide="${getWeatherIcon(data.daily.weathercode[i])}" style="width:24px"></i><span>${Math.round(data.daily.temperature_2m_max[i])}°</span></div>`;
+                dHtml += `<div class="weather-row"><span>${i===0?'Idag':d.toLocaleDateString('sv-SE',{weekday:'short'})}</span><i data-lucide="${getWeatherIcon(data.daily.weathercode[i])}" style="width:18px"></i><span style="font-weight:800;">${Math.round(data.daily.temperature_2m_max[i])}°</span></div>`;
             }
             document.getElementById('daily-list').innerHTML = dHtml;
             lucide.createIcons();
         } catch(e) {}
     }
 
-    function spawnSnow() { for (let i = 0; i < 25; i++) { let f = document.createElement('div'); f.className = 'snow-flake'; f.innerHTML = '•'; f.style.left = Math.random() * 100 + 'vw'; f.style.animationDuration = (Math.random() * 5 + 5) + 's'; document.body.appendChild(f); } }
-    function spawnRain() { for (let i = 0; i < 50; i++) { let r = document.createElement('div'); r.className = 'rain-drop'; r.style.left = Math.random() * 100 + 'vw'; r.style.animationDuration = (Math.random() * 0.5 + 0.5) + 's'; document.body.appendChild(r); } }
     function getWeatherIcon(code) { if (code <= 3) return 'sun'; if (code >= 71 && code <= 77) return 'snowflake'; if (code >= 51) return 'cloud-rain'; return 'cloud'; }
+
     function updateCountdown() {
-        const target = new Date('2026-03-30T00:00:00');
-        const now = new Date();
-        const diff = target - now;
+        const diff = new Date('2026-03-30T00:00:00') - new Date();
         if (diff > 0) {
             document.getElementById('days').innerText = Math.floor(diff/(1000*60*60*24)).toString().padStart(2,'0');
             document.getElementById('hours').innerText = Math.floor((diff%(1000*60*60*24))/(1000*60*60)).toString().padStart(2,'0');
             document.getElementById('mins').innerText = Math.floor((diff%(1000*60*60))/(1000*60)).toString().padStart(2,'0');
         }
     }
+
     async function updateHistory() {
         try {
             const res = await fetch(`https://en.wikipedia.org/api/rest_v1/feed/onthisday/events/${new Date().getMonth()+1}/${new Date().getDate()}`);
             const data = await res.json();
             const event = data.events[Math.floor(Math.random() * 15)];
-            document.getElementById('history-text').innerHTML = `<b>${event.year}:</b> ${event.text}`;
+            document.getElementById('history-text').innerHTML = `<span style="color:var(--accent); font-weight:800;">${event.year}</span>: ${event.text}`;
         } catch(e) {}
     }
+
     let news = []; let idx = 0;
     async function getNews() {
         try {
@@ -281,7 +249,10 @@
         updateWeather(); setInterval(updateWeather, 600000);
         updateCalendar(); setInterval(updateCalendar, 600000);
         updateCountdown(); setInterval(updateCountdown, 60000);
-        updateHistory(); updateQuote(); getNews();
+        updateHistory(); getNews();
+        const quote = quotes[Math.floor(Math.random()*quotes.length)];
+        document.getElementById('top-quote').innerText = `"${quote.q}"`;
+        document.getElementById('quote-author').innerText = quote.a;
     });
 </script>
 </body>
