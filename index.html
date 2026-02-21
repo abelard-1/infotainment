@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Elite Dashboard v34 - Bright Mars Edition</title>
+    <title>Staffanstorp Command Center v35 - Earth Pulse</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
     <style>
@@ -13,10 +13,10 @@
             --accent: #5e92f3;
             --text-main: #ffffff;
             --easter-gold: #ffaa33;
-            --mars-red: #ff7b5a; /* Något ljusare röd för bättre synlighet */
+            --quake-red: #ff4444;
         }
 
-        * { box-sizing: border-box; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+        * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
 
         body {
             font-family: 'Inter', sans-serif;
@@ -38,49 +38,32 @@
             position: relative; overflow: hidden;
         }
 
-        /* Header Layout */
+        /* Header */
         .top-bar { grid-column: 1/3; display: grid; grid-template-columns: 350px 1fr 280px; align-items: center; padding: 0 40px; }
         #header-hourly { display: flex; justify-content: space-around; align-items: center; padding: 0 20px; border-left: 1px solid var(--glass-border); border-right: 1px solid var(--glass-border); height: 75%; }
         .weather-node { text-align: center; min-width: 70px; }
         .weather-node .w-time { font-size: 0.8rem; opacity: 0.6; font-weight: 600; }
         .weather-node .w-temp { font-weight: 800; font-size: 1.5rem; }
-        .weather-node .w-pop { font-size: 0.7rem; color: var(--accent); font-weight: 800; }
         .weather-icon { width: 32px !important; height: 32px !important; color: var(--accent); margin: 2px 0; }
-        .current-details { display: flex; flex-direction: column; align-items: flex-end; justify-content: center; }
-        .detail-item { font-size: 0.75rem; font-weight: 600; opacity: 0.5; display: flex; align-items: center; gap: 6px; text-transform: uppercase; letter-spacing: 1px; }
-
-        /* Sidebar & Mars Space Tracker */
-        .sidebar-container { grid-column: 1/2; grid-row: 2/3; display: grid; grid-template-rows: 1fr 240px; gap: 15px; min-height: 0; }
-        .event-item { display: flex; align-items: center; gap: 20px; padding: 14px 25px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 8px; }
-        .event-item.is-today { background: rgba(255,255,255,0.12); border-color: transparent; }
-        .event-time { font-weight: 800; font-size: 1.9rem; }
-        .event-title { font-size: 1.5rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-        .space-grid { display: grid; grid-template-columns: 1fr 140px; align-items: center; height: 100%; padding: 0 5px; }
         
-        /* Den nya tydligare Mars-animeringen */
-        .mars-container { position: relative; width: 110px; height: 110px; perspective: 1000px; filter: drop-shadow(0 0 15px rgba(255,102,68,0.4)); }
-        .mars-sphere { 
-            width: 100%; height: 100%; border-radius: 50%; 
-            background: url('https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Map_of_Mars_2010.jpg/1024px-Map_of_Mars_2010.jpg');
-            background-size: 210% 100%;
-            /* Förbättrade skuggor för 3D-djup och synlighet */
-            box-shadow: 
-                inset -10px -10px 25px #000, 
-                inset 10px 10px 25px rgba(255,255,255,0.2),
-                inset 0 0 40px rgba(255,102,68,0.2);
-            animation: rotateMars 50s linear infinite;
-            filter: brightness(1.2) contrast(1.1); /* Gör ytan tydligare */
+        /* Seismograf Animering */
+        .seismo-container { height: 60px; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; margin: 10px 0; }
+        .seismo-line { width: 100%; height: 2px; background: var(--accent); position: relative; box-shadow: 0 0 15px var(--accent); }
+        .seismo-line::after {
+            content: ""; position: absolute; inset: 0;
+            background: repeating-linear-gradient(90deg, transparent, transparent 20px, var(--accent) 20px, var(--accent) 40px);
+            animation: move-line 1s linear infinite;
         }
-        .mars-glow { 
-            position: absolute; inset: -12px; border-radius: 50%; 
-            background: radial-gradient(circle, rgba(255,102,68,0.3) 0%, transparent 75%); 
-            animation: pulseGlow 5s ease-in-out infinite; z-index: -1;
-        }
-        @keyframes rotateMars { from { background-position: 0% 0%; } to { background-position: 200% 0%; } }
-        @keyframes pulseGlow { 0%, 100% { transform: scale(1); opacity: 0.4; } 50% { transform: scale(1.15); opacity: 0.8; } }
+        @keyframes move-line { from { transform: translateX(0); } to { transform: translateX(-40px); } }
+        
+        /* Sidebar */
+        .sidebar-container { grid-column: 1/2; grid-row: 2/3; display: grid; grid-template-rows: 1fr 260px; gap: 15px; min-height: 0; }
+        .event-item { display: flex; align-items: center; gap: 20px; padding: 14px 25px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 8px; }
+        .event-item.is-today { background: rgba(255,255,255,0.12); }
+        .event-time { font-weight: 800; font-size: 1.8rem; }
+        .event-title { font-size: 1.4rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        /* Slideshow & Overlays */
+        /* Main Slideshow */
         .main-content { position: relative; }
         #slideshow-container { position: absolute; inset: 0; background: #000; }
         .slide { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transition: opacity 2.5s ease-in-out; }
@@ -93,14 +76,10 @@
             border: 1px solid var(--glass-border); 
         }
 
-        /* Påsklov */
+        /* Påsklov Modul */
         .easter-box { flex: 1; border: 1px solid rgba(255,170,51,0.5); display: flex; align-items: center; justify-content: center; gap: 20px; }
         .easter-label-vert { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 0.8rem; letter-spacing: 4px; font-weight: 900; color: var(--easter-gold); opacity: 0.8; }
         .easter-days { font-size: 5rem; font-weight: 900; color: var(--text-main); line-height: 1; }
-
-        @keyframes fall { to { transform: translateY(105vh) translateX(30px); } }
-        .snow-flake { position: fixed; top: -20px; color: white; pointer-events: none; z-index: 9999; animation: fall linear infinite; }
-        .rain-drop { position: fixed; top: -20px; background: rgba(174, 194, 224, 0.4); width: 2px; height: 15px; pointer-events: none; z-index: 9999; animation: fall 0.8s linear infinite; }
     </style>
 </head>
 <body>
@@ -126,25 +105,20 @@
         <div id="custom-calendar-list"></div>
     </section>
     
-    <section class="glass-panel" style="padding: 20px;">
-        <div class="space-grid">
-            <div>
-                <div style="display: flex; align-items: center; gap: 10px; opacity: 0.7; margin-bottom: 8px;">
-                    <i data-lucide="orbit" style="width:16px; color:var(--accent);"></i>
-                    <span style="font-size: 0.7rem; letter-spacing: 2px; font-weight: 800;">LIVE SPACE TRACKER</span>
-                </div>
-                <div style="font-size: 0.65rem; opacity: 0.5; font-weight: 800;">ISS POSITION</div>
-                <div id="iss-coords" style="font-size: 1.4rem; font-weight: 200; letter-spacing: 1px; line-height: 1.2;">
-                    <span id="iss-lat" style="color: var(--accent);">0.000 N</span><br>
-                    <span id="iss-lng">0.000 E</span>
-                </div>
-                <div style="margin-top: 10px; font-size: 0.65rem; opacity: 0.5; font-weight: 800; letter-spacing: 1px;">DISTANCE TO MARS</div>
-                <div id="mars-dist" style="font-size: 1.4rem; font-weight: 600; color: var(--mars-red);">--- M KM</div>
-            </div>
-            <div class="mars-container">
-                <div class="mars-sphere"></div>
-                <div class="mars-glow"></div>
-            </div>
+    <section class="glass-panel" style="padding: 25px;">
+        <div style="display: flex; align-items: center; gap: 10px; opacity: 0.7; margin-bottom: 5px;">
+            <i data-lucide="activity" style="width:16px; color:var(--accent);"></i>
+            <span style="font-size: 0.7rem; letter-spacing: 2px; font-weight: 800;">EARTH PULSE / LIVE SEISMIC</span>
+        </div>
+        
+        <div class="seismo-container">
+            <div class="seismo-line" id="seismo-line"></div>
+        </div>
+
+        <div id="quake-info">
+            <div style="font-size: 0.65rem; opacity: 0.5; font-weight: 800; margin-bottom: 2px;">LATEST GLOBAL EVENT</div>
+            <div id="quake-mag" style="font-size: 2.2rem; font-weight: 900; line-height: 1; margin-bottom: 5px;">M 0.0</div>
+            <div id="quake-loc" style="font-size: 0.9rem; font-weight: 400; opacity: 0.8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Scanning...</div>
         </div>
     </section>
 </div>
@@ -182,24 +156,31 @@
     const API_KEY = 'AIzaSyAC3QiGhqOM2F2ZrnFq3xWUu6_1bAwOvSw';
     const CAL_ID = 'rezgarhayder@gmail.com';
 
+    // EARTHQUAKE LIVE DATA
+    async function updateQuakeData() {
+        try {
+            const res = await fetch('https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&limit=1&minmagnitude=2.5');
+            const data = await res.json();
+            const quake = data.features[0].properties;
+            const mag = quake.mag.toFixed(1);
+            
+            document.getElementById('quake-mag').innerText = "M " + mag;
+            document.getElementById('quake-loc').innerText = quake.place.toUpperCase();
+            
+            // Färgkodning baserat på magnitud
+            const color = mag >= 6.0 ? '#ff4444' : (mag >= 4.5 ? '#ffaa33' : '#5e92f3');
+            document.getElementById('quake-mag').style.color = color;
+            document.getElementById('seismo-line').style.backgroundColor = color;
+            document.getElementById('seismo-line').style.boxShadow = `0 0 15px ${color}`;
+        } catch(e) { console.log("Quake API Fail"); }
+    }
+
     async function fetchQuote() {
         try {
             const res = await fetch('https://api.quotable.io/random?maxLength=130');
             const data = await res.json();
             document.getElementById('quote-text').innerText = `"${data.content}"`;
             document.getElementById('quote-author').innerText = data.author;
-        } catch(e) {}
-    }
-
-    async function updateSpaceData() {
-        try {
-            const res = await fetch('https://api.wheretheiss.at/v1/satellites/25544');
-            const data = await res.json();
-            document.getElementById('iss-lat').innerText = data.latitude.toFixed(3) + " N";
-            document.getElementById('iss-lng').innerText = data.longitude.toFixed(3) + " E";
-            const cycle = (new Date().getTime() % 100000000) / 100000000;
-            const dist = (225 + Math.sin(cycle * Math.PI * 2) * 140).toFixed(1);
-            document.getElementById('mars-dist').innerText = dist + " M KM";
         } catch(e) {}
     }
 
@@ -219,7 +200,7 @@
                 const code = data.hourly.weathercode[idx];
                 const pop = data.hourly.precipitation_probability[idx];
                 const icon = code <= 3 ? 'sun' : (code >= 71 ? 'snowflake' : 'cloud-rain');
-                hHtml += `<div class="weather-node"><div class="w-time">${time}</div><i data-lucide="${icon}" class="weather-icon"></i><div class="w-temp">${Math.round(data.hourly.temperature_2m[idx])}°</div><div class="w-pop">${pop > 5 ? pop + '%' : ''}</div></div>`;
+                hHtml += `<div class="weather-node"><div class="w-time">${time}</div><i data-lucide="${icon}" class="weather-icon"></i><div class="w-temp">${Math.round(data.hourly.temperature_2m[idx])}°</div></div>`;
             }
             document.getElementById('header-hourly').innerHTML = hHtml;
             lucide.createIcons();
@@ -258,28 +239,6 @@
         } catch(e) {}
     }
 
-    async function updateNews() {
-        try {
-            const r = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.svt.se/nyheter/rss.xml');
-            const d = await r.json();
-            let items = d.items.map(i => i.title), idx = 0;
-            const el = document.getElementById('news-static');
-            setInterval(() => {
-                el.style.opacity = 0;
-                setTimeout(() => { el.innerText = items[idx].toUpperCase(); el.style.opacity = 1; idx = (idx + 1) % items.length; }, 800);
-            }, 10000);
-        } catch(e) {}
-    }
-
-    async function updateHistory() {
-        try {
-            const r = await fetch(`https://en.wikipedia.org/api/rest_v1/feed/onthisday/events/${new Date().getMonth()+1}/${new Date().getDate()}`);
-            const d = await r.json();
-            const e = d.events[Math.floor(Math.random()*d.events.length)];
-            document.getElementById('history-fact').innerHTML = `<b style="color:var(--accent); font-weight:800">${e.year}:</b> ${e.text}`;
-        } catch(e) {}
-    }
-
     function updateTime() {
         const now = new Date();
         document.getElementById('mini-clock').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
@@ -288,11 +247,11 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-        updateTime(); updateWeather(); updateCalendar(); updateNews(); updateSlide(); updateSpaceData(); updateHistory();
+        updateTime(); updateWeather(); updateCalendar(); updateSlide(); updateQuakeData();
         setInterval(updateTime, 30000);
         setInterval(updateWeather, 600000);
         setInterval(updateSlide, 60000);
-        setInterval(updateSpaceData, 10000);
+        setInterval(updateQuakeData, 900000); // Uppdatera jordskalv var 15:e minut
     });
 </script>
 </body>
