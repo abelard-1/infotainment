@@ -1,3 +1,86 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staffanstorp Elite Dashboard v32 - Space & Weather Edition</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --glass-bg: rgba(10, 10, 10, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.3);
+            --accent: #5e92f3;
+            --text-main: #ffffff;
+            --easter-gold: #ffaa33;
+            --mars-red: #ff6644;
+        }
+
+        * { box-sizing: border-box; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #000; margin: 0; 
+            height: 100vh; width: 100vw; 
+            color: var(--text-main);
+            display: grid; 
+            grid-template-columns: 520px 1fr; 
+            grid-template-rows: 14vh minmax(0, 1fr) 12vh;
+            gap: 15px; padding: 15px; 
+            overflow: hidden;
+        }
+
+        .glass-panel {
+            background: var(--glass-bg); 
+            backdrop-filter: blur(40px) saturate(180%);
+            border: 1px solid var(--glass-border); 
+            border-radius: 30px;
+            position: relative; overflow: hidden;
+        }
+
+        /* Header */
+        .top-bar { grid-column: 1/3; display: grid; grid-template-columns: 350px 1fr 280px; align-items: center; padding: 0 40px; }
+        #header-hourly { display: flex; justify-content: space-around; align-items: center; padding: 0 20px; border-left: 1px solid var(--glass-border); border-right: 1px solid var(--glass-border); height: 75%; }
+        .weather-node { text-align: center; min-width: 70px; }
+        .weather-node .w-time { font-size: 0.8rem; opacity: 0.6; font-weight: 600; }
+        .weather-node .w-temp { font-weight: 800; font-size: 1.5rem; }
+        .weather-node .w-pop { font-size: 0.7rem; color: var(--accent); font-weight: 800; }
+        .weather-icon { width: 32px !important; height: 32px !important; color: var(--accent); margin: 2px 0; }
+
+        .current-details { display: flex; flex-direction: column; align-items: flex-end; justify-content: center; }
+        .detail-item { font-size: 0.75rem; font-weight: 600; opacity: 0.5; display: flex; align-items: center; gap: 6px; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* Sidebar & Space Tracker */
+        .sidebar-container { grid-column: 1/2; grid-row: 2/3; display: grid; grid-template-rows: 1fr 220px; gap: 15px; min-height: 0; }
+        .event-item { display: flex; align-items: center; gap: 20px; padding: 14px 25px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 8px; }
+        .event-item.is-today { background: rgba(255,255,255,0.12); border-color: transparent; }
+        .event-time { font-weight: 800; font-size: 1.9rem; }
+        .event-title { font-size: 1.5rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        .space-display { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 80%; }
+        .radar-container { position: relative; width: 40px; height: 40px; margin-top: 15px; }
+        .radar-ring { position: absolute; width: 100%; height: 100%; border: 2px solid var(--accent); border-radius: 50%; animation: radar-pulse 2s ease-out infinite; opacity: 0; }
+        .radar-dot { position: absolute; width: 6px; height: 6px; background: var(--accent); border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%, -50%); box-shadow: 0 0 10px var(--accent); }
+        @keyframes radar-pulse { 0% { transform: scale(0.5); opacity: 1; } 100% { transform: scale(2.5); opacity: 0; } }
+
+        /* Main Content */
+        .main-content { position: relative; }
+        #slideshow-container { position: absolute; inset: 0; background: #000; }
+        .slide { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transition: opacity 2.5s ease-in-out; }
+        .slide.active { opacity: 1; }
+
+        /* Påsklov Modul */
+        .easter-box { flex: 1; border: 1px solid rgba(255,170,51,0.5); display: flex; align-items: center; justify-content: center; gap: 20px; }
+        .easter-label-vert { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 0.8rem; letter-spacing: 4px; font-weight: 900; color: var(--easter-gold); opacity: 0.8; }
+        .easter-days { font-size: 5rem; font-weight: 900; color: var(--text-main); line-height: 1; }
+
+        @keyframes fall { to { transform: translateY(105vh) translateX(30px); } }
+        .snow-flake { position: fixed; top: -20px; color: white; pointer-events: none; z-index: 9999; animation: fall linear infinite; }
+        .rain-drop { position: fixed; top: -20px; background: rgba(174, 194, 224, 0.4); width: 2px; height: 15px; pointer-events: none; z-index: 9999; animation: fall 0.8s linear infinite; }
+    </style>
+</head>
+<body>
+
 <header class="top-bar glass-panel">
     <div>
         <div id="mini-date" style="font-size: 0.9rem; color: var(--accent); text-transform: uppercase; font-weight: 600;">Laddar...</div>
@@ -16,20 +99,97 @@
     </div>
 </header>
 
+<div class="sidebar-container">
+    <section class="glass-panel" style="padding: 20px;">
+        <div id="custom-calendar-list"></div>
+    </section>
+    
+    <section class="glass-panel" style="padding: 20px;">
+        <div style="display: flex; align-items: center; gap: 10px; opacity: 0.7; margin-bottom: 5px;">
+            <i data-lucide="orbit" style="width:16px; color:var(--accent);"></i>
+            <span style="font-size: 0.7rem; letter-spacing: 2px; font-weight: 800;">LIVE SPACE TRACKER</span>
+        </div>
+        <div class="space-display">
+            <div style="font-size: 0.7rem; opacity: 0.5; font-weight: 800; margin-bottom: 2px;">ISS CURRENT POSITION</div>
+            <div id="iss-coords" style="font-size: 1.6rem; font-weight: 200; letter-spacing: 1px; text-align: center; line-height: 1.2;">
+                <span id="iss-lat" style="color: var(--accent);">0.00</span><br>
+                <span id="iss-lng">0.00</span>
+            </div>
+            <div style="margin-top: 15px; font-size: 0.65rem; opacity: 0.5; font-weight: 800; letter-spacing: 1px;">DISTANCE TO MARS</div>
+            <div id="mars-dist" style="font-size: 1.4rem; font-weight: 600; color: var(--mars-red);">--- M KM</div>
+            
+            <div class="radar-container">
+                <div class="radar-ring"></div>
+                <div class="radar-dot"></div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<main class="main-content glass-panel">
+    <div id="slideshow-container"></div>
+    <div style="position: absolute; inset: 0; background: linear-gradient(transparent 30%, rgba(0,0,0,0.8)); z-index: 2;"></div>
+    <div class="quote-overlay" style="position: absolute; bottom: 35px; left: 50%; transform: translateX(-50%); z-index: 10; width: 85%; text-align: center; background: rgba(0,0,0,0.5); backdrop-filter: blur(20px); padding: 30px; border-radius: 30px; border: 1px solid var(--glass-border);">
+        <div id="quote-text" style="font-size: 1.6rem; font-style: italic; font-weight: 300; margin-bottom: 10px; line-height: 1.4;">"Hämtar dagens visdom..."</div>
+        <div id="quote-author" style="font-size: 0.85rem; color: var(--accent); letter-spacing: 3px; text-transform: uppercase; font-weight: 600;">--</div>
+    </div>
+</main>
+
+<div style="grid-column: 1/2; grid-row: 3/4;">
+    <footer class="glass-panel" style="height: 100%; display: flex; align-items: center; padding: 0 35px;">
+        <div class="news-container">
+            <div style="width: 12px; height: 12px; background: #ff4444; border-radius: 50%; box-shadow: 0 0 10px #ff4444;"></div>
+            <div id="news-static">HÄMTAR SENASTE NYTT...</div>
+        </div>
+    </footer>
+</div>
+
+<div style="grid-column: 2/3; grid-row: 3/4; display: flex; gap: 15px;">
+    <div class="glass-panel easter-box">
+        <div class="easter-label-vert">PÅSKLOV</div>
+        <div id="countdown" class="easter-days">00</div>
+        <div style="font-size: 0.9rem; letter-spacing: 2px; font-weight: 600; opacity: 0.5; margin-top: 10px;">DAGAR</div>
+    </div>
+    <div class="glass-panel" style="flex: 1.8; padding: 25px; display: flex; align-items: center;">
+        <div id="history-fact" style="font-size: 1.1rem; line-height: 1.5; font-weight: 300;">Hämtar historik...</div>
+    </div>
+</div>
+
 <script>
-    // ... (behåll dina API-nycklar och övriga funktioner) ...
+    const API_KEY = 'AIzaSyAC3QiGhqOM2F2ZrnFq3xWUu6_1bAwOvSw';
+    const CAL_ID = 'rezgarhayder@gmail.com';
+
+    async function fetchQuote() {
+        try {
+            const res = await fetch('https://api.quotable.io/random?maxLength=130');
+            const data = await res.json();
+            document.getElementById('quote-text').innerText = `"${data.content}"`;
+            document.getElementById('quote-author').innerText = data.author;
+        } catch(e) { console.log("Quote fail"); }
+    }
+
+    async function updateSpaceData() {
+        try {
+            const res = await fetch('https://api.wheretheiss.at/v1/satellites/25544');
+            const data = await res.json();
+            document.getElementById('iss-lat').innerText = data.latitude.toFixed(3) + " N";
+            document.getElementById('iss-lng').innerText = data.longitude.toFixed(3) + " E";
+            
+            // Marsdistansberäkning (Ungefärlig för visuell effekt)
+            const cycle = (new Date().getTime() % 100000000) / 100000000;
+            const dist = (225 + Math.sin(cycle * Math.PI * 2) * 140).toFixed(1);
+            document.getElementById('mars-dist').innerText = dist + " M KM";
+        } catch(e) {}
+    }
 
     async function updateWeather() {
         try {
             const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=55.64&longitude=13.21&current=temperature_2m,relative_humidity_2m,wind_speed_10m&hourly=temperature_2m,weathercode,precipitation_probability&daily=temperature_2m_max&timezone=auto');
             const data = await res.json();
-            
-            // Nuvarande detaljer & Imorgon (index 1 i daily för imorgon)
             document.getElementById('cur-wind').innerText = Math.round(data.current.wind_speed_10m) + ' m/s';
             document.getElementById('cur-hum').innerText = data.current.relative_humidity_2m + ' %';
             document.getElementById('tom-temp').innerText = Math.round(data.daily.temperature_2m_max[1]) + '°';
 
-            // Timprognos
             const hIdx = new Date().getHours();
             let hHtml = '';
             for(let i=1; i<=5; i++) {
@@ -38,17 +198,81 @@
                 const code = data.hourly.weathercode[idx];
                 const pop = data.hourly.precipitation_probability[idx];
                 const icon = code <= 3 ? 'sun' : (code >= 71 ? 'snowflake' : 'cloud-rain');
-                hHtml += `
-                <div class="weather-node">
-                    <div class="w-time">${time}</div>
-                    <i data-lucide="${icon}" class="weather-icon"></i>
-                    <div class="w-temp">${Math.round(data.hourly.temperature_2m[idx])}°</div>
-                    <div class="w-pop">${pop > 0 ? '<i data-lucide="umbrella" style="width:10px"></i>' + pop + '%' : ''}</div>
-                </div>`;
+                hHtml += `<div class="weather-node"><div class="w-time">${time}</div><i data-lucide="${icon}" class="weather-icon"></i><div class="w-temp">${Math.round(data.hourly.temperature_2m[idx])}°</div><div class="w-pop">${pop > 5 ? pop + '%' : ''}</div></div>`;
             }
             document.getElementById('header-hourly').innerHTML = hHtml;
             lucide.createIcons();
-        } catch(e) { console.error("Väderfel:", e); }
+        } catch(e) {}
     }
-    // ... resten av funktionerna ...
+
+    async function updateSlide() {
+        const container = document.getElementById('slideshow-container');
+        const url = `https://picsum.photos/seed/${Math.random()}/1920/1080`;
+        const newSlide = document.createElement('div');
+        newSlide.className = 'slide'; newSlide.style.backgroundImage = `url('${url}')`;
+        container.appendChild(newSlide);
+        const img = new Image(); img.src = url;
+        img.onload = () => {
+            container.querySelector('.slide.active')?.classList.remove('active');
+            newSlide.classList.add('active');
+            fetchQuote();
+            setTimeout(() => { container.querySelectorAll('.slide:not(.active)').forEach(s => s.remove()); }, 2500);
+        };
+    }
+
+    async function updateCalendar() {
+        try {
+            const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CAL_ID)}/events?key=${API_KEY}&timeMin=${new Date().toISOString()}&singleEvents=true&orderBy=startTime`);
+            const data = await res.json();
+            if (data.items) {
+                document.getElementById('custom-calendar-list').innerHTML = data.items.slice(0, 4).map(event => {
+                    const start = new Date(event.start.dateTime || event.start.date);
+                    const isToday = start.toDateString() === new Date().toDateString();
+                    return `<div class="event-item ${isToday ? 'is-today' : ''}">
+                        <div style="min-width: 80px;"><div style="font-size: 0.8rem; font-weight:800; color:var(--accent);">${isToday ? 'IDAG' : start.toLocaleDateString('sv-SE', {weekday:'short', day:'numeric'})}</div>
+                        <div class="event-time">${event.start.dateTime ? start.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'}) : 'DAG'}</div></div>
+                        <div class="event-title">${event.summary}</div></div>`;
+                }).join('');
+            }
+        } catch(e) {}
+    }
+
+    async function updateNews() {
+        try {
+            const r = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.svt.se/nyheter/rss.xml');
+            const d = await r.json();
+            let items = d.items.map(i => i.title), idx = 0;
+            const el = document.getElementById('news-static');
+            setInterval(() => {
+                el.style.opacity = 0;
+                setTimeout(() => { el.innerText = items[idx].toUpperCase(); el.style.opacity = 1; idx = (idx + 1) % items.length; }, 800);
+            }, 10000);
+        } catch(e) {}
+    }
+
+    async function updateHistory() {
+        try {
+            const r = await fetch(`https://en.wikipedia.org/api/rest_v1/feed/onthisday/events/${new Date().getMonth()+1}/${new Date().getDate()}`);
+            const d = await r.json();
+            const e = d.events[Math.floor(Math.random()*d.events.length)];
+            document.getElementById('history-fact').innerHTML = `<b style="color:var(--accent); font-weight:800">${e.year}:</b> ${e.text}`;
+        } catch(e) {}
+    }
+
+    function updateTime() {
+        const now = new Date();
+        document.getElementById('mini-clock').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
+        document.getElementById('mini-date').innerText = now.toLocaleDateString('sv-SE', {weekday:'long', day:'numeric', month:'short'});
+        document.getElementById('countdown').innerText = Math.ceil((new Date('2026-03-30') - now) / 86400000);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        updateTime(); updateWeather(); updateCalendar(); updateNews(); updateSlide(); updateSpaceData(); updateHistory();
+        setInterval(updateTime, 30000);
+        setInterval(updateWeather, 600000);
+        setInterval(updateSlide, 60000);
+        setInterval(updateSpaceData, 10000);
+    });
 </script>
+</body>
+</html>
