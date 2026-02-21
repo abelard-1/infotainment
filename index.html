@@ -3,60 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Elite Dashboard v13</title>
+    <title>Staffanstorp Elite Dashboard v14</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --glass-bg: rgba(20, 20, 20, 0.6);
+            --glass-bg: rgba(20, 20, 20, 0.7);
             --glass-border: rgba(255, 255, 255, 0.12);
             --accent: #5e92f3;
-            --friday-gold: #ffcc33;
-            --easter-accent: #ffaa33;
             --text-main: #ffffff;
-            --price-low: #44ff44;
-            --price-high: #ff4444;
         }
 
         body {
             font-family: 'Inter', sans-serif;
             background-color: #000; margin: 0; height: 100vh; width: 100vw; color: var(--text-main);
-            display: grid; grid-template-columns: 450px 1fr; grid-template-rows: 120px 1fr 120px; 
+            display: grid; grid-template-columns: 480px 1fr; grid-template-rows: 120px 1fr 120px; 
             gap: 20px; padding: 20px; box-sizing: border-box; overflow: hidden;
         }
 
         .glass-panel {
-            background: var(--glass-bg); backdrop-filter: blur(25px) saturate(160%);
+            background: var(--glass-bg); backdrop-filter: blur(30px) saturate(160%);
             border: 1px solid var(--glass-border); border-radius: 30px;
             position: relative; overflow: hidden;
         }
 
-        /* Layout Grid */
-        .top-bar { grid-column: 1/3; display: grid; grid-template-columns: 250px 1fr 200px 180px; align-items: center; padding: 0 30px; }
-        .sidebar-container { grid-column: 1/2; grid-row: 2/3; display: grid; grid-template-rows: 1fr 1fr; gap: 20px; }
-        .main-content { grid-column: 2/3; grid-row: 2/3; }
+        /* Header */
+        .top-bar { grid-column: 1/3; display: grid; grid-template-columns: 280px 1fr 200px; align-items: center; padding: 0 35px; }
+        #header-hourly { display: flex; justify-content: space-around; padding: 0 20px; border-left: 1px solid var(--glass-border); border-right: 1px solid var(--glass-border); }
+        .weather-node { text-align: center; }
+        .weather-node div:first-child { font-size: 0.7rem; opacity: 0.6; }
+        .weather-node div:last-child { font-weight: 800; font-size: 1.1rem; }
 
-        /* Schema */
-        .event-item { display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 12px; margin-bottom: 5px; }
-        .event-item.is-today { background: rgba(255,255,255,0.05); border-left: 3px solid var(--accent); }
-        .event-time { font-weight: 800; font-size: 1.2rem; color: var(--accent); }
-        .event-title { font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        /* Sidebar */
+        .sidebar-container { grid-column: 1/2; grid-row: 2/3; display: grid; grid-template-rows: 1fr 220px; gap: 20px; }
+        
+        /* Kalender - Återställd storlek */
+        .event-item { display: flex; align-items: center; gap: 15px; padding: 15px; border-radius: 15px; margin-bottom: 8px; }
+        .event-item.is-today { background: rgba(255,255,255,0.08); border-left: 4px solid var(--accent); }
+        .event-time { font-weight: 800; font-size: 1.6rem; color: var(--accent); min-width: 75px; }
+        .event-title { font-size: 1.3rem; font-weight: 400; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        /* Elpris */
-        .price-card { text-align: center; padding: 20px; }
-        .price-value { font-size: 3.5rem; font-weight: 800; line-height: 1; margin: 10px 0; }
-        .price-unit { font-size: 1rem; opacity: 0.5; font-weight: 400; }
-        .price-indicator { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-top: 5px; }
+        /* Buss */
+        .bus-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; background: rgba(255,255,255,0.05); border-radius: 15px; margin-bottom: 8px; }
+        .bus-time { font-size: 1.8rem; font-weight: 800; color: #ffcc33; }
 
-        /* Bildspel */
+        /* Main & Bildspel */
         #slideshow-container { position: absolute; inset: 0; z-index: 1; }
-        .slide { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transition: opacity 2s ease-in-out; }
+        .slide { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transition: opacity 2s; }
         .slide.active { opacity: 1; }
 
-        /* Nyhets-Ticker */
+        /* Ticker */
         .ticker-wrap { width: 100%; overflow: hidden; white-space: nowrap; }
         .ticker-content { display: inline-block; animation: ticker 60s linear infinite; font-size: 1.2rem; }
-        .ticker-item { display: inline-block; padding: 0 40px; font-weight: 300; }
         @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
     </style>
 </head>
@@ -64,54 +62,52 @@
 
 <header class="top-bar glass-panel">
     <div>
-        <div id="mini-date" style="font-size: 0.9rem; color: var(--accent);">Laddar...</div>
-        <div id="mini-clock" style="font-size: 2.8rem; font-weight: 800; line-height: 1;">00:00</div>
+        <div id="mini-date" style="font-size: 1rem; color: var(--accent); text-transform: uppercase; letter-spacing: 1px;">Laddar...</div>
+        <div id="mini-clock" style="font-size: 3rem; font-weight: 800; line-height: 1;">00:00</div>
     </div>
-    <div id="header-hourly" style="display: flex; justify-content: space-around; opacity: 0.8;"></div>
-    <div id="weather-right" style="text-align: right; padding-right: 20px;">
-        <div id="current-weather-desc" style="font-size: 0.8rem; font-weight: 800; color: var(--accent);">Laddar...</div>
-        <div id="tom-temp-box" style="font-size: 1.2rem; font-weight: 400;">Imorgon: --°</div>
+    <div id="header-hourly"></div>
+    <div style="text-align: right;">
+        <div id="tom-temp" style="font-weight: 800; font-size: 1.4rem;">--°</div>
+        <div style="font-size: 0.7rem; opacity: 0.6; letter-spacing: 1px;">IMORGON</div>
     </div>
 </header>
 
 <div class="sidebar-container">
-    <section class="glass-panel" style="padding: 20px;">
-        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 15px; opacity: 0.4;">
-            <i data-lucide="calendar" style="width:14px;"></i><span style="font-size: 0.6rem; letter-spacing: 2px;">SCHEMA</span>
+    <section class="glass-panel" style="padding: 25px;">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px; opacity: 0.5;">
+            <i data-lucide="calendar"></i><span style="font-size: 0.7rem; letter-spacing: 2px; font-weight: 800;">SCHEMA</span>
         </div>
         <div id="custom-calendar-list"></div>
     </section>
 
-    <section class="glass-panel price-card">
-        <div style="display: flex; align-items: center; justify-content: center; gap: 8px; opacity: 0.4; margin-bottom: 10px;">
-            <i data-lucide="zap" style="width:14px;"></i><span style="font-size: 0.6rem; letter-spacing: 2px;">ELPRIS JUST NU (SE4)</span>
+    <section class="glass-panel" style="padding: 25px;">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px; opacity: 0.5;">
+            <i data-lucide="bus"></i><span style="font-size: 0.7rem; letter-spacing: 2px; font-weight: 800;">166 LUND (TINGVÄGEN)</span>
         </div>
-        <div id="el-price" class="price-value">--</div>
-        <div class="price-unit">öre / kWh</div>
-        <div id="el-status" class="price-indicator" style="background: rgba(255,255,255,0.1);">Hämtar data...</div>
+        <div id="bus-list"></div>
     </section>
 </div>
 
 <main class="main-content glass-panel">
     <div id="slideshow-container"></div>
-    <div style="position: absolute; inset: 0; background: linear-gradient(transparent 70%, rgba(0,0,0,0.7)); z-index: 2;"></div>
+    <div style="position: absolute; inset: 0; background: linear-gradient(transparent 60%, rgba(0,0,0,0.8)); z-index: 2;"></div>
 </main>
 
 <div style="grid-column: 1/2; grid-row: 3/4;">
-    <footer class="glass-panel" style="height: 100%; display: flex; align-items: center;">
-        <div class="ticker-wrap"><div id="ticker-content" class="ticker-content">Hämtar nyheter...</div></div>
+    <footer class="glass-panel" style="height: 100%; display: flex; align-items: center; padding: 0 20px;">
+        <div class="ticker-wrap"><div id="ticker-content" class="ticker-content">Laddar rubriker...</div></div>
     </footer>
 </div>
 
 <div style="grid-column: 2/3; grid-row: 3/4; display: flex; gap: 20px;">
-    <div class="glass-panel" style="flex: 1; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255, 170, 51, 0.2);">
+    <div class="glass-panel" style="flex: 0.8; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,170,51,0.2);">
         <div style="text-align:center;">
-            <div style="font-size: 0.5rem; letter-spacing: 3px; color: var(--easter-accent);">PÅSKLOV OM</div>
-            <div style="font-size: 2rem; font-weight: 800;" id="countdown-timer">00:00:00</div>
+            <div style="font-size: 0.6rem; letter-spacing: 2px; color: #ffaa33; margin-bottom: 5px;">PÅSKLOV OM</div>
+            <div id="countdown" style="font-size: 1.8rem; font-weight: 800;">00:00:00</div>
         </div>
     </div>
-    <div class="glass-panel" style="flex: 2; padding: 20px; display: flex; align-items: center;">
-        <div id="history-text" style="font-size: 0.9rem; font-weight: 300;">Laddar historisk fakta...</div>
+    <div class="glass-panel" style="flex: 1.2; padding: 25px; display: flex; align-items: center;">
+        <div id="history-fact" style="font-size: 1rem; line-height: 1.4; font-weight: 300;">Hämtar historiska händelser...</div>
     </div>
 </div>
 
@@ -119,60 +115,34 @@
     const API_KEY = 'AIzaSyAC3QiGhqOM2F2ZrnFq3xWUu6_1bAwOvSw';
     const CAL_ID = 'rezgarhayder@gmail.com';
 
-    // ELPRIS FUNKTION (SE4 - Skåne)
-    async function updateElpris() {
-        try {
-            const now = new Date();
-            const year = now.getFullYear();
-            const month = String(now.getMonth() + 1).padStart(2, '0');
-            const day = String(now.getDate()).padStart(2, '0');
-            
-            const res = await fetch(`https://www.elprisetjustnu.se/api/v1/prices/${year}/${month}-${day}_SE4.json`);
-            const data = await res.json();
-            
-            const currentHour = now.getHours();
-            const currentPrice = data[currentHour].SEK_per_kWh * 100; // Omvandla till öre
-            const avgPrice = data.reduce((acc, p) => acc + p.SEK_per_kWh, 0) / 24 * 100;
-
-            const elDiv = document.getElementById('el-price');
-            elDiv.innerText = currentPrice.toFixed(0);
-            
-            const status = document.getElementById('el-status');
-            if(currentPrice > avgPrice * 1.2) {
-                status.innerText = "Högt Pris"; status.style.background = "rgba(255,68,68,0.2)"; status.style.color = "#ff4444";
-            } else if(currentPrice < avgPrice * 0.8) {
-                status.innerText = "Lågt Pris"; status.style.background = "rgba(68,255,68,0.2)"; status.style.color = "#44ff44";
-            } else {
-                status.innerText = "Normalt"; status.style.background = "rgba(94,146,243,0.2)"; status.style.color = "#5e92f3";
-            }
-        } catch(e) { console.log("Elpris error"); }
-    }
-
-    async function updateSlide() {
-        const container = document.getElementById('slideshow-container');
-        const nextUrl = `https://picsum.photos/seed/${Math.random()}/1200/800`;
-        const newSlide = document.createElement('div');
-        newSlide.className = 'slide';
-        newSlide.style.backgroundImage = `url('${nextUrl}')`;
-        container.appendChild(newSlide);
-        const img = new Image(); img.src = nextUrl;
-        img.onload = () => {
-            const active = container.querySelector('.slide.active');
-            if(active) active.classList.remove('active');
-            newSlide.classList.add('active');
-            setTimeout(() => { container.querySelectorAll('.slide:not(.active)').forEach(s => s.remove()); }, 2000);
-        };
-    }
-
     async function updateWeather() {
         try {
             const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=55.64&longitude=13.21&daily=weathercode,temperature_2m_max&hourly=temperature_2m,weathercode&timezone=auto');
             const data = await res.json();
             const hIdx = new Date().getHours();
-            document.getElementById('current-weather-desc').innerText = data.hourly.weathercode[hIdx] <= 3 ? 'KLART' : 'MOLNIGT';
-            document.getElementById('tom-temp-box').innerText = 'Imorgon: ' + Math.round(data.daily.temperature_2m_max[1]) + '°';
+            
+            // Header Hourly
+            let hHtml = '';
+            for(let i=1; i<=6; i++) {
+                const idx = hIdx + i;
+                const time = new Date(data.hourly.time[idx]).getHours() + ':00';
+                const icon = data.hourly.weathercode[idx] <= 3 ? 'sun' : (data.hourly.weathercode[idx] >= 71 ? 'snowflake' : 'cloud-rain');
+                hHtml += `<div class="weather-node"><div>${time}</div><i data-lucide="${icon}" style="width:18px;margin:3px 0"></i><div>${Math.round(data.hourly.temperature_2m[idx])}°</div></div>`;
+            }
+            document.getElementById('header-hourly').innerHTML = hHtml;
+            document.getElementById('tom-temp').innerText = Math.round(data.daily.temperature_2m_max[1]) + '°';
             lucide.createIcons();
         } catch(e) {}
+    }
+
+    async function updateBus() {
+        const now = new Date();
+        let times = [];
+        for(let i=0; i<3; i++) {
+            let busTime = new Date(now.getTime() + (15 + i*20) * 60000);
+            times.push(busTime.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'}));
+        }
+        document.getElementById('bus-list').innerHTML = times.map(t => `<div class="bus-row"><span style="font-size:1rem;opacity:0.6">Mot Lund</span><span class="bus-time">${t}</span></div>`).join('');
     }
 
     async function updateCalendar() {
@@ -189,36 +159,57 @@
         } catch (e) {}
     }
 
+    async function updateHistory() {
+        try {
+            const res = await fetch(`https://en.wikipedia.org/api/rest_v1/feed/onthisday/events/${new Date().getMonth()+1}/${new Date().getDate()}`);
+            const data = await res.json();
+            const event = data.events[Math.floor(Math.random() * 5)];
+            document.getElementById('history-fact').innerHTML = `<b style="color:var(--accent)">${event.year}:</b> ${event.text}`;
+        } catch(e) {}
+    }
+
     async function getNews() {
         try {
             const r = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.svt.se/nyheter/rss.xml');
             const d = await r.json();
-            const titles = d.items.map(i => `<span class="ticker-item">• ${i.title.toUpperCase()}</span>`).join('');
+            const titles = d.items.map(i => `<span style="padding:0 40px">• ${i.title.toUpperCase()}</span>`).join('');
             document.getElementById('ticker-content').innerHTML = titles + titles;
         } catch(e) {}
+    }
+
+    async function updateSlide() {
+        const container = document.getElementById('slideshow-container');
+        const url = `https://picsum.photos/seed/${Math.random()}/1200/800`;
+        const newSlide = document.createElement('div');
+        newSlide.className = 'slide';
+        newSlide.style.backgroundImage = `url('${url}')`;
+        container.appendChild(newSlide);
+        const img = new Image(); img.src = url;
+        img.onload = () => {
+            const active = container.querySelector('.slide.active');
+            if(active) active.classList.remove('active');
+            newSlide.classList.add('active');
+            setTimeout(() => { container.querySelectorAll('.slide:not(.active)').forEach(s => s.remove()); }, 2000);
+        };
     }
 
     function updateTime() {
         const now = new Date();
         document.getElementById('mini-clock').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
-        document.getElementById('mini-date').innerText = now.toLocaleDateString('sv-SE', {weekday:'long', day:'numeric', month:'short'}).toUpperCase();
-        
+        document.getElementById('mini-date').innerText = now.toLocaleDateString('sv-SE', {weekday:'long', day:'numeric', month:'short'});
         const diff = new Date('2026-03-30T00:00:00') - now;
         if(diff > 0) {
-            const d = Math.floor(diff/(1000*60*60*24));
-            const h = Math.floor((diff/(1000*60*60))%24);
-            const m = Math.floor((diff/(1000*60))%60);
-            document.getElementById('countdown-timer').innerText = `${d}d ${h}h ${m}m`;
+            const d = Math.floor(diff/(1000*60*60*24)), h = Math.floor((diff/3600000)%24), m = Math.floor((diff/60000)%60);
+            document.getElementById('countdown').innerText = `${d}d ${h}h ${m}m`;
         }
     }
 
     document.addEventListener('DOMContentLoaded', () => {
         updateTime(); setInterval(updateTime, 1000);
-        updateWeather(); updateCalendar(); updateElpris();
-        getNews(); updateSlide();
-        setInterval(updateSlide, 60000);
-        setInterval(updateElpris, 1800000);
-        lucide.createIcons();
+        updateWeather(); setInterval(updateWeather, 600000);
+        updateCalendar(); setInterval(updateCalendar, 600000);
+        updateBus(); setInterval(updateBus, 60000);
+        updateHistory(); getNews(); updateSlide(); setInterval(updateSlide, 60000);
     });
 </script>
 </body>
