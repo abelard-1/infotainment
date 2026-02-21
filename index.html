@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Elite Dashboard v19</title>
+    <title>Staffanstorp Elite Dashboard v20</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
@@ -37,18 +37,18 @@
         .weather-icon { width: 28px !important; height: 28px !important; margin: 4px 0; color: var(--accent); }
 
         /* Sidebar & Kalender */
-        .sidebar-container { grid-column: 1/2; grid-row: 2/3; display: grid; grid-template-rows: 1fr 260px; gap: 15px; overflow: hidden; }
-        .event-item { display: flex; align-items: center; gap: 15px; padding: 14px 20px; border-radius: 18px; margin-bottom: 6px; width: 100%; box-sizing: border-box; }
+        .sidebar-container { grid-column: 1/2; grid-row: 2/3; display: grid; grid-template-rows: 1fr 250px; gap: 15px; overflow: hidden; }
+        .event-item { display: flex; align-items: center; gap: 15px; padding: 12px 20px; border-radius: 18px; margin-bottom: 5px; width: 100%; box-sizing: border-box; }
         .event-item.is-today { background: rgba(255,255,255,0.08); border-left: 5px solid var(--accent); }
         .event-date-box { min-width: 90px; line-height: 1.1; }
         .event-day { font-size: 0.75rem; font-weight: 800; color: var(--accent); text-transform: uppercase; }
         .event-time { font-weight: 800; font-size: 1.6rem; }
         .event-title { font-size: 1.3rem; font-weight: 400; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-grow: 1; }
 
-        /* Buss */
-        .bus-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; background: rgba(255,255,255,0.05); border-radius: 18px; margin-bottom: 8px; }
-        .bus-time { font-size: 1.9rem; font-weight: 800; color: #ffcc33; }
-        .bus-label { font-size: 0.9rem; opacity: 0.5; font-weight: 600; }
+        /* Buss 174 */
+        .bus-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; background: rgba(255,255,255,0.05); border-radius: 18px; margin-bottom: 6px; }
+        .bus-time { font-size: 1.8rem; font-weight: 800; color: #ffcc33; }
+        .bus-label { font-size: 0.85rem; opacity: 0.6; font-weight: 600; letter-spacing: 1px; }
 
         /* Bildspel */
         #slideshow-container { position: absolute; inset: 0; z-index: 1; }
@@ -61,7 +61,7 @@
             padding: 15px 35px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);
         }
 
-        /* Animationer */
+        /* Väderanimationer */
         @keyframes fall { to { transform: translateY(110vh) translateX(30px); } }
         .snow-flake { position: fixed; top: -20px; color: white; pointer-events: none; z-index: 9999; animation: fall linear infinite; }
         .rain-drop { position: fixed; top: -20px; background: rgba(174, 194, 224, 0.4); width: 2px; height: 15px; pointer-events: none; z-index: 9999; animation: fall 0.8s linear infinite; }
@@ -87,15 +87,15 @@
 
 <div class="sidebar-container">
     <section class="glass-panel" style="padding: 20px;">
-        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px; opacity: 0.5;">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px; opacity: 0.5;">
             <i data-lucide="calendar" style="width:16px;"></i><span style="font-size: 0.7rem; letter-spacing: 2px; font-weight: 800;">SCHEMA</span>
         </div>
         <div id="custom-calendar-list"></div>
     </section>
 
     <section class="glass-panel" style="padding: 20px;">
-        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px; opacity: 0.5;">
-            <i data-lucide="bus" style="width:16px;"></i><span style="font-size: 0.7rem; letter-spacing: 2px; font-weight: 800;">166 LUND</span>
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px; opacity: 0.5;">
+            <i data-lucide="bus" style="width:16px;"></i><span style="font-size: 0.7rem; letter-spacing: 2px; font-weight: 800;">174 LUND C (STORGATAN)</span>
         </div>
         <div id="bus-list"></div>
     </section>
@@ -119,8 +119,9 @@
 <div style="grid-column: 2/3; grid-row: 3/4; display: flex; gap: 15px;">
     <div class="glass-panel" style="flex: 1; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,170,51,0.25);">
         <div style="text-align:center;">
-            <div style="font-size: 0.8rem; letter-spacing: 3px; color: var(--easter-gold); font-weight: 800; margin-bottom: 4px;">PÅSKLOV OM</div>
-            <div id="countdown" style="font-size: 2rem; font-weight: 800;">00d 00h 00m</div>
+            <div style="font-size: 0.8rem; letter-spacing: 3px; color: var(--easter-gold); font-weight: 800; margin-bottom: -5px;">PÅSKLOV OM</div>
+            <div id="countdown" style="font-size: 3.5rem; font-weight: 900; color: #fff;">00</div>
+            <div style="font-size: 0.7rem; letter-spacing: 2px; opacity: 0.6; margin-top: -5px;">DAGAR</div>
         </div>
     </div>
     <div class="glass-panel" style="flex: 1.3; padding: 20px; display: flex; align-items: center;">
@@ -164,13 +165,25 @@
     }
 
     async function updateBus() {
+        // För demonstration simulerar vi de verkliga intervallerna för 174:an (ofta 20-min trafik till Lund)
         const now = new Date();
-        let departures = [12, 32, 52].map(offset => {
-            let d = new Date(now.getTime() + offset * 60000);
-            return d.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
+        const baseTimes = [15, 35, 55]; // Typiska minuter i timmen
+        let departures = [];
+        
+        baseTimes.forEach(m => {
+            let d = new Date();
+            d.setMinutes(m);
+            if (d < now) d.setHours(now.getHours() + 1);
+            departures.push(d);
         });
-        document.getElementById('bus-list').innerHTML = departures.map(t => `
-            <div class="bus-row"><span class="bus-label">TINGVÄGEN ➔ LUND</span><span class="bus-time">${t}</span></div>
+        
+        departures.sort((a,b) => a-b);
+        
+        document.getElementById('bus-list').innerHTML = departures.slice(0,3).map(t => `
+            <div class="bus-row">
+                <span class="bus-label">LUND C (Express)</span>
+                <span class="bus-time">${t.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'})}</span>
+            </div>
         `).join('');
     }
 
@@ -218,19 +231,20 @@
         const now = new Date();
         document.getElementById('mini-clock').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
         document.getElementById('mini-date').innerText = now.toLocaleDateString('sv-SE', {weekday:'long', day:'numeric', month:'short'});
+        
+        // Påsklovskalkyl (30 mars 2026)
         const diff = new Date('2026-03-30T00:00:00') - now;
-        if(diff > 0) {
-            const d = Math.floor(diff/86400000), h = Math.floor((diff/3600000)%24), m = Math.floor((diff/60000)%60);
-            document.getElementById('countdown').innerText = `${d}d ${h}h ${m}m`;
-        }
+        const daysLeft = Math.ceil(diff / (1000 * 60 * 60 * 24));
+        document.getElementById('countdown').innerText = daysLeft > 0 ? daysLeft : "0";
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-        updateTime(); setInterval(updateTime, 1000);
+        updateTime(); setInterval(updateTime, 1000 * 60); // Behöver bara uppdatera varje minut för dagar
         updateWeather(); setInterval(updateWeather, 600000);
         updateCalendar(); updateBus(); updateSlide(); 
         setInterval(updateBus, 60000);
         setInterval(updateSlide, 60000);
+        
         fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.svt.se/nyheter/rss.xml').then(r=>r.json()).then(d=>{
             const t = d.items.map(i=>`<span style="padding:0 60px">• ${i.title.toUpperCase()}</span>`).join('');
             document.getElementById('ticker-content').innerHTML = t + t;
