@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Elite Dashboard v24</title>
+    <title>Staffanstorp Elite Dashboard v25</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;600;800&display=swap" rel="stylesheet">
     <style>
@@ -13,7 +13,7 @@
             --accent: #5e92f3;
             --text-main: #ffffff;
             --easter-gold: #ffaa33;
-            --price-color: #44ff88; /* Dynamisk */
+            --price-color: #44ff88;
         }
 
         body {
@@ -58,19 +58,24 @@
 
         /* ELPRIS-MÄTARE */
         .energy-display { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; }
-        .price-value { font-size: 3.8rem; font-weight: 200; line-height: 1; color: var(--price-color); }
+        .price-value { font-size: 3.8rem; font-weight: 200; line-height: 1; color: var(--price-color); transition: color 1s; }
         .price-unit { font-size: 1rem; opacity: 0.5; font-weight: 800; letter-spacing: 2px; margin-top: 5px; }
         .gauge-container { width: 80%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; margin-top: 20px; position: relative; overflow: hidden; }
         #gauge-fill { height: 100%; width: 0%; background: var(--price-color); transition: width 1s ease-in-out, background 1s; box-shadow: 0 0 15px var(--price-color); }
 
-        /* Bildspel & Nyheter */
+        /* Bildspel */
+        #slideshow-container { position: absolute; inset: 0; z-index: 1; }
         .slide { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transition: opacity 2.5s; }
         .slide.active { opacity: 1; }
+
+        /* Nyheter */
         .news-container { display: flex; align-items: center; gap: 15px; }
-        .live-dot { width: 10px; height: 10px; background: #ff4444; border-radius: 50%; animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        .live-dot { width: 10px; height: 10px; background: #ff4444; border-radius: 50%; animation: pulse 2s infinite; box-shadow: 0 0 10px #ff4444; }
+        @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(1.2); } 100% { opacity: 1; transform: scale(1); } }
+        #news-static { font-size: 1.3rem; transition: opacity 0.8s; }
 
         /* Påsklov */
+        .easter-box { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid rgba(255,170,51,0.25); padding: 25px 0; }
         .easter-days { font-size: 4.2rem; font-weight: 900; line-height: 0.8; margin: 12px 0; }
 
         /* Väderanimationer */
@@ -99,7 +104,7 @@
     </section>
     <section class="glass-panel" style="padding: 20px;">
         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px; opacity: 0.5;">
-            <i data-lucide="zap" style="width:18px;"></i><span style="font-size: 0.8rem; letter-spacing: 2px; font-weight: 800;">ELPRIS SE4 / KWH</span>
+            <i data-lucide="zap" style="width:18px;"></i><span style="font-size: 0.8rem; letter-spacing: 2px; font-weight: 800;">TOTALPRIS SE4 (INKL. SKATT)</span>
         </div>
         <div class="energy-display">
             <div id="el-price" class="price-value">--</div>
@@ -125,7 +130,7 @@
 </div>
 
 <div style="grid-column: 2/3; grid-row: 3/4; display: flex; gap: 15px;">
-    <div class="glass-panel" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid rgba(255,170,51,0.25); padding: 25px 0;">
+    <div class="glass-panel easter-box">
         <div style="font-size: 1.1rem; letter-spacing: 4px; color: var(--easter-gold); font-weight: 800;">PÅSKLOV OM</div>
         <div id="countdown" class="easter-days">00</div>
         <div style="font-size: 1rem; letter-spacing: 3px; font-weight: 600; opacity: 0.8;">DAGAR</div>
@@ -138,40 +143,38 @@
 <script>
     const API_KEY = 'AIzaSyAC3QiGhqOM2F2ZrnFq3xWUu6_1bAwOvSw';
     const CAL_ID = 'rezgarhayder@gmail.com';
+    const ENERGY_TAX = 53.5; // Energiskatt inkl moms 2026 i öre/kWh
+
     const quotes = [
         { text: "Lyckan beror på kvaliteten av dina tankar.", author: "Marcus Aurelius" },
         { text: "Vi lider mer i fantasin än i verkligheten.", author: "Seneca" },
-        { text: "Den som har ett 'varför' kan uthärda nästan vilket 'hur' som helst.", author: "Friedrich Nietzsche" },
-        { text: "Du har makt över ditt sinne – inte över yttre händelser.", author: "Marcus Aurelius" },
-        { text: "Varje ögonblick är en ny början.", author: "T.S. Eliot" },
-        { text: "Slösa inte mer tid på att diskutera vad en bra människa bör vara. Var en.", author: "Marcus Aurelius" }
+        { text: "Din vision blir klar endast när du ser in i ditt hjärta.", author: "Carl Jung" },
+        { text: "Välj ett jobb du älskar, och du kommer aldrig att behöva arbeta en dag i ditt liv.", author: "Konfucius" },
+        { text: "Det är inte döden man ska frukta, utan att man aldrig börjar leva.", author: "Marcus Aurelius" },
+        { text: "Mitten av varje svårighet ligger möjligheten.", author: "Albert Einstein" }
     ];
 
     async function updateElpris() {
         try {
-            // Hämtar data för SE4 (Malmö/Skåne)
             const today = new Date();
             const dateStr = today.toISOString().split('T')[0];
             const [y, m, d] = dateStr.split('-');
             const res = await fetch(`https://www.elprisetjustnu.se/api/v1/prices/${y}/${m}-${d}_SE4.json`);
             const data = await res.json();
             const currentHour = today.getHours();
-            const priceKwh = data[currentHour].SEK_per_kWh * 100 * 1.25; // Inkl moms, öre
-            const price = Math.round(priceKwh);
+            const spotWithMoms = data[currentHour].SEK_per_kWh * 100 * 1.25; 
+            const total = Math.round(spotWithMoms + ENERGY_TAX);
 
-            const elEl = document.getElementById('el-price');
+            document.getElementById('el-price').innerText = total;
             const fillEl = document.getElementById('gauge-fill');
-            elEl.innerText = price;
-
-            // Färglogik och Mätar-fyllning (0-300 öre skala)
-            let color = '#44ff88'; // Grön
-            if (price > 100) color = '#ffcc33'; // Gul
-            if (price > 200) color = '#ff4444'; // Röd
+            
+            let color = '#44ff88'; // Billigt (under 150 öre)
+            if (total > 150) color = '#ffcc33'; // Medel
+            if (total > 250) color = '#ff4444'; // Dyrt
             
             document.documentElement.style.setProperty('--price-color', color);
-            const percent = Math.min((price / 300) * 100, 100);
-            fillEl.style.width = percent + '%';
-        } catch(e) { console.error("Elpris fel", e); }
+            fillEl.style.width = Math.min((total / 350) * 100, 100) + '%';
+        } catch(e) {}
     }
 
     async function updateWeather() {
@@ -281,7 +284,7 @@
         setInterval(updateTime, 60000);
         setInterval(updateWeather, 600000);
         setInterval(updateSlide, 60000);
-        setInterval(updateElpris, 1800000); // Varje 30 min
+        setInterval(updateElpris, 1800000);
     });
 </script>
 </body>
