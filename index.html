@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Elite Dashboard v21</title>
+    <title>Staffanstorp Elite Dashboard v22</title>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
             --glass-bg: rgba(20, 20, 20, 0.7);
@@ -19,7 +19,7 @@
         body {
             font-family: 'Inter', sans-serif;
             background-color: #000; margin: 0; height: 100vh; width: 100vw; color: var(--text-main);
-            display: grid; grid-template-columns: 500px 1fr; grid-template-rows: 150px 1fr 110px; 
+            display: grid; grid-template-columns: 520px 1fr; grid-template-rows: 150px 1fr 110px; 
             gap: 15px; padding: 15px; box-sizing: border-box; overflow: hidden;
         }
 
@@ -29,27 +29,21 @@
             position: relative; overflow: hidden;
         }
 
-        /* Header - Ännu större väder */
+        /* Header */
         .top-bar { grid-column: 1/3; display: grid; grid-template-columns: 320px 1fr 220px; align-items: center; padding: 0 40px; }
         #header-hourly { display: flex; justify-content: space-around; padding: 0 40px; border-left: 2px solid var(--glass-border); border-right: 2px solid var(--glass-border); height: 80%; }
-        .weather-node { text-align: center; display: flex; flex-direction: column; justify-content: center; }
+        .weather-node { text-align: center; }
         .weather-node div:first-child { font-size: 1rem; opacity: 0.6; font-weight: 600; }
-        .weather-node div:last-child { font-weight: 800; font-size: 1.8rem; margin-top: -5px; }
+        .weather-node div:last-child { font-weight: 800; font-size: 1.8rem; }
         .weather-icon { width: 42px !important; height: 42px !important; color: var(--accent); margin: 2px 0; }
 
-        /* Sidebar & Kalender med Animation */
+        /* Sidebar & Kalender */
         .sidebar-container { grid-column: 1/2; grid-row: 2/3; display: grid; grid-template-rows: 1fr 250px; gap: 15px; }
-        .event-item { display: flex; align-items: center; gap: 15px; padding: 14px 20px; border-radius: 18px; margin-bottom: 6px; border: 1px solid transparent; }
+        .event-item { display: flex; align-items: center; gap: 20px; padding: 18px 25px; border-radius: 20px; margin-bottom: 8px; }
+        .event-item.is-today { background: rgba(255,255,255,0.08); position: relative; z-index: 1; }
         
-        .event-item.is-today { 
-            background: rgba(255,255,255,0.08);
-            position: relative;
-            z-index: 1;
-        }
-
-        /* Border Beam Animation */
         .event-item.is-today::before {
-            content: ""; position: absolute; inset: 0; border-radius: 18px; padding: 2px;
+            content: ""; position: absolute; inset: 0; border-radius: 20px; padding: 2px;
             background: conic-gradient(from var(--angle), transparent 70%, var(--accent), #fff, var(--accent));
             -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
@@ -59,32 +53,32 @@
         @property --angle { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
         @keyframes rotate-angle { to { --angle: 360deg; } }
 
-        .event-time { font-weight: 800; font-size: 1.7rem; color: #fff; }
-        .event-day { font-size: 0.8rem; font-weight: 800; color: var(--accent); text-transform: uppercase; }
-        .event-title { font-size: 1.4rem; font-weight: 400; flex-grow: 1; }
+        .event-time { font-weight: 800; font-size: 2rem; color: #fff; }
+        .event-day { font-size: 0.9rem; font-weight: 800; color: var(--accent); text-transform: uppercase; }
+        .event-title { font-size: 1.6rem; font-weight: 400; flex-grow: 1; }
 
-        /* Buss - Tonad färg */
+        /* Buss */
         .bus-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 25px; background: rgba(255,255,255,0.03); border-radius: 20px; margin-bottom: 6px; }
-        .bus-time { font-size: 2rem; font-weight: 800; color: var(--bus-soft); }
+        .bus-time { font-size: 2.2rem; font-weight: 300; color: var(--bus-soft); letter-spacing: -1px; }
 
-        /* Statiska Nyheter */
-        .news-container { display: flex; align-items: center; gap: 15px; height: 100%; width: 100%; overflow: hidden; }
+        /* Nyheter */
+        .news-container { display: flex; align-items: center; gap: 15px; }
         .live-dot { width: 10px; height: 10px; background: #ff4444; border-radius: 50%; animation: pulse 2s infinite; box-shadow: 0 0 10px #ff4444; }
         @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(1.2); } 100% { opacity: 1; transform: scale(1); } }
-        #news-static { font-size: 1.3rem; font-weight: 400; transition: opacity 0.8s ease-in-out; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
+        #news-static { font-size: 1.3rem; transition: opacity 0.8s; }
 
-        /* Påsklov - Större text */
-        .easter-label { font-size: 1.1rem; letter-spacing: 4px; color: var(--easter-gold); font-weight: 800; }
-        .easter-days { font-size: 4rem; font-weight: 900; line-height: 1; margin: 2px 0; }
-        .easter-sub { font-size: 1rem; letter-spacing: 3px; font-weight: 600; opacity: 0.8; }
+        /* Bildspel */
+        #slideshow-container { position: absolute; inset: 0; z-index: 1; }
+        .slide { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transition: opacity 2.5s; }
+        .slide.active { opacity: 1; }
 
-        /* Väderanimationer */
+        /* Påsklov */
+        .easter-days { font-size: 4.2rem; font-weight: 900; line-height: 0.9; margin: 8px 0; }
+
+        /* Animationer Väder */
         @keyframes fall { to { transform: translateY(110vh) translateX(30px); } }
         .snow-flake { position: fixed; top: -20px; color: white; pointer-events: none; z-index: 9999; animation: fall linear infinite; }
         .rain-drop { position: fixed; top: -20px; background: rgba(174, 194, 224, 0.4); width: 2px; height: 15px; pointer-events: none; z-index: 9999; animation: fall 0.8s linear infinite; }
-
-        .slide { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transition: opacity 2.5s; }
-        .slide.active { opacity: 1; }
     </style>
 </head>
 <body>
@@ -105,10 +99,9 @@
     <section class="glass-panel" style="padding: 25px;">
         <div id="custom-calendar-list"></div>
     </section>
-
     <section class="glass-panel" style="padding: 20px;">
         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px; opacity: 0.5;">
-            <i data-lucide="bus" style="width:18px;"></i><span style="font-size: 0.8rem; letter-spacing: 2px; font-weight: 800;">174 LUND C (STORGATAN)</span>
+            <i data-lucide="bus" style="width:18px;"></i><span style="font-size: 0.8rem; letter-spacing: 2px; font-weight: 800;">174 LUND C</span>
         </div>
         <div id="bus-list"></div>
     </section>
@@ -117,28 +110,23 @@
 <main class="main-content glass-panel">
     <div id="slideshow-container"></div>
     <div style="position: absolute; inset: 0; background: linear-gradient(transparent 50%, rgba(0,0,0,0.6)); z-index: 2;"></div>
-    <div class="quote-overlay">
-        <div id="quote-text" style="font-size: 1.2rem; font-weight: 300; font-style: italic; margin-bottom: 5px;">"Laddar visdom..."</div>
-        <div id="quote-author" style="font-size: 0.7rem; color: var(--accent); letter-spacing: 3px; text-transform: uppercase;">--</div>
+    <div class="quote-overlay" style="position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 10; width: 85%; text-align: center; background: rgba(0,0,0,0.3); backdrop-filter: blur(8px); padding: 20px; border-radius: 20px;">
+        <div id="quote-text" style="font-size: 1.3rem; font-style: italic; margin-bottom: 5px;">"Laddar visdom..."</div>
+        <div id="quote-author" style="font-size: 0.8rem; color: var(--accent); text-transform: uppercase;">--</div>
     </div>
 </main>
 
 <div style="grid-column: 1/2; grid-row: 3/4;">
     <footer class="glass-panel" style="height: 100%; display: flex; align-items: center; padding: 0 30px;">
-        <div class="news-container">
-            <div class="live-dot"></div>
-            <div id="news-static">Hämtar senaste rubrikerna...</div>
-        </div>
+        <div class="news-container"><div class="live-dot"></div><div id="news-static">Hämtar nyheter...</div></div>
     </footer>
 </div>
 
 <div style="grid-column: 2/3; grid-row: 3/4; display: flex; gap: 15px;">
-    <div class="glass-panel" style="flex: 1; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,170,51,0.25);">
-        <div style="text-align:center;">
-            <div class="easter-label">PÅSKLOV OM</div>
-            <div id="countdown" class="easter-days">00</div>
-            <div class="easter-sub">DAGAR</div>
-        </div>
+    <div class="glass-panel" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid rgba(255,170,51,0.25); padding: 10px 0;">
+        <div style="font-size: 1.1rem; letter-spacing: 4px; color: var(--easter-gold); font-weight: 800;">PÅSKLOV OM</div>
+        <div id="countdown" class="easter-days">00</div>
+        <div style="font-size: 1rem; letter-spacing: 3px; font-weight: 600; opacity: 0.8;">DAGAR</div>
     </div>
     <div class="glass-panel" style="flex: 1.3; padding: 25px; display: flex; align-items: center;">
         <div id="history-fact" style="font-size: 1.1rem; line-height: 1.4; font-weight: 300;">Hämtar historik...</div>
@@ -148,11 +136,31 @@
 <script>
     const API_KEY = 'AIzaSyAC3QiGhqOM2F2ZrnFq3xWUu6_1bAwOvSw';
     const CAL_ID = 'rezgarhayder@gmail.com';
-    let newsItems = [];
-    let newsIdx = 0;
+    const quotes = [
+        { text: "Lyckan beror på kvaliteten av dina tankar.", author: "Marcus Aurelius" },
+        { text: "Vi lider mer i fantasin än i verkligheten.", author: "Seneca" },
+        { text: "Din vision blir klar endast när du ser in i ditt hjärta.", author: "Carl Jung" },
+        { text: "Du har makt över ditt sinne – inte över yttre händelser.", author: "Marcus Aurelius" }
+    ];
 
-    function spawnSnow() { for (let i=0; i<30; i++) { let f=document.createElement('div'); f.className='snow-flake'; f.innerHTML='•'; f.style.left=Math.random()*100+'vw'; f.style.animationDuration=(Math.random()*5+5)+'s'; document.body.appendChild(f); } }
-    function spawnRain() { for (let i=0; i<60; i++) { let r=document.createElement('div'); r.className='rain-drop'; r.style.left=Math.random()*100+'vw'; r.style.animationDuration=(Math.random()*0.5+0.5)+'s'; document.body.appendChild(r); } }
+    async function updateSlide() {
+        const container = document.getElementById('slideshow-container');
+        const url = `https://picsum.photos/seed/${Math.random()}/1200/800`;
+        const newSlide = document.createElement('div');
+        newSlide.className = 'slide';
+        newSlide.style.backgroundImage = `url('${url}')`;
+        container.appendChild(newSlide);
+        const img = new Image(); img.src = url;
+        img.onload = () => {
+            const active = container.querySelector('.slide.active');
+            if(active) active.classList.remove('active');
+            newSlide.classList.add('active');
+            const q = quotes[Math.floor(Math.random()*quotes.length)];
+            document.getElementById('quote-text').innerText = `"${q.text}"`;
+            document.getElementById('quote-author').innerText = q.author;
+            setTimeout(() => { container.querySelectorAll('.slide:not(.active)').forEach(s => s.remove()); }, 2500);
+        };
+    }
 
     async function updateWeather() {
         try {
@@ -161,8 +169,16 @@
             const hIdx = new Date().getHours();
             const code = data.hourly.weathercode[hIdx];
             document.querySelectorAll('.snow-flake, .rain-drop').forEach(el => el.remove());
-            if (code >= 51) (code >= 71 && code <= 77) ? spawnSnow() : spawnRain();
-
+            if (code >= 51) {
+                for(let i=0; i<30; i++) {
+                    let f = document.createElement('div');
+                    f.className = (code >= 71 && code <= 77) ? 'snow-flake' : 'rain-drop';
+                    if(code >= 71) f.innerHTML = '•';
+                    f.style.left = Math.random() * 100 + 'vw';
+                    f.style.animationDuration = (Math.random() * 5 + 2) + 's';
+                    document.body.appendChild(f);
+                }
+            }
             let hHtml = '';
             for(let i=1; i<=5; i++) {
                 const idx = hIdx + i;
@@ -180,51 +196,28 @@
         try {
             const r = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.svt.se/nyheter/rss.xml');
             const d = await r.json();
-            newsItems = d.items.map(i => i.title);
-            rotateNews();
+            let items = d.items.map(i => i.title);
+            let idx = 0;
+            const rotate = () => {
+                const el = document.getElementById('news-static');
+                el.style.opacity = 0;
+                setTimeout(() => {
+                    el.innerText = items[idx].toUpperCase();
+                    el.style.opacity = 1;
+                    idx = (idx + 1) % items.length;
+                }, 800);
+            };
+            rotate(); setInterval(rotate, 10000);
         } catch(e) {}
     }
 
-    function rotateNews() {
-        const el = document.getElementById('news-static');
-        el.style.opacity = 0;
-        setTimeout(() => {
-            el.innerText = newsItems[newsIdx].toUpperCase();
-            el.style.opacity = 1;
-            newsIdx = (newsIdx + 1) % newsItems.length;
-        }, 800);
-        setTimeout(rotateNews, 10000);
-    }
-
-    async function updateBus() {
-        const now = new Date();
-        let departures = [15, 35, 55].map(m => {
-            let d = new Date(); d.setMinutes(m);
-            if (d < now) d.setHours(now.getHours() + 1);
-            return d.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
-        }).sort();
-        document.getElementById('bus-list').innerHTML = departures.map(t => `<div class="bus-row"><span class="bus-label">LUND C</span><span class="bus-time">${t}</span></div>`).join('');
-    }
-
-    async function updateCalendar() {
+    async function updateHistory() {
         try {
-            const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CAL_ID)}/events?key=${API_KEY}&timeMin=${new Date().toISOString()}&singleEvents=true&orderBy=startTime`);
-            const data = await res.json();
-            if (data.items) {
-                document.getElementById('custom-calendar-list').innerHTML = data.items.slice(0, 4).map(event => {
-                    const start = new Date(event.start.dateTime || event.start.date);
-                    const isToday = start.toDateString() === new Date().toDateString();
-                    const dayStr = isToday ? 'IDAG' : start.toLocaleDateString('sv-SE', {weekday:'short', day:'numeric'});
-                    return `<div class="event-item ${isToday ? 'is-today' : ''}">
-                        <div style="min-width: 90px;">
-                            <div class="event-day">${dayStr}</div>
-                            <div class="event-time">${event.start.dateTime ? start.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'}) : 'DAG'}</div>
-                        </div>
-                        <div class="event-title">${event.summary}</div>
-                    </div>`;
-                }).join('');
-            }
-        } catch (e) {}
+            const r = await fetch(`https://en.wikipedia.org/api/rest_v1/feed/onthisday/events/${new Date().getMonth()+1}/${new Date().getDate()}`);
+            const d = await r.json();
+            const e = d.events[Math.floor(Math.random()*d.events.length)];
+            document.getElementById('history-fact').innerHTML = `<b style="color:var(--accent); font-weight:800">${e.year}:</b> ${e.text}`;
+        } catch(e) {}
     }
 
     function updateTime() {
@@ -235,21 +228,40 @@
         document.getElementById('countdown').innerText = Math.ceil(diff / 86400000);
     }
 
-    // Initiera övriga funktioner (Slide, History, etc.) exakt som tidigare
+    async function updateCalendar() {
+        try {
+            const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CAL_ID)}/events?key=${API_KEY}&timeMin=${new Date().toISOString()}&singleEvents=true&orderBy=startTime`);
+            const data = await res.json();
+            if (data.items) {
+                document.getElementById('custom-calendar-list').innerHTML = data.items.slice(0, 4).map(event => {
+                    const start = new Date(event.start.dateTime || event.start.date);
+                    const isToday = start.toDateString() === new Date().toDateString();
+                    return `<div class="event-item ${isToday ? 'is-today' : ''}">
+                        <div style="min-width: 100px;">
+                            <div class="event-day">${isToday ? 'IDAG' : start.toLocaleDateString('sv-SE', {weekday:'short', day:'numeric'})}</div>
+                            <div class="event-time">${event.start.dateTime ? start.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'}) : 'DAG'}</div>
+                        </div>
+                        <div class="event-title">${event.summary}</div>
+                    </div>`;
+                }).join('');
+            }
+        } catch(e) {}
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
-        updateTime(); setInterval(updateTime, 60000);
-        updateWeather(); setInterval(updateWeather, 600000);
-        updateCalendar(); updateBus(); updateNews();
-        // [Slideshow och History-kod förblir intakt enligt tidigare logik]
+        updateTime(); updateWeather(); updateCalendar(); updateNews(); updateSlide(); updateHistory();
+        setInterval(updateTime, 60000);
+        setInterval(updateWeather, 600000);
+        setInterval(updateSlide, 60000);
+        // Buss-logik (Simulerad realtid för 174)
         setInterval(() => {
-            const container = document.getElementById('slideshow-container');
-            const url = `https://picsum.photos/seed/${Math.random()}/1200/800`;
-            const newSlide = document.createElement('div');
-            newSlide.className = 'slide'; newSlide.style.backgroundImage = `url('${url}')`;
-            container.appendChild(newSlide);
-            newSlide.onload = () => { /* transition logic */ };
-            newSlide.classList.add('active');
-        }, 60000);
+            const now = new Date();
+            let dep = [15, 35, 55].map(m => {
+                let d = new Date(); d.setMinutes(m); if(d<now) d.setHours(now.getHours()+1);
+                return d.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
+            }).sort();
+            document.getElementById('bus-list').innerHTML = dep.map(t => `<div class="bus-row"><span style="font-size:0.9rem; opacity:0.5;">LUND C</span><span class="bus-time">${t}</span></div>`).join('');
+        }, 1000);
     });
 </script>
 </body>
