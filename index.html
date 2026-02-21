@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Elite Dashboard v15</title>
+    <title>Staffanstorp Elite Dashboard v17</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
@@ -12,59 +12,60 @@
             --glass-border: rgba(255, 255, 255, 0.12);
             --accent: #5e92f3;
             --text-main: #ffffff;
+            --easter-gold: #ffaa33;
         }
 
         body {
             font-family: 'Inter', sans-serif;
             background-color: #000; margin: 0; height: 100vh; width: 100vw; color: var(--text-main);
-            display: grid; grid-template-columns: 480px 1fr; grid-template-rows: 120px 1fr 120px; 
+            display: grid; grid-template-columns: 520px 1fr; grid-template-rows: 140px 1fr 120px; 
             gap: 20px; padding: 20px; box-sizing: border-box; overflow: hidden;
         }
 
         .glass-panel {
             background: var(--glass-bg); backdrop-filter: blur(30px) saturate(160%);
-            border: 1px solid var(--glass-border); border-radius: 30px;
+            border: 1px solid var(--glass-border); border-radius: 35px;
             position: relative; overflow: hidden;
         }
 
-        /* Header */
-        .top-bar { grid-column: 1/3; display: grid; grid-template-columns: 280px 1fr 200px; align-items: center; padding: 0 35px; }
-        #header-hourly { display: flex; justify-content: space-around; padding: 0 20px; border-left: 1px solid var(--glass-border); border-right: 1px solid var(--glass-border); }
+        /* Header - Förstorad */
+        .top-bar { grid-column: 1/3; display: grid; grid-template-columns: 320px 1fr 220px; align-items: center; padding: 0 40px; }
+        #header-hourly { display: flex; justify-content: space-around; padding: 0 30px; border-left: 2px solid var(--glass-border); border-right: 2px solid var(--glass-border); }
         .weather-node { text-align: center; }
-        .weather-node div:first-child { font-size: 0.7rem; opacity: 0.6; }
-        .weather-node div:last-child { font-weight: 800; font-size: 1.1rem; }
+        .weather-node div:first-child { font-size: 0.9rem; opacity: 0.5; margin-bottom: 5px; }
+        .weather-node div:last-child { font-weight: 800; font-size: 1.5rem; }
+        .weather-icon { width: 32px !important; height: 32px !important; margin: 5px 0; color: var(--accent); }
 
-        /* Sidebar - Justerad fördelning */
+        /* Sidebar & Kalender */
         .sidebar-container { grid-column: 1/2; grid-row: 2/3; display: grid; grid-template-rows: 1fr 280px; gap: 20px; }
-        
-        /* Kalender */
-        .event-item { display: flex; align-items: center; gap: 15px; padding: 12px; border-radius: 15px; margin-bottom: 5px; }
-        .event-item.is-today { background: rgba(255,255,255,0.08); border-left: 4px solid var(--accent); }
-        .event-time { font-weight: 800; font-size: 1.4rem; color: var(--accent); min-width: 65px; }
-        .event-title { font-size: 1.2rem; font-weight: 400; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .event-item { display: flex; align-items: center; gap: 20px; padding: 18px 25px; border-radius: 20px; margin-bottom: 8px; width: 100%; box-sizing: border-box; }
+        .event-item.is-today { background: rgba(255,255,255,0.08); border-left: 6px solid var(--accent); }
+        .event-date-box { min-width: 100px; line-height: 1.1; }
+        .event-day { font-size: 0.8rem; font-weight: 800; color: var(--accent); text-transform: uppercase; }
+        .event-time { font-weight: 800; font-size: 1.8rem; }
+        .event-title { font-size: 1.4rem; font-weight: 400; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-grow: 1; }
 
-        /* Buss - Högre fält */
-        .bus-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: rgba(255,255,255,0.05); border-radius: 18px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.05); }
-        .bus-time { font-size: 2rem; font-weight: 800; color: #ffcc33; }
+        /* Buss */
+        .bus-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; background: rgba(255,255,255,0.05); border-radius: 20px; margin-bottom: 10px; }
+        .bus-time { font-size: 2.2rem; font-weight: 800; color: #ffcc33; }
 
-        /* Main & Bildspel */
+        /* Citat & Bildspel */
         #slideshow-container { position: absolute; inset: 0; z-index: 1; }
-        .slide { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transition: opacity 2.5s ease-in-out; }
+        .slide { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transition: opacity 2.5s; }
         .slide.active { opacity: 1; }
-
-        /* Citat-fält (Subtelt i bildspel) */
         .quote-overlay {
-            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
-            z-index: 10; width: 80%; text-align: center;
-            background: rgba(0,0,0,0.3); backdrop-filter: blur(5px);
-            padding: 15px 30px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05);
+            position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+            z-index: 10; width: 85%; text-align: center; background: rgba(0,0,0,0.3); backdrop-filter: blur(8px);
+            padding: 20px 40px; border-radius: 25px; border: 1px solid rgba(255,255,255,0.1);
         }
-        #quote-text { font-size: 1.1rem; font-style: italic; font-weight: 300; margin-bottom: 5px; color: rgba(255,255,255,0.9); }
-        #quote-author { font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); opacity: 0.8; }
 
-        /* Ticker */
+        /* Animationer */
+        @keyframes fall { to { transform: translateY(110vh) translateX(30px); } }
+        .snow-flake { position: fixed; top: -20px; color: white; pointer-events: none; z-index: 9999; animation: fall linear infinite; }
+        .rain-drop { position: fixed; top: -20px; background: rgba(174, 194, 224, 0.4); width: 2px; height: 15px; pointer-events: none; z-index: 9999; animation: fall 0.8s linear infinite; }
+
         .ticker-wrap { width: 100%; overflow: hidden; white-space: nowrap; }
-        .ticker-content { display: inline-block; animation: ticker 70s linear infinite; font-size: 1.1rem; }
+        .ticker-content { display: inline-block; animation: ticker 75s linear infinite; font-size: 1.2rem; }
         @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
     </style>
 </head>
@@ -72,27 +73,27 @@
 
 <header class="top-bar glass-panel">
     <div>
-        <div id="mini-date" style="font-size: 0.9rem; color: var(--accent); text-transform: uppercase; letter-spacing: 1px;">Laddar...</div>
-        <div id="mini-clock" style="font-size: 3rem; font-weight: 800; line-height: 1;">00:00</div>
+        <div id="mini-date" style="font-size: 1rem; color: var(--accent); text-transform: uppercase; letter-spacing: 1px;">Laddar...</div>
+        <div id="mini-clock" style="font-size: 3.5rem; font-weight: 800; line-height: 1;">00:00</div>
     </div>
     <div id="header-hourly"></div>
     <div style="text-align: right;">
-        <div id="tom-temp" style="font-weight: 800; font-size: 1.4rem;">--°</div>
-        <div style="font-size: 0.6rem; opacity: 0.6; letter-spacing: 2px;">IMORGON</div>
+        <div id="tom-temp" style="font-weight: 800; font-size: 1.8rem;">--°</div>
+        <div style="font-size: 0.8rem; opacity: 0.6; letter-spacing: 2px;">IMORGON</div>
     </div>
 </header>
 
 <div class="sidebar-container">
-    <section class="glass-panel" style="padding: 20px;">
-        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px; opacity: 0.5;">
-            <i data-lucide="calendar" style="width:16px;"></i><span style="font-size: 0.6rem; letter-spacing: 2px; font-weight: 800;">SCHEMA</span>
+    <section class="glass-panel" style="padding: 30px;">
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 25px; opacity: 0.5;">
+            <i data-lucide="calendar"></i><span style="font-size: 0.8rem; letter-spacing: 3px; font-weight: 800;">SCHEMA</span>
         </div>
         <div id="custom-calendar-list"></div>
     </section>
 
-    <section class="glass-panel" style="padding: 20px;">
-        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px; opacity: 0.5;">
-            <i data-lucide="bus" style="width:16px;"></i><span style="font-size: 0.6rem; letter-spacing: 2px; font-weight: 800;">166 LUND (TINGVÄGEN)</span>
+    <section class="glass-panel" style="padding: 30px;">
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px; opacity: 0.5;">
+            <i data-lucide="bus"></i><span style="font-size: 0.8rem; letter-spacing: 3px; font-weight: 800;">166 LUND</span>
         </div>
         <div id="bus-list"></div>
     </section>
@@ -101,72 +102,64 @@
 <main class="main-content glass-panel">
     <div id="slideshow-container"></div>
     <div style="position: absolute; inset: 0; background: linear-gradient(transparent 50%, rgba(0,0,0,0.6)); z-index: 2;"></div>
-    
     <div class="quote-overlay">
-        <div id="quote-text">"Det är inte för att saker är svåra som vi inte vågar, det är för att vi inte vågar som de är svåra."</div>
-        <div id="quote-author">Seneca</div>
+        <div id="quote-text" style="font-size: 1.3rem; font-weight: 300; font-style: italic; margin-bottom: 8px;">"Laddar visdom..."</div>
+        <div id="quote-author" style="font-size: 0.8rem; color: var(--accent); letter-spacing: 3px; text-transform: uppercase;">--</div>
     </div>
 </main>
 
 <div style="grid-column: 1/2; grid-row: 3/4;">
-    <footer class="glass-panel" style="height: 100%; display: flex; align-items: center; padding: 0 20px;">
-        <div class="ticker-wrap"><div id="ticker-content" class="ticker-content">Laddar rubriker...</div></div>
+    <footer class="glass-panel" style="height: 100%; display: flex; align-items: center; padding: 0 25px;">
+        <div class="ticker-wrap"><div id="ticker-content" class="ticker-content">Hämtar nyheter...</div></div>
     </footer>
 </div>
 
 <div style="grid-column: 2/3; grid-row: 3/4; display: flex; gap: 20px;">
-    <div class="glass-panel" style="flex: 0.8; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,170,51,0.2);">
+    <div class="glass-panel" style="flex: 1; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,170,51,0.3);">
         <div style="text-align:center;">
-            <div style="font-size: 0.5rem; letter-spacing: 2px; color: #ffaa33; margin-bottom: 5px;">PÅSKLOV OM</div>
-            <div id="countdown" style="font-size: 1.8rem; font-weight: 800;">00:00:00</div>
+            <div style="font-size: 0.9rem; letter-spacing: 4px; color: var(--easter-gold); font-weight: 800; margin-bottom: 8px;">PÅSKLOV OM</div>
+            <div id="countdown" style="font-size: 2.2rem; font-weight: 800;">00d 00h 00m</div>
         </div>
     </div>
-    <div class="glass-panel" style="flex: 1.2; padding: 25px; display: flex; align-items: center;">
-        <div id="history-fact" style="font-size: 0.95rem; line-height: 1.4; font-weight: 300; opacity: 0.9;">Hämtar historiska händelser...</div>
+    <div class="glass-panel" style="flex: 1.2; padding: 30px; display: flex; align-items: center;">
+        <div id="history-fact" style="font-size: 1.1rem; line-height: 1.5; font-weight: 300;">Hämtar historik...</div>
     </div>
 </div>
 
 <script>
     const API_KEY = 'AIzaSyAC3QiGhqOM2F2ZrnFq3xWUu6_1bAwOvSw';
     const CAL_ID = 'rezgarhayder@gmail.com';
-
     const quotes = [
         { text: "Lyckan beror på kvaliteten av dina tankar.", author: "Marcus Aurelius" },
-        { text: "Den som har ett 'varför' att leva för kan uthärda nästan vilket 'hur' som helst.", author: "Friedrich Nietzsche" },
-        { text: "Din vision blir klar endast när du kan se in i ditt eget hjärta.", author: "Carl Jung" },
         { text: "Vi lider mer i fantasin än i verkligheten.", author: "Seneca" },
-        { text: "Det oforskade livet är inte värt att leva.", author: "Sokrates" },
-        { text: "Människan lider bara för att hon tar på allvar det gudarna skapade för skojs skull.", author: "Alan Watts" },
-        { text: "Allt som irriterar oss hos andra kan leda till en förståelse av oss själva.", author: "Carl Jung" },
-        { text: "Du har makt över ditt sinne – inte över yttre händelser. Inse detta, och du kommer att finna styrka.", author: "Marcus Aurelius" }
+        { text: "Din vision blir klar endast när du ser in i ditt hjärta.", author: "Carl Jung" },
+        { text: "Den som har ett 'varför' kan uthärda nästan vilket 'hur' som helst.", author: "Friedrich Nietzsche" },
+        { text: "Du har makt över ditt sinne – inte över yttre händelser.", author: "Marcus Aurelius" }
     ];
+
+    function spawnSnow() { for (let i=0; i<30; i++) { let f=document.createElement('div'); f.className='snow-flake'; f.innerHTML='•'; f.style.left=Math.random()*100+'vw'; f.style.animationDuration=(Math.random()*5+5)+'s'; document.body.appendChild(f); } }
+    function spawnRain() { for (let i=0; i<60; i++) { let r=document.createElement('div'); r.className='rain-drop'; r.style.left=Math.random()*100+'vw'; r.style.animationDuration=(Math.random()*0.5+0.5)+'s'; document.body.appendChild(r); } }
 
     async function updateWeather() {
         try {
             const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=55.64&longitude=13.21&daily=weathercode,temperature_2m_max&hourly=temperature_2m,weathercode&timezone=auto');
             const data = await res.json();
             const hIdx = new Date().getHours();
+            const code = data.hourly.weathercode[hIdx];
+            document.querySelectorAll('.snow-flake, .rain-drop').forEach(el => el.remove());
+            if (code >= 71 && code <= 77) spawnSnow(); else if (code >= 51) spawnRain();
+
             let hHtml = '';
             for(let i=1; i<=6; i++) {
                 const idx = hIdx + i;
                 const time = new Date(data.hourly.time[idx]).getHours() + ':00';
                 const icon = data.hourly.weathercode[idx] <= 3 ? 'sun' : (data.hourly.weathercode[idx] >= 71 ? 'snowflake' : 'cloud-rain');
-                hHtml += `<div class="weather-node"><div>${time}</div><i data-lucide="${icon}" style="width:18px;margin:3px 0"></i><div>${Math.round(data.hourly.temperature_2m[idx])}°</div></div>`;
+                hHtml += `<div class="weather-node"><div>${time}</div><i data-lucide="${icon}" class="weather-icon"></i><div>${Math.round(data.hourly.temperature_2m[idx])}°</div></div>`;
             }
             document.getElementById('header-hourly').innerHTML = hHtml;
             document.getElementById('tom-temp').innerText = Math.round(data.daily.temperature_2m_max[1]) + '°';
             lucide.createIcons();
         } catch(e) {}
-    }
-
-    async function updateBus() {
-        const now = new Date();
-        let times = [];
-        for(let i=0; i<3; i++) {
-            let busTime = new Date(now.getTime() + (12 + i*20) * 60000);
-            times.push(busTime.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'}));
-        }
-        document.getElementById('bus-list').innerHTML = times.map(t => `<div class="bus-row"><span style="font-size:0.9rem;opacity:0.5;font-weight:600">MOT LUND</span><span class="bus-time">${t}</span></div>`).join('');
     }
 
     async function updateCalendar() {
@@ -177,16 +170,20 @@
                 document.getElementById('custom-calendar-list').innerHTML = data.items.slice(0, 4).map(event => {
                     const start = new Date(event.start.dateTime || event.start.date);
                     const isToday = start.toDateString() === new Date().toDateString();
-                    return `<div class="event-item ${isToday ? 'is-today' : ''}"><div class="event-time">${event.start.dateTime ? start.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'}) : 'DAG'}</div><div class="event-title">${event.summary}</div></div>`;
+                    const dayName = start.toLocaleDateString('sv-SE', {weekday: 'short'});
+                    const dateNum = start.getDate();
+                    const monthName = start.toLocaleDateString('sv-SE', {month: 'short'});
+                    
+                    return `<div class="event-item ${isToday ? 'is-today' : ''}">
+                        <div class="event-date-box">
+                            <div class="event-day">${isToday ? 'IDAG' : dayName + ' ' + dateNum + ' ' + monthName}</div>
+                            <div class="event-time">${event.start.dateTime ? start.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'}) : 'DAG'}</div>
+                        </div>
+                        <div class="event-title">${event.summary}</div>
+                    </div>`;
                 }).join('');
             }
         } catch (e) {}
-    }
-
-    function rotateQuote() {
-        const quote = quotes[Math.floor(Math.random() * quotes.length)];
-        document.getElementById('quote-text').innerText = `"${quote.text}"`;
-        document.getElementById('quote-author').innerText = quote.author;
     }
 
     async function updateSlide() {
@@ -201,18 +198,11 @@
             const active = container.querySelector('.slide.active');
             if(active) active.classList.remove('active');
             newSlide.classList.add('active');
-            rotateQuote();
+            const q = quotes[Math.floor(Math.random()*quotes.length)];
+            document.getElementById('quote-text').innerText = `"${q.text}"`;
+            document.getElementById('quote-author').innerText = q.author;
             setTimeout(() => { container.querySelectorAll('.slide:not(.active)').forEach(s => s.remove()); }, 2500);
         };
-    }
-
-    async function getNews() {
-        try {
-            const r = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.svt.se/nyheter/rss.xml');
-            const d = await r.json();
-            const titles = d.items.map(i => `<span style="padding:0 50px">• ${i.title.toUpperCase()}</span>`).join('');
-            document.getElementById('ticker-content').innerHTML = titles + titles;
-        } catch(e) {}
     }
 
     function updateTime() {
@@ -221,7 +211,7 @@
         document.getElementById('mini-date').innerText = now.toLocaleDateString('sv-SE', {weekday:'long', day:'numeric', month:'short'});
         const diff = new Date('2026-03-30T00:00:00') - now;
         if(diff > 0) {
-            const d = Math.floor(diff/(1000*60*60*24)), h = Math.floor((diff/3600000)%24), m = Math.floor((diff/60000)%60);
+            const d = Math.floor(diff/86400000), h = Math.floor((diff/3600000)%24), m = Math.floor((diff/60000)%60);
             document.getElementById('countdown').innerText = `${d}d ${h}h ${m}m`;
         }
     }
@@ -229,15 +219,21 @@
     document.addEventListener('DOMContentLoaded', () => {
         updateTime(); setInterval(updateTime, 1000);
         updateWeather(); setInterval(updateWeather, 600000);
-        updateCalendar(); setInterval(updateCalendar, 600000);
-        updateBus(); setInterval(updateBus, 60000);
-        updateSlide(); setInterval(updateSlide, 60000);
-        getNews(); setInterval(getNews, 1800000);
+        updateCalendar(); updateSlide(); 
+        setInterval(updateSlide, 60000);
+        setInterval(() => {
+            let times = []; const now = new Date();
+            for(let i=0; i<3; i++) times.push(new Date(now.getTime() + (10+i*20)*60000).toLocaleTimeString('sv-SE',{hour:'2-digit',minute:'2-digit'}));
+            document.getElementById('bus-list').innerHTML = times.map(t => `<div class="bus-row"><span style="font-size:1rem;opacity:0.5;font-weight:600">MOT LUND</span><span class="bus-time">${t}</span></div>`).join('');
+        }, 60000);
         
-        // Wikipedia History
+        fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.svt.se/nyheter/rss.xml').then(r=>r.json()).then(d=>{
+            const t = d.items.map(i=>`<span style="padding:0 60px">• ${i.title.toUpperCase()}</span>`).join('');
+            document.getElementById('ticker-content').innerHTML = t + t;
+        });
         fetch(`https://en.wikipedia.org/api/rest_v1/feed/onthisday/events/${new Date().getMonth()+1}/${new Date().getDate()}`)
-            .then(r => r.json()).then(d => {
-                const e = d.events[Math.floor(Math.random() * 5)];
+            .then(r=>r.json()).then(d=>{
+                const e = d.events[Math.floor(Math.random()*5)];
                 document.getElementById('history-fact').innerHTML = `<b style="color:var(--accent)">${e.year}:</b> ${e.text}`;
             });
     });
