@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Elite Dashboard v28 - Sharpness Focus</title>
+    <title>Staffanstorp Elite Dashboard v29 - 4K Ready</title>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --glass-bg: rgba(10, 10, 10, 0.85); /* Djupare svart för bättre kontrast */
-            --glass-border: rgba(255, 255, 255, 0.3); /* Ännu tydligare linjer */
+            --glass-bg: rgba(10, 10, 10, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.3);
             --accent: #5e92f3;
             --text-main: #ffffff;
             --easter-gold: #ffaa33;
@@ -18,8 +18,7 @@
 
         * { 
             box-sizing: border-box; 
-            -webkit-font-smoothing: antialiased; /* Tvingar skarpare text rendering */
-            -moz-osx-font-smoothing: grayscale;
+            -webkit-font-smoothing: antialiased;
             text-rendering: optimizeLegibility;
         }
 
@@ -40,7 +39,6 @@
             backdrop-filter: blur(40px) saturate(180%);
             border: 1px solid var(--glass-border); 
             border-radius: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             position: relative; overflow: hidden;
         }
 
@@ -50,12 +48,12 @@
         .weather-node div:last-child { font-weight: 800; font-size: 1.7rem; }
         .weather-icon { width: 40px !important; height: 40px !important; color: var(--accent); }
 
-        /* Sidebar */
+        /* Sidebar & Kalender */
         .sidebar-container { grid-column: 1/2; grid-row: 2/3; display: grid; grid-template-rows: 1fr 220px; gap: 15px; min-height: 0; }
         .event-item { display: flex; align-items: center; gap: 20px; padding: 14px 25px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 8px; }
         .event-item.is-today { background: rgba(255,255,255,0.12); border-color: transparent; }
         .event-time { font-weight: 800; font-size: 1.9rem; }
-        .event-title { font-size: 1.5rem; font-weight: 400; }
+        .event-title { font-size: 1.5rem; }
 
         /* ELPRIS */
         .energy-display { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 80%; }
@@ -63,17 +61,37 @@
         .gauge-container { width: 85%; height: 12px; background: rgba(255,255,255,0.1); border-radius: 6px; margin-top: 10px; overflow: hidden; }
         #gauge-fill { height: 100%; width: 0%; background: var(--price-color); transition: width 1s; box-shadow: 0 0 20px var(--price-color); }
 
-        /* Main Slideshow - Nu i HD */
+        /* Main Content & Slideshow */
         .main-content { position: relative; }
-        #slideshow-container { position: absolute; inset: 0; background: #111; }
+        #slideshow-container { position: absolute; inset: 0; background: #000; }
         .slide { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transition: opacity 2.5s ease-in-out; }
         .slide.active { opacity: 1; }
 
-        /* Footer Element */
+        /* NYTT PÅSKLOV FÄLT - Optimerad Layout */
+        .easter-box { 
+            flex: 1; 
+            border: 1px solid rgba(255,170,51,0.5); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            gap: 20px;
+            padding: 0 20px;
+        }
+        .easter-label-vert { 
+            writing-mode: vertical-rl; 
+            transform: rotate(180deg); 
+            font-size: 0.8rem; 
+            letter-spacing: 4px; 
+            font-weight: 900; 
+            color: var(--easter-gold);
+            opacity: 0.8;
+        }
+        .easter-days { font-size: 5rem; font-weight: 900; color: var(--text-main); line-height: 1; }
+        .easter-suffix { font-size: 0.9rem; letter-spacing: 2px; font-weight: 600; opacity: 0.5; margin-top: 10px;}
+
+        /* Nyheter & Historik */
         .news-container { display: flex; align-items: center; gap: 20px; }
         #news-static { font-size: 1.4rem; font-weight: 300; letter-spacing: 0.5px; }
-        .easter-box { flex: 1; border: 1px solid rgba(255,170,51,0.5); }
-        .easter-days { font-size: 4rem; font-weight: 900; color: var(--easter-gold); }
 
         @keyframes fall { to { transform: translateY(105vh) translateX(30px); } }
         .snow-flake { position: fixed; top: -20px; color: white; pointer-events: none; z-index: 9999; animation: fall linear infinite; }
@@ -100,7 +118,7 @@
     </section>
     <section class="glass-panel" style="padding: 20px;">
         <div style="display: flex; align-items: center; gap: 10px; opacity: 0.7; margin-bottom: 5px;">
-            <i data-lucide="zap" style="width:18px; color:var(--price-color);"></i><span style="font-size: 0.8rem; letter-spacing: 2px; font-weight: 800;">TOTALPRIS SE4 (INKL. SKATT)</span>
+            <i data-lucide="zap" style="width:18px; color:var(--price-color);"></i><span style="font-size: 0.8rem; letter-spacing: 2px; font-weight: 800;">ELPRIS SE4 (INKL. SKATT)</span>
         </div>
         <div class="energy-display">
             <div id="el-price" class="price-value">--</div>
@@ -114,7 +132,7 @@
     <div id="slideshow-container"></div>
     <div style="position: absolute; inset: 0; background: linear-gradient(transparent 30%, rgba(0,0,0,0.8)); z-index: 2;"></div>
     <div class="quote-overlay" style="position: absolute; bottom: 35px; left: 50%; transform: translateX(-50%); z-index: 10; width: 85%; text-align: center; background: rgba(0,0,0,0.5); backdrop-filter: blur(20px); padding: 30px; border-radius: 30px; border: 1px solid var(--glass-border);">
-        <div id="quote-text" style="font-size: 1.5rem; font-style: italic; font-weight: 300; margin-bottom: 8px; line-height: 1.4;">"Laddar visdom..."</div>
+        <div id="quote-text" style="font-size: 1.6rem; font-style: italic; font-weight: 300; margin-bottom: 10px; line-height: 1.4;">"Hämtar dagens visdom..."</div>
         <div id="quote-author" style="font-size: 0.9rem; color: var(--accent); letter-spacing: 3px; text-transform: uppercase; font-weight: 600;">--</div>
     </div>
 </main>
@@ -129,12 +147,12 @@
 </div>
 
 <div style="grid-column: 2/3; grid-row: 3/4; display: flex; gap: 15px;">
-    <div class="glass-panel easter-box" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
-        <div style="font-size: 0.9rem; letter-spacing: 4px; font-weight: 800; opacity: 0.8;">PÅSKLOV OM</div>
+    <div class="glass-panel easter-box">
+        <div class="easter-label-vert">PÅSKLOV</div>
         <div id="countdown" class="easter-days">00</div>
-        <div style="font-size: 0.9rem; letter-spacing: 3px; font-weight: 600; opacity: 0.6;">DAGAR</div>
+        <div class="easter-suffix">DAGAR</div>
     </div>
-    <div class="glass-panel" style="flex: 1.5; padding: 25px; display: flex; align-items: center;">
+    <div class="glass-panel" style="flex: 1.8; padding: 25px; display: flex; align-items: center;">
         <div id="history-fact" style="font-size: 1.2rem; line-height: 1.5; font-weight: 300;">Hämtar historik...</div>
     </div>
 </div>
@@ -144,13 +162,17 @@
     const CAL_ID = 'rezgarhayder@gmail.com';
     const ENERGY_TAX = 53.5;
 
-    const quotes = [
-        { text: "Lyckan beror på kvaliteten av dina tankar.", author: "Marcus Aurelius" },
-        { text: "Vi lider mer i fantasin än i verkligheten.", author: "Seneca" },
-        { text: "Din vision blir klar endast när du ser in i ditt hjärta.", author: "Carl Jung" },
-        { text: "Det är inte döden man ska frukta, utan att man aldrig börjar leva.", author: "Marcus Aurelius" },
-        { text: "Mitten av varje svårighet ligger möjligheten.", author: "Albert Einstein" }
-    ];
+    async function fetchQuote() {
+        try {
+            const res = await fetch('https://api.quotable.io/random?maxLength=120');
+            const data = await res.json();
+            document.getElementById('quote-text').innerText = `"${data.content}"`;
+            document.getElementById('quote-author').innerText = data.author;
+        } catch(e) {
+            document.getElementById('quote-text').innerText = "Vägen är målet.";
+            document.getElementById('quote-author').innerText = "Okänd";
+        }
+    }
 
     async function updateElpris() {
         try {
@@ -197,7 +219,6 @@
 
     async function updateSlide() {
         const container = document.getElementById('slideshow-container');
-        // Tvingar HD-upplösning 1920x1080 i URL:en
         const url = `https://picsum.photos/seed/${Math.random()}/1920/1080`;
         const newSlide = document.createElement('div');
         newSlide.className = 'slide'; 
@@ -208,9 +229,7 @@
         img.onload = () => {
             container.querySelector('.slide.active')?.classList.remove('active');
             newSlide.classList.add('active');
-            const q = quotes[Math.floor(Math.random()*quotes.length)];
-            document.getElementById('quote-text').innerText = `"${q.text}"`;
-            document.getElementById('quote-author').innerText = q.author;
+            fetchQuote(); // Hämta nytt citat från databasen vid varje bildbyte
             setTimeout(() => { container.querySelectorAll('.slide:not(.active)').forEach(s => s.remove()); }, 2500);
         };
     }
@@ -236,7 +255,7 @@
             const r = await fetch(`https://en.wikipedia.org/api/rest_v1/feed/onthisday/events/${new Date().getMonth()+1}/${new Date().getDate()}`);
             const d = await r.json();
             const e = d.events[Math.floor(Math.random()*d.events.length)];
-            document.getElementById('history-fact').innerHTML = `<b style="color:var(--accent);">${e.year}:</b> ${e.text}`;
+            document.getElementById('history-fact').innerHTML = `<b style="color:var(--accent); font-weight:800">${e.year}:</b> ${e.text}`;
         } catch(e) {}
     }
 
