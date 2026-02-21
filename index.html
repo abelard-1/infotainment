@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Command Center v40 - Eco & Space Edition</title>
+    <title>Staffanstorp Command Center v41 - Borggården Edition</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;600;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --glass-bg: rgba(10, 10, 10, 0.82);
+            --glass-bg: rgba(10, 10, 10, 0.85);
             --glass-border: rgba(255, 255, 255, 0.2);
             --accent: #5e92f3;
             --text-main: #ffffff;
@@ -43,40 +43,38 @@
             overflow: hidden;
         }
 
-        /* Top Bar & Weather */
+        /* Top Bar */
         .top-bar { grid-column: 1/3; display: grid; grid-template-columns: 350px 1fr 280px; align-items: center; padding: 0 40px; }
         #header-hourly { display: flex; justify-content: space-around; align-items: center; border-left: 1px solid var(--glass-border); border-right: 1px solid var(--glass-border); height: 70%; margin: 0 20px; }
         .weather-node { text-align: center; min-width: 65px; }
         .w-time { font-size: 0.75rem; opacity: 0.6; font-weight: 600; text-transform: uppercase; }
         .w-temp { font-weight: 800; font-size: 1.5rem; margin-top: 2px; }
-        .weather-icon { width: 26px; height: 26px; color: var(--accent); }
 
-        /* Sidebar Elements */
+        /* Sidebar */
         .sidebar-container { grid-column: 1/2; grid-row: 2/3; display: grid; grid-template-rows: 1fr 240px; gap: 15px; min-height: 0; }
         .event-item { display: flex; align-items: center; gap: 20px; padding: 18px 25px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 10px; }
-        .event-item.is-today { background: rgba(94, 146, 243, 0.15); border-color: var(--accent); }
+        .event-item.is-today { background: rgba(94, 146, 243, 0.12); border-color: var(--accent); }
         .event-time { font-weight: 800; font-size: 1.8rem; }
-        .event-title { font-size: 1.4rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 300; }
+        .event-title { font-size: 1.4rem; font-weight: 300; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        /* Env & Space Module */
+        /* Monitor Modules */
         .monitor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; height: 100%; align-items: center; padding: 0 5px; }
         .monitor-label { font-size: 0.65rem; font-weight: 800; letter-spacing: 2px; opacity: 0.5; text-transform: uppercase; margin-bottom: 5px; display: flex; align-items: center; gap: 8px; }
         .val-big { font-size: 3.2rem; font-weight: 900; line-height: 1; letter-spacing: -2px; }
-        .val-sub { font-size: 0.75rem; font-weight: 700; margin-top: 8px; }
+        .val-sub { font-size: 0.7rem; font-weight: 700; margin-top: 8px; text-transform: uppercase; }
+        .val-loc { font-size: 0.55rem; opacity: 0.4; margin-top: 2px; font-weight: 600; letter-spacing: 1px; }
 
-        /* Main Content & Slideshow */
+        /* Slideshow */
         .main-content { position: relative; }
         #slideshow-container { position: absolute; inset: 0; z-index: 1; }
         .slide { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transition: opacity 2.5s ease-in-out; }
         .slide.active { opacity: 1; }
         .overlay-gradient { position: absolute; inset: 0; background: linear-gradient(transparent 40%, rgba(0,0,0,0.85)); z-index: 2; }
         .quote-container { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); z-index: 10; width: 85%; text-align: center; }
-        #quote-text { font-size: 1.8rem; font-weight: 300; font-style: italic; line-height: 1.4; text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        #quote-text { font-size: 1.7rem; font-weight: 300; font-style: italic; line-height: 1.4; text-shadow: 0 4px 12px rgba(0,0,0,0.6); }
 
-        /* Footer & News */
-        .news-container { display: flex; align-items: center; gap: 15px; }
+        /* Footer */
         #news-text { font-size: 1rem; font-weight: 600; letter-spacing: 0.5px; transition: opacity 0.5s; text-transform: uppercase; }
-
         .easter-box { border: 1px solid var(--easter-gold); display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 0 25px; }
     </style>
 </head>
@@ -102,9 +100,10 @@
     <section class="glass-panel" style="padding: 30px;">
         <div class="monitor-grid">
             <div style="border-right: 1px solid rgba(255,255,255,0.1); padding-right: 10px;">
-                <div class="monitor-label"><i data-lucide="wind" style="width:14px; color:var(--aqi-good)"></i> AQI STAFFANSTORP</div>
+                <div class="monitor-label"><i data-lucide="wind" style="width:14px; color:var(--aqi-good)"></i> STAFFANSTORP AQI</div>
                 <div id="aqi-value" class="val-big">--</div>
                 <div id="aqi-status" class="val-sub" style="color: var(--aqi-good);">LADDAR...</div>
+                <div class="val-loc">SENSOR: BORGGÅRDEN</div>
             </div>
             <div style="padding-left: 10px;">
                 <div class="monitor-label"><i data-lucide="sparkles" style="width:14px; color:var(--aurora)"></i> AURORA CHANCE</div>
@@ -113,6 +112,7 @@
                     <div style="font-size: 1.2rem; font-weight: 300; opacity: 0.5;">Kp</div>
                 </div>
                 <div id="kp-status" class="val-sub">QUIET SKY</div>
+                <div class="val-loc">SOURCE: NOAA SWPC</div>
             </div>
         </div>
     </section>
@@ -122,15 +122,15 @@
     <div id="slideshow-container"></div>
     <div class="overlay-gradient"></div>
     <div class="quote-container">
-        <div id="quote-text">"Universum väntar..."</div>
+        <div id="quote-text">"Hämtar dagens insikt..."</div>
     </div>
 </main>
 
 <div style="grid-column: 1/2; grid-row: 3/4;">
     <footer class="glass-panel" style="height: 100%; display: flex; align-items: center; padding: 0 40px;">
-        <div class="news-container">
+        <div style="display: flex; align-items: center; gap: 15px;">
             <div style="width: 12px; height: 12px; background: #ff4444; border-radius: 50%; box-shadow: 0 0 12px #ff4444;"></div>
-            <div id="news-text">HÄMTAR SENASTE NYTT FRÅN SVT...</div>
+            <div id="news-text">LADDAR NYHETER...</div>
         </div>
     </footer>
 </div>
@@ -141,7 +141,7 @@
         <div id="countdown" style="font-size: 4rem; font-weight: 900; line-height: 1;">--</div>
     </div>
     <div class="glass-panel" style="flex: 1; padding: 25px; display: flex; align-items: center;">
-        <div id="history-fact" style="font-size: 1.1rem; font-weight: 300; line-height: 1.5; border-left: 3px solid var(--accent); padding-left: 20px;">Hämtar historisk händelse...</div>
+        <div id="history-fact" style="font-size: 1.1rem; font-weight: 300; line-height: 1.5; border-left: 3px solid var(--accent); padding-left: 20px;">Hämtar historik...</div>
     </div>
 </div>
 
@@ -149,21 +149,24 @@
     const CAL_ID = 'rezgarhayder@gmail.com';
     const API_KEY = 'AIzaSyAC3QiGhqOM2F2ZrnFq3xWUu6_1bAwOvSw';
 
-    // 1. LUFTKVALITET (AQI)
+    // 1. LUFTKVALITET (Specifik station: Borggården, Staffanstorp)
     async function updateEnvironment() {
         try {
-            const res = await fetch('https://api.waqi.info/feed/here/?token=demo'); 
+            const res = await fetch('https://api.waqi.info/feed/@501064/?token=demo'); 
             const d = await res.json();
-            const aqi = d.data.aqi;
-            document.getElementById('aqi-value').innerText = aqi;
-            const status = document.getElementById('aqi-status');
-            if(aqi < 50) { status.innerText = "EXCELLENT AIR"; status.style.color = "#44ff88"; }
-            else if(aqi < 100) { status.innerText = "MODERATE"; status.style.color = "#ffaa33"; }
-            else { status.innerText = "POOR QUALITY"; status.style.color = "#ff4444"; }
+            if(d.status === "ok") {
+                const aqi = d.data.aqi;
+                const el = document.getElementById('aqi-value');
+                const status = document.getElementById('aqi-status');
+                el.innerText = aqi;
+                if(aqi <= 50) { status.innerText = "EXCELLENT AIR"; status.style.color = "#44ff88"; el.style.color = "white"; }
+                else if(aqi <= 100) { status.innerText = "MODERATE"; status.style.color = "#ffaa33"; el.style.color = "#ffaa33"; }
+                else { status.innerText = "UNHEALTHY"; status.style.color = "#ff4444"; el.style.color = "#ff4444"; }
+            }
         } catch(e) {}
     }
 
-    // 2. NORRSKENCHANS (Kp-Index)
+    // 2. KP-INDEX (Live från NOAA)
     async function updateSpaceWeather() {
         try {
             const res = await fetch('https://services.swpc.noaa.gov/products/noaa-estimated-planetary-k-index-1-minute.json');
@@ -173,12 +176,12 @@
             const kpEl = document.getElementById('kp-index');
             const stEl = document.getElementById('kp-status');
             kpEl.innerText = kp;
-            if(kp >= 4) { kpEl.style.color = "var(--aurora)"; stEl.innerText = "AURORA ALERT!"; stEl.style.color = "var(--aurora)"; }
+            if(kp >= 4) { kpEl.style.color = "var(--aurora)"; stEl.innerText = "AURORA WATCH!"; stEl.style.color = "var(--aurora)"; }
             else { kpEl.style.color = "white"; stEl.innerText = "QUIET SKY"; stEl.style.color = "rgba(255,255,255,0.5)"; }
         } catch(e) {}
     }
 
-    // 3. VÄDER (Staffanstorp)
+    // 3. VÄDER (SMHI-data via Open-Meteo)
     async function updateWeather() {
         try {
             const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=55.64&longitude=13.21&hourly=temperature_2m,weathercode&daily=temperature_2m_max&timezone=auto');
@@ -191,7 +194,7 @@
                 const time = new Date(d.hourly.time[idx]).getHours() + ':00';
                 const code = d.hourly.weathercode[idx];
                 const icon = code <= 3 ? 'sun' : (code >= 70 ? 'snowflake' : 'cloud-rain');
-                hHtml += `<div class="weather-node"><div class="w-time">${time}</div><i data-lucide="${icon}" class="weather-icon"></i><div class="w-temp">${Math.round(d.hourly.temperature_2m[idx])}°</div></div>`;
+                hHtml += `<div class="weather-node"><div class="w-time">${time}</div><i data-lucide="${icon}" style="width:24px; height:24px; color:var(--accent); margin:4px 0;"></i><div class="w-temp">${Math.round(d.hourly.temperature_2m[idx])}°</div></div>`;
             }
             document.getElementById('header-hourly').innerHTML = hHtml;
             lucide.createIcons();
@@ -216,7 +219,14 @@
         } catch(e) {}
     }
 
-    // 5. NYHETER & HISTORIK & TID
+    // 5. TID, NYHETER & BILDSPEL
+    function updateTime() {
+        const now = new Date();
+        document.getElementById('mini-clock').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
+        document.getElementById('mini-date').innerText = now.toLocaleDateString('sv-SE', {weekday:'long', day:'numeric', month:'short'});
+        document.getElementById('countdown').innerText = Math.ceil((new Date('2026-03-30') - now) / 86400000);
+    }
+
     async function updateNews() {
         try {
             const r = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.svt.se/nyheter/rss.xml');
@@ -235,15 +245,8 @@
             const r = await fetch(`https://en.wikipedia.org/api/rest_v1/feed/onthisday/events/${new Date().getMonth()+1}/${new Date().getDate()}`);
             const d = await r.json();
             const e = d.events[Math.floor(Math.random()*d.events.length)];
-            document.getElementById('history-fact').innerHTML = `<b style="color:var(--accent); font-weight:800;">${e.year}:</b> ${e.text}`;
+            document.getElementById('history-fact').innerHTML = `<b style="color:var(--accent)">${e.year}:</b> ${e.text}`;
         } catch(e) {}
-    }
-
-    function updateTime() {
-        const now = new Date();
-        document.getElementById('mini-clock').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
-        document.getElementById('mini-date').innerText = now.toLocaleDateString('sv-SE', {weekday:'long', day:'numeric', month:'short'});
-        document.getElementById('countdown').innerText = Math.ceil((new Date('2026-03-30') - now) / 86400000);
     }
 
     async function updateSlide() {
@@ -255,13 +258,13 @@
         setTimeout(() => {
             if(container.children.length > 1) container.removeChild(container.children[0]);
             newSlide.classList.add('active');
-            fetch('https://api.quotable.io/random?maxLength=110').then(r => r.json()).then(q => {
+            fetch('https://api.quotable.io/random?maxLength=100').then(r => r.json()).then(q => {
                 document.getElementById('quote-text').innerText = `"${q.content}"`;
             });
         }, 100);
     }
 
-    // Init
+    // Initial Start
     document.addEventListener('DOMContentLoaded', () => {
         updateTime(); updateWeather(); updateCalendar(); updateNews(); updateHistory(); updateEnvironment(); updateSpaceWeather(); updateSlide();
         setInterval(updateTime, 10000);
@@ -269,6 +272,7 @@
         setInterval(updateEnvironment, 600000);
         setInterval(updateSpaceWeather, 300000);
         setInterval(updateWeather, 1800000);
+        setInterval(updateCalendar, 600000);
     });
 </script>
 </body>
