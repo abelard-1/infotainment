@@ -3,201 +3,230 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Command Center v38 - The Full Package</title>
+    <title>Staffanstorp Command Center v40 - Eco & Space Edition</title>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;600;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --glass-bg: rgba(10, 10, 10, 0.85);
-            --glass-border: rgba(255, 255, 255, 0.25);
+            --glass-bg: rgba(10, 10, 10, 0.82);
+            --glass-border: rgba(255, 255, 255, 0.2);
             --accent: #5e92f3;
             --text-main: #ffffff;
-            --radar-green: #00ff66;
+            --aurora: #ff44ff;
+            --aqi-good: #44ff88;
             --easter-gold: #ffaa33;
         }
 
         * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+        
         body {
-            font-family: 'Inter', sans-serif; background-color: #000; margin: 0; 
-            height: 100vh; width: 100vw; color: var(--text-main);
-            display: grid; grid-template-columns: 520px 1fr; 
+            font-family: 'Inter', sans-serif;
+            background-color: #000;
+            margin: 0;
+            height: 100vh;
+            width: 100vw;
+            color: var(--text-main);
+            display: grid;
+            grid-template-columns: 520px 1fr;
             grid-template-rows: 15vh minmax(0, 1fr) 12vh;
-            gap: 15px; padding: 15px; overflow: hidden;
+            gap: 15px;
+            padding: 15px;
+            overflow: hidden;
         }
 
         .glass-panel {
-            background: var(--glass-bg); backdrop-filter: blur(40px) saturate(180%);
-            border: 1px solid var(--glass-border); border-radius: 30px;
-            position: relative; overflow: hidden;
+            background: var(--glass-bg);
+            backdrop-filter: blur(40px) saturate(180%);
+            border: 1px solid var(--glass-border);
+            border-radius: 30px;
+            position: relative;
+            overflow: hidden;
         }
 
         /* Top Bar & Weather */
         .top-bar { grid-column: 1/3; display: grid; grid-template-columns: 350px 1fr 280px; align-items: center; padding: 0 40px; }
-        #header-hourly { display: flex; justify-content: space-around; align-items: center; border-left: 1px solid var(--glass-border); border-right: 1px solid var(--glass-border); height: 70%; }
+        #header-hourly { display: flex; justify-content: space-around; align-items: center; border-left: 1px solid var(--glass-border); border-right: 1px solid var(--glass-border); height: 70%; margin: 0 20px; }
         .weather-node { text-align: center; min-width: 65px; }
-        .w-time { font-size: 0.75rem; opacity: 0.6; font-weight: 600; }
-        .w-temp { font-weight: 800; font-size: 1.4rem; }
-        .weather-icon { width: 28px; height: 28px; color: var(--accent); margin: 2px 0; }
+        .w-time { font-size: 0.75rem; opacity: 0.6; font-weight: 600; text-transform: uppercase; }
+        .w-temp { font-weight: 800; font-size: 1.5rem; margin-top: 2px; }
+        .weather-icon { width: 26px; height: 26px; color: var(--accent); }
 
         /* Sidebar Elements */
         .sidebar-container { grid-column: 1/2; grid-row: 2/3; display: grid; grid-template-rows: 1fr 240px; gap: 15px; min-height: 0; }
-        .event-item { display: flex; align-items: center; gap: 20px; padding: 15px 25px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 10px; }
-        .event-item.is-today { background: rgba(255,255,255,0.1); border-color: var(--accent); }
+        .event-item { display: flex; align-items: center; gap: 20px; padding: 18px 25px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 10px; }
+        .event-item.is-today { background: rgba(94, 146, 243, 0.15); border-color: var(--accent); }
         .event-time { font-weight: 800; font-size: 1.8rem; }
-        .event-title { font-size: 1.4rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .event-title { font-size: 1.4rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 300; }
 
-        /* SkyScan Radar */
-        .radar-box { position: relative; width: 80px; height: 80px; border-radius: 50%; border: 1px solid rgba(0,255,102,0.2); }
-        .radar-sweep { position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(from 0deg, rgba(0,255,102,0.3) 0deg, transparent 90deg); animation: rotate-radar 4s linear infinite; }
-        @keyframes rotate-radar { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        /* Env & Space Module */
+        .monitor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; height: 100%; align-items: center; padding: 0 5px; }
+        .monitor-label { font-size: 0.65rem; font-weight: 800; letter-spacing: 2px; opacity: 0.5; text-transform: uppercase; margin-bottom: 5px; display: flex; align-items: center; gap: 8px; }
+        .val-big { font-size: 3.2rem; font-weight: 900; line-height: 1; letter-spacing: -2px; }
+        .val-sub { font-size: 0.75rem; font-weight: 700; margin-top: 8px; }
 
-        /* Main Slideshow */
+        /* Main Content & Slideshow */
         .main-content { position: relative; }
         #slideshow-container { position: absolute; inset: 0; z-index: 1; }
-        .slide { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transition: opacity 2s ease-in-out; }
+        .slide { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transition: opacity 2.5s ease-in-out; }
         .slide.active { opacity: 1; }
-        .quote-overlay { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 10; width: 80%; text-align: center; background: rgba(0,0,0,0.5); backdrop-filter: blur(15px); padding: 25px; border-radius: 25px; border: 1px solid var(--glass-border); }
+        .overlay-gradient { position: absolute; inset: 0; background: linear-gradient(transparent 40%, rgba(0,0,0,0.85)); z-index: 2; }
+        .quote-container { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); z-index: 10; width: 85%; text-align: center; }
+        #quote-text { font-size: 1.8rem; font-weight: 300; font-style: italic; line-height: 1.4; text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
 
-        /* News Ticker */
-        .news-container { display: flex; align-items: center; gap: 15px; width: 100%; }
-        #news-text { font-size: 0.95rem; font-weight: 600; letter-spacing: 0.5px; transition: opacity 0.5s; }
+        /* Footer & News */
+        .news-container { display: flex; align-items: center; gap: 15px; }
+        #news-text { font-size: 1rem; font-weight: 600; letter-spacing: 0.5px; transition: opacity 0.5s; text-transform: uppercase; }
 
-        /* Easter Countdown */
-        .easter-box { border: 1px solid var(--easter-gold); display: flex; flex-direction: column; justify-content: center; align-items: center; min-width: 120px; }
+        .easter-box { border: 1px solid var(--easter-gold); display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 0 25px; }
     </style>
 </head>
 <body>
 
 <header class="top-bar glass-panel">
     <div>
-        <div id="mini-date" style="font-size: 0.8rem; color: var(--accent); font-weight: 700; text-transform: uppercase;">--</div>
-        <div id="mini-clock" style="font-size: 4rem; font-weight: 900; line-height: 1;">00:00</div>
+        <div id="mini-date" style="font-size: 0.85rem; color: var(--accent); font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">--</div>
+        <div id="mini-clock" style="font-size: 4.5rem; font-weight: 900; line-height: 1; margin-top: -5px;">00:00</div>
     </div>
     <div id="header-hourly"></div>
     <div style="text-align: right;">
-        <div style="font-size: 0.7rem; opacity: 0.5; font-weight: 800;">IMORGON MAX</div>
-        <div id="tom-temp" style="font-weight: 900; font-size: 2.2rem; line-height: 1;">--°</div>
-        <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 5px;">
-            <span id="cur-wind" style="font-size: 0.8rem; opacity: 0.6;">-- m/s</span>
-            <span id="cur-hum" style="font-size: 0.8rem; opacity: 0.6;">-- %</span>
-        </div>
+        <div style="font-size: 0.7rem; opacity: 0.5; font-weight: 900; letter-spacing: 1px;">IMORGON MAX</div>
+        <div id="tom-temp" style="font-weight: 900; font-size: 2.8rem; line-height: 1;">--°</div>
     </div>
 </header>
 
 <div class="sidebar-container">
-    <section class="glass-panel" style="padding: 20px;">
+    <section class="glass-panel" style="padding: 25px;">
         <div id="custom-calendar-list"></div>
     </section>
     
-    <section class="glass-panel" style="padding: 20px; display: flex; align-items: center; gap: 20px;">
-        <div class="radar-box">
-            <div class="radar-sweep"></div>
-        </div>
-        <div>
-            <div style="font-size: 0.6rem; font-weight: 800; opacity: 0.5; letter-spacing: 2px;">SKYSCAN STAFFANSTORP</div>
-            <div id="flight-callsign" style="font-size: 1.6rem; font-weight: 900; color: var(--accent);">SCANNING...</div>
-            <div id="flight-desc" style="font-size: 0.75rem; opacity: 0.7; white-space: nowrap;">Searching airspace</div>
-            <div id="flight-alt" style="font-size: 0.7rem; color: var(--radar-green); font-weight: 700; margin-top: 3px;">-- FT</div>
+    <section class="glass-panel" style="padding: 30px;">
+        <div class="monitor-grid">
+            <div style="border-right: 1px solid rgba(255,255,255,0.1); padding-right: 10px;">
+                <div class="monitor-label"><i data-lucide="wind" style="width:14px; color:var(--aqi-good)"></i> AQI STAFFANSTORP</div>
+                <div id="aqi-value" class="val-big">--</div>
+                <div id="aqi-status" class="val-sub" style="color: var(--aqi-good);">LADDAR...</div>
+            </div>
+            <div style="padding-left: 10px;">
+                <div class="monitor-label"><i data-lucide="sparkles" style="width:14px; color:var(--aurora)"></i> AURORA CHANCE</div>
+                <div style="display: flex; align-items: baseline; gap: 5px;">
+                    <div id="kp-index" class="val-big">0.0</div>
+                    <div style="font-size: 1.2rem; font-weight: 300; opacity: 0.5;">Kp</div>
+                </div>
+                <div id="kp-status" class="val-sub">QUIET SKY</div>
+            </div>
         </div>
     </section>
 </div>
 
 <main class="main-content glass-panel">
     <div id="slideshow-container"></div>
-    <div style="position: absolute; inset: 0; background: linear-gradient(transparent 50%, rgba(0,0,0,0.8)); z-index: 2;"></div>
-    <div class="quote-overlay">
-        <div id="quote-text" style="font-size: 1.4rem; font-weight: 300; font-style: italic;">"Hämtar dagens tanke..."</div>
+    <div class="overlay-gradient"></div>
+    <div class="quote-container">
+        <div id="quote-text">"Universum väntar..."</div>
     </div>
 </main>
 
 <div style="grid-column: 1/2; grid-row: 3/4;">
-    <footer class="glass-panel" style="height: 100%; display: flex; align-items: center; padding: 0 35px;">
+    <footer class="glass-panel" style="height: 100%; display: flex; align-items: center; padding: 0 40px;">
         <div class="news-container">
-            <div style="width: 10px; height: 10px; background: #ff4444; border-radius: 50%; box-shadow: 0 0 10px #ff4444;"></div>
-            <div id="news-text">LADDAR NYHETER FRÅN SVT...</div>
+            <div style="width: 12px; height: 12px; background: #ff4444; border-radius: 50%; box-shadow: 0 0 12px #ff4444;"></div>
+            <div id="news-text">HÄMTAR SENASTE NYTT FRÅN SVT...</div>
         </div>
     </footer>
 </div>
 
 <div style="grid-column: 2/3; grid-row: 3/4; display: flex; gap: 15px;">
     <div class="glass-panel easter-box">
-        <div style="font-size: 0.65rem; font-weight: 900; color: var(--easter-gold); letter-spacing: 2px;">PÅSKLOV</div>
+        <div style="font-size: 0.7rem; font-weight: 900; color: var(--easter-gold); letter-spacing: 2px; margin-bottom: 5px;">PÅSKLOV</div>
         <div id="countdown" style="font-size: 4rem; font-weight: 900; line-height: 1;">--</div>
     </div>
-    <div class="glass-panel" style="flex: 1; padding: 20px; display: flex; align-items: center;">
-        <div id="history-fact" style="font-size: 1rem; font-weight: 300; line-height: 1.5;">Hämtar historisk fakta...</div>
+    <div class="glass-panel" style="flex: 1; padding: 25px; display: flex; align-items: center;">
+        <div id="history-fact" style="font-size: 1.1rem; font-weight: 300; line-height: 1.5; border-left: 3px solid var(--accent); padding-left: 20px;">Hämtar historisk händelse...</div>
     </div>
 </div>
 
 <script>
-    const API_KEY = 'AIzaSyAC3QiGhqOM2F2ZrnFq3xWUu6_1bAwOvSw';
     const CAL_ID = 'rezgarhayder@gmail.com';
+    const API_KEY = 'AIzaSyAC3QiGhqOM2F2ZrnFq3xWUu6_1bAwOvSw';
 
-    async function updateSkyScan() {
+    // 1. LUFTKVALITET (AQI)
+    async function updateEnvironment() {
         try {
-            const res = await fetch('https://opensky-network.org/api/states/all?lamin=55.5&lomin=13.0&lamax=55.8&lomax=13.5');
+            const res = await fetch('https://api.waqi.info/feed/here/?token=demo'); 
+            const d = await res.json();
+            const aqi = d.data.aqi;
+            document.getElementById('aqi-value').innerText = aqi;
+            const status = document.getElementById('aqi-status');
+            if(aqi < 50) { status.innerText = "EXCELLENT AIR"; status.style.color = "#44ff88"; }
+            else if(aqi < 100) { status.innerText = "MODERATE"; status.style.color = "#ffaa33"; }
+            else { status.innerText = "POOR QUALITY"; status.style.color = "#ff4444"; }
+        } catch(e) {}
+    }
+
+    // 2. NORRSKENCHANS (Kp-Index)
+    async function updateSpaceWeather() {
+        try {
+            const res = await fetch('https://services.swpc.noaa.gov/products/noaa-estimated-planetary-k-index-1-minute.json');
             const data = await res.json();
-            if (data.states && data.states.length > 0) {
-                const flight = data.states[0];
-                document.getElementById('flight-callsign').innerText = flight[1].trim() || "N/A";
-                document.getElementById('flight-desc').innerText = `Från: ${flight[2] || 'Okänd'}`;
-                document.getElementById('flight-alt').innerText = `${Math.round(flight[7] * 3.28084)} FT`;
-            } else {
-                document.getElementById('flight-callsign').innerText = "CLEAR SKY";
-                document.getElementById('flight-desc').innerText = "Inga flygplan just nu";
-            }
+            const latest = data[data.length - 1];
+            const kp = parseFloat(latest[1]).toFixed(1);
+            const kpEl = document.getElementById('kp-index');
+            const stEl = document.getElementById('kp-status');
+            kpEl.innerText = kp;
+            if(kp >= 4) { kpEl.style.color = "var(--aurora)"; stEl.innerText = "AURORA ALERT!"; stEl.style.color = "var(--aurora)"; }
+            else { kpEl.style.color = "white"; stEl.innerText = "QUIET SKY"; stEl.style.color = "rgba(255,255,255,0.5)"; }
         } catch(e) {}
     }
 
-    async function updateNews() {
-        try {
-            const r = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.svt.se/nyheter/rss.xml');
-            const d = await r.json();
-            let items = d.items.map(i => i.title), idx = 0;
-            const el = document.getElementById('news-text');
-            setInterval(() => {
-                el.style.opacity = 0;
-                setTimeout(() => { el.innerText = items[idx].toUpperCase(); el.style.opacity = 1; idx = (idx + 1) % items.length; }, 500);
-            }, 8000);
-        } catch(e) {}
-    }
-
+    // 3. VÄDER (Staffanstorp)
     async function updateWeather() {
         try {
-            const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=55.64&longitude=13.21&current=temperature_2m,relative_humidity_2m,wind_speed_10m&hourly=temperature_2m,weathercode&daily=temperature_2m_max&timezone=auto');
-            const data = await res.json();
-            document.getElementById('cur-wind').innerText = Math.round(data.current.wind_speed_10m) + ' m/s';
-            document.getElementById('cur-hum').innerText = data.current.relative_humidity_2m + ' %';
-            document.getElementById('tom-temp').innerText = Math.round(data.daily.temperature_2m_max[1]) + '°';
-
+            const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=55.64&longitude=13.21&hourly=temperature_2m,weathercode&daily=temperature_2m_max&timezone=auto');
+            const d = await res.json();
+            document.getElementById('tom-temp').innerText = Math.round(d.daily.temperature_2m_max[1]) + '°';
             const hIdx = new Date().getHours();
             let hHtml = '';
             for(let i=1; i<=6; i++) {
                 const idx = hIdx + i;
-                const time = new Date(data.hourly.time[idx]).getHours() + ':00';
-                const code = data.hourly.weathercode[idx];
-                const icon = code <= 3 ? 'sun' : 'cloud-rain';
-                hHtml += `<div class="weather-node"><div class="w-time">${time}</div><i data-lucide="${icon}" class="weather-icon"></i><div class="w-temp">${Math.round(data.hourly.temperature_2m[idx])}°</div></div>`;
+                const time = new Date(d.hourly.time[idx]).getHours() + ':00';
+                const code = d.hourly.weathercode[idx];
+                const icon = code <= 3 ? 'sun' : (code >= 70 ? 'snowflake' : 'cloud-rain');
+                hHtml += `<div class="weather-node"><div class="w-time">${time}</div><i data-lucide="${icon}" class="weather-icon"></i><div class="w-temp">${Math.round(d.hourly.temperature_2m[idx])}°</div></div>`;
             }
             document.getElementById('header-hourly').innerHTML = hHtml;
             lucide.createIcons();
         } catch(e) {}
     }
 
+    // 4. KALENDER
     async function updateCalendar() {
         try {
             const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CAL_ID)}/events?key=${API_KEY}&timeMin=${new Date().toISOString()}&singleEvents=true&orderBy=startTime`);
-            const data = await res.json();
-            if (data.items) {
-                document.getElementById('custom-calendar-list').innerHTML = data.items.slice(0, 4).map(event => {
+            const d = await res.json();
+            if (d.items) {
+                document.getElementById('custom-calendar-list').innerHTML = d.items.slice(0, 4).map(event => {
                     const start = new Date(event.start.dateTime || event.start.date);
                     const isToday = start.toDateString() === new Date().toDateString();
                     return `<div class="event-item ${isToday ? 'is-today' : ''}">
-                        <div style="min-width: 80px;"><div style="font-size: 0.7rem; font-weight:800; color:var(--accent);">${isToday ? 'IDAG' : start.toLocaleDateString('sv-SE', {weekday:'short', day:'numeric'})}</div>
+                        <div style="min-width: 85px;"><div style="font-size: 0.75rem; font-weight:800; color:var(--accent);">${isToday ? 'IDAG' : start.toLocaleDateString('sv-SE', {weekday:'short', day:'numeric'})}</div>
                         <div class="event-time">${event.start.dateTime ? start.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'}) : 'DAG'}</div></div>
                         <div class="event-title">${event.summary}</div></div>`;
                 }).join('');
             }
+        } catch(e) {}
+    }
+
+    // 5. NYHETER & HISTORIK & TID
+    async function updateNews() {
+        try {
+            const r = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.svt.se/nyheter/rss.xml');
+            const d = await r.json();
+            let items = d.items.map(i => i.title), idx = 0;
+            setInterval(() => {
+                const el = document.getElementById('news-text');
+                el.style.opacity = 0;
+                setTimeout(() => { el.innerText = items[idx]; el.style.opacity = 1; idx = (idx + 1) % items.length; }, 500);
+            }, 10000);
         } catch(e) {}
     }
 
@@ -206,8 +235,15 @@
             const r = await fetch(`https://en.wikipedia.org/api/rest_v1/feed/onthisday/events/${new Date().getMonth()+1}/${new Date().getDate()}`);
             const d = await r.json();
             const e = d.events[Math.floor(Math.random()*d.events.length)];
-            document.getElementById('history-fact').innerHTML = `<b style="color:var(--accent)">${e.year}:</b> ${e.text}`;
+            document.getElementById('history-fact').innerHTML = `<b style="color:var(--accent); font-weight:800;">${e.year}:</b> ${e.text}`;
         } catch(e) {}
+    }
+
+    function updateTime() {
+        const now = new Date();
+        document.getElementById('mini-clock').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
+        document.getElementById('mini-date').innerText = now.toLocaleDateString('sv-SE', {weekday:'long', day:'numeric', month:'short'});
+        document.getElementById('countdown').innerText = Math.ceil((new Date('2026-03-30') - now) / 86400000);
     }
 
     async function updateSlide() {
@@ -219,25 +255,20 @@
         setTimeout(() => {
             if(container.children.length > 1) container.removeChild(container.children[0]);
             newSlide.classList.add('active');
-            fetch('https://api.quotable.io/random?maxLength=100').then(r => r.json()).then(q => {
+            fetch('https://api.quotable.io/random?maxLength=110').then(r => r.json()).then(q => {
                 document.getElementById('quote-text').innerText = `"${q.content}"`;
             });
         }, 100);
     }
 
-    function updateTime() {
-        const now = new Date();
-        document.getElementById('mini-clock').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
-        document.getElementById('mini-date').innerText = now.toLocaleDateString('sv-SE', {weekday:'long', day:'numeric', month:'short'});
-        document.getElementById('countdown').innerText = Math.ceil((new Date('2026-03-30') - now) / 86400000);
-    }
-
+    // Init
     document.addEventListener('DOMContentLoaded', () => {
-        updateTime(); updateWeather(); updateCalendar(); updateNews(); updateHistory(); updateSkyScan(); updateSlide();
+        updateTime(); updateWeather(); updateCalendar(); updateNews(); updateHistory(); updateEnvironment(); updateSpaceWeather(); updateSlide();
         setInterval(updateTime, 10000);
-        setInterval(updateSkyScan, 30000);
-        setInterval(updateWeather, 600000);
         setInterval(updateSlide, 60000);
+        setInterval(updateEnvironment, 600000);
+        setInterval(updateSpaceWeather, 300000);
+        setInterval(updateWeather, 1800000);
     });
 </script>
 </body>
