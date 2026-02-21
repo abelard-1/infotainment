@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Elite Dashboard v22</title>
+    <title>Staffanstorp Elite Dashboard v23</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;600;800&display=swap" rel="stylesheet">
     <style>
@@ -42,6 +42,7 @@
         .event-item { display: flex; align-items: center; gap: 20px; padding: 18px 25px; border-radius: 20px; margin-bottom: 8px; }
         .event-item.is-today { background: rgba(255,255,255,0.08); position: relative; z-index: 1; }
         
+        /* Border Beam Animation */
         .event-item.is-today::before {
             content: ""; position: absolute; inset: 0; border-radius: 20px; padding: 2px;
             background: conic-gradient(from var(--angle), transparent 70%, var(--accent), #fff, var(--accent));
@@ -72,10 +73,11 @@
         .slide { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transition: opacity 2.5s; }
         .slide.active { opacity: 1; }
 
-        /* Påsklov */
-        .easter-days { font-size: 4.2rem; font-weight: 900; line-height: 0.9; margin: 8px 0; }
+        /* Påsklov - Justerad padding */
+        .easter-box { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid rgba(255,170,51,0.25); padding: 25px 0; }
+        .easter-days { font-size: 4.2rem; font-weight: 900; line-height: 0.8; margin: 12px 0; }
 
-        /* Animationer Väder */
+        /* Väderanimationer */
         @keyframes fall { to { transform: translateY(110vh) translateX(30px); } }
         .snow-flake { position: fixed; top: -20px; color: white; pointer-events: none; z-index: 9999; animation: fall linear infinite; }
         .rain-drop { position: fixed; top: -20px; background: rgba(174, 194, 224, 0.4); width: 2px; height: 15px; pointer-events: none; z-index: 9999; animation: fall 0.8s linear infinite; }
@@ -110,9 +112,9 @@
 <main class="main-content glass-panel">
     <div id="slideshow-container"></div>
     <div style="position: absolute; inset: 0; background: linear-gradient(transparent 50%, rgba(0,0,0,0.6)); z-index: 2;"></div>
-    <div class="quote-overlay" style="position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 10; width: 85%; text-align: center; background: rgba(0,0,0,0.3); backdrop-filter: blur(8px); padding: 20px; border-radius: 20px;">
-        <div id="quote-text" style="font-size: 1.3rem; font-style: italic; margin-bottom: 5px;">"Laddar visdom..."</div>
-        <div id="quote-author" style="font-size: 0.8rem; color: var(--accent); text-transform: uppercase;">--</div>
+    <div class="quote-overlay" style="position: absolute; bottom: 35px; left: 50%; transform: translateX(-50%); z-index: 10; width: 85%; text-align: center; background: rgba(0,0,0,0.3); backdrop-filter: blur(12px); padding: 25px; border-radius: 25px; border: 1px solid rgba(255,255,255,0.05);">
+        <div id="quote-text" style="font-size: 1.4rem; font-style: italic; font-weight: 300; margin-bottom: 8px; line-height: 1.4;">"Laddar visdom..."</div>
+        <div id="quote-author" style="font-size: 0.8rem; color: var(--accent); letter-spacing: 3px; text-transform: uppercase; font-weight: 600;">--</div>
     </div>
 </main>
 
@@ -123,7 +125,7 @@
 </div>
 
 <div style="grid-column: 2/3; grid-row: 3/4; display: flex; gap: 15px;">
-    <div class="glass-panel" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid rgba(255,170,51,0.25); padding: 10px 0;">
+    <div class="glass-panel easter-box">
         <div style="font-size: 1.1rem; letter-spacing: 4px; color: var(--easter-gold); font-weight: 800;">PÅSKLOV OM</div>
         <div id="countdown" class="easter-days">00</div>
         <div style="font-size: 1rem; letter-spacing: 3px; font-weight: 600; opacity: 0.8;">DAGAR</div>
@@ -136,11 +138,35 @@
 <script>
     const API_KEY = 'AIzaSyAC3QiGhqOM2F2ZrnFq3xWUu6_1bAwOvSw';
     const CAL_ID = 'rezgarhayder@gmail.com';
+    
     const quotes = [
         { text: "Lyckan beror på kvaliteten av dina tankar.", author: "Marcus Aurelius" },
         { text: "Vi lider mer i fantasin än i verkligheten.", author: "Seneca" },
         { text: "Din vision blir klar endast när du ser in i ditt hjärta.", author: "Carl Jung" },
-        { text: "Du har makt över ditt sinne – inte över yttre händelser.", author: "Marcus Aurelius" }
+        { text: "Den som har ett 'varför' kan uthärda nästan vilket 'hur' som helst.", author: "Friedrich Nietzsche" },
+        { text: "Du har makt över ditt sinne – inte över yttre händelser.", author: "Marcus Aurelius" },
+        { text: "Att vara sig själv i en värld som ständigt försöker göra dig till något annat är den största prestationen.", author: "Ralph Waldo Emerson" },
+        { text: "Livet är det som händer medan du är upptagen med att göra andra planer.", author: "John Lennon" },
+        { text: "Svårigheter stärker sinnet, liksom arbete stärker kroppen.", author: "Seneca" },
+        { text: "Allt vi ser eller verkar vara är bara en dröm i en dröm.", author: "Edgar Allan Poe" },
+        { text: "Den enda sanna visdomen är att veta att du ingenting vet.", author: "Sokrates" },
+        { text: "Det är inte döden man ska frukta, utan att man aldrig börjar leva.", author: "Marcus Aurelius" },
+        { text: "Välj ett jobb du älskar, och du kommer aldrig att behöva arbeta en dag i ditt liv.", author: "Konfucius" },
+        { text: "Varje ögonblick är en ny början.", author: "T.S. Eliot" },
+        { text: "Det förflutna kan göra ont. Men så som jag ser det kan du antingen springa ifrån det eller lära dig av det.", author: "Rafiki" },
+        { text: "Slösa inte mer tid på att diskutera vad en bra människa bör vara. Var en.", author: "Marcus Aurelius" },
+        { text: "Inget är så enkelt att det inte blir svårt om du gör det motvilligt.", author: "Terentius" },
+        { text: "Lyckan är inte något färdigt. Den kommer från dina egna handlingar.", author: "Dalai Lama" },
+        { text: "Ett liv utan undersökning är inte värt att leva.", author: "Sokrates" },
+        { text: "Hinder är de skrämmande saker du ser när du tar ögonen från ditt mål.", author: "Henry Ford" },
+        { text: "Gör det du kan, där du är, med det du har.", author: "Theodore Roosevelt" },
+        { text: "Människan lider bara för att hon tar på allvar det gudarna skapade för skojs skull.", author: "Alan Watts" },
+        { text: "Ingen människa går i samma flod två gånger.", author: "Herakleitos" },
+        { text: "Det finns inget gott eller ont, men tänkandet gör det så.", author: "William Shakespeare" },
+        { text: "Mitten av varje svårighet ligger möjligheten.", author: "Albert Einstein" },
+        { text: "Den som är nöjd med det lilla har mest rikedom.", author: "Sokrates" },
+        { text: "Vi är vad vi ständigt gör. Excellens är därför inte en handling, utan en vana.", author: "Aristoteles" },
+        { text: "Det viktigaste är att inte sluta ställa frågor.", author: "Albert Einstein" }
     ];
 
     async function updateSlide() {
@@ -220,14 +246,6 @@
         } catch(e) {}
     }
 
-    function updateTime() {
-        const now = new Date();
-        document.getElementById('mini-clock').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
-        document.getElementById('mini-date').innerText = now.toLocaleDateString('sv-SE', {weekday:'long', day:'numeric', month:'short'});
-        const diff = new Date('2026-03-30T00:00:00') - now;
-        document.getElementById('countdown').innerText = Math.ceil(diff / 86400000);
-    }
-
     async function updateCalendar() {
         try {
             const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CAL_ID)}/events?key=${API_KEY}&timeMin=${new Date().toISOString()}&singleEvents=true&orderBy=startTime`);
@@ -248,12 +266,19 @@
         } catch(e) {}
     }
 
+    function updateTime() {
+        const now = new Date();
+        document.getElementById('mini-clock').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
+        document.getElementById('mini-date').innerText = now.toLocaleDateString('sv-SE', {weekday:'long', day:'numeric', month:'short'});
+        const diff = new Date('2026-03-30T00:00:00') - now;
+        document.getElementById('countdown').innerText = Math.ceil(diff / 86400000);
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
         updateTime(); updateWeather(); updateCalendar(); updateNews(); updateSlide(); updateHistory();
         setInterval(updateTime, 60000);
         setInterval(updateWeather, 600000);
         setInterval(updateSlide, 60000);
-        // Buss-logik (Simulerad realtid för 174)
         setInterval(() => {
             const now = new Date();
             let dep = [15, 35, 55].map(m => {
