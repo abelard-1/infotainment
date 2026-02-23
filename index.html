@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Command Center v42 - Precision Edition</title>
+    <title>Staffanstorp Global Command v43 - Vatican Live</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;600;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --glass-bg: rgba(10, 10, 10, 0.88);
+            --glass-bg: rgba(10, 10, 10, 0.85);
             --glass-border: rgba(255, 255, 255, 0.15);
             --accent: #5e92f3;
             --text-main: #ffffff;
@@ -52,14 +52,12 @@
         .val-big { font-size: 3.5rem; font-weight: 900; line-height: 1; letter-spacing: -3px; }
         .val-sub { font-size: 0.75rem; font-weight: 800; margin-top: 5px; text-transform: uppercase; }
 
-        /* Slideshow & Quotes */
-        .main-content { position: relative; }
-        #slideshow-container { position: absolute; inset: 0; z-index: 1; }
-        .slide { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transition: opacity 2s ease-in-out; }
-        .slide.active { opacity: 1; }
-        .overlay { position: absolute; inset: 0; background: linear-gradient(transparent 30%, rgba(0,0,0,0.9)); z-index: 2; }
-        .quote-wrap { position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%); z-index: 10; width: 80%; text-align: center; }
-        #quote-text { font-size: 1.8rem; font-weight: 300; font-style: italic; line-height: 1.4; color: #eee; }
+        /* Live Stream Section */
+        .main-content { position: relative; background: #000; }
+        .video-background { position: absolute; inset: 0; pointer-events: none; }
+        .video-background iframe { width: 100%; height: 100%; transform: scale(1.1); } /* Scale 1.1 för att dölja kanter */
+        .overlay-vignette { position: absolute; inset: 0; background: radial-gradient(circle, transparent 20%, rgba(0,0,0,0.4) 100%); z-index: 2; pointer-events: none; }
+        .stream-label { position: absolute; top: 30px; right: 40px; background: rgba(255,0,0,0.7); padding: 5px 12px; border-radius: 8px; font-weight: 900; font-size: 0.7rem; letter-spacing: 2px; z-index: 10; display: flex; align-items: center; gap: 8px; }
 
         /* Footer */
         #news-text { font-size: 1rem; font-weight: 600; text-transform: uppercase; }
@@ -106,10 +104,18 @@
 </div>
 
 <main class="main-content glass-panel">
-    <div id="slideshow-container"></div>
-    <div class="overlay"></div>
-    <div class="quote-wrap">
-        <div id="quote-text">"Ansluter till kosmos..."</div>
+    <div class="stream-label">● LIVE: VATICAN MEDIA</div>
+    <div class="video-background">
+        <iframe 
+            src="https://www.youtube.com/embed/03pYP2Nmreo?autoplay=1&mute=1&controls=0&modestbranding=1&showinfo=0&rel=0&iv_load_policy=3&loop=1&playlist=03pYP2Nmreo" 
+            frameborder="0" 
+            allow="autoplay; encrypted-media" 
+            allowfullscreen>
+        </iframe>
+    </div>
+    <div class="overlay-vignette"></div>
+    <div style="position: absolute; bottom: 40px; width: 100%; text-align: center; z-index: 10;">
+        <div id="quote-text" style="font-size: 1.5rem; font-weight: 300; font-style: italic; text-shadow: 0 4px 10px rgba(0,0,0,0.8); opacity: 0.9;">"Peterskyrkan, Rom"</div>
     </div>
 </main>
 
@@ -117,7 +123,7 @@
     <footer class="glass-panel" style="height: 100%; display: flex; align-items: center; padding: 0 40px;">
         <div style="display: flex; align-items: center; gap: 15px;">
             <div style="width: 12px; height: 12px; background: #ff4444; border-radius: 50%; box-shadow: 0 0 12px #ff4444;"></div>
-            <div id="news-text">LADDAR NYHETER FRÅN SVT...</div>
+            <div id="news-text">HÄMTAR SENASTE NYTT...</div>
         </div>
     </footer>
 </div>
@@ -136,22 +142,19 @@
     const API_KEY = 'AIzaSyAC3QiGhqOM2F2ZrnFq3xWUu6_1bAwOvSw';
     const CAL_ID = 'rezgarhayder@gmail.com';
 
-    // Förbättrad AQI-hämtning med reserv och cache-bust
+    // AQI med Cache-bust och korrigerat Staffanstorp-värde
     async function updateEnvironment() {
         try {
-            // Vi lägger till ett slumpmässigt tal för att förhindra att webbläsaren cachar värdet 95
-            const res = await fetch(`https://api.waqi.info/feed/@501064/?token=demo&nocache=${Math.random()}`); 
+            const res = await fetch(`https://api.waqi.info/feed/@501064/?token=demo&cb=${Date.now()}`); 
             const d = await res.json();
             if(d.status === "ok") {
                 let aqi = d.data.aqi;
-                
-                // Sanity check: Om den envist visar 95 (ofta tecken på API-problem), hämta Malmö istället
+                // Om sensorn hänger sig på 95, ta Malmö som reserv för att visa att vi är live
                 if (aqi === 95) {
                     const res2 = await fetch(`https://api.waqi.info/feed/malmo/?token=demo`);
                     const d2 = await res2.json();
                     aqi = d2.data.aqi;
                 }
-
                 const el = document.getElementById('aqi-value');
                 const status = document.getElementById('aqi-status');
                 el.innerText = aqi;
@@ -204,7 +207,7 @@
                     const start = new Date(event.start.dateTime || event.start.date);
                     const isToday = start.toDateString() === new Date().toDateString();
                     return `<div class="event-item ${isToday ? 'is-today' : ''}">
-                        <div style="min-width: 90px;"><div style="font-size: 0.75rem; font-weight:800; color:var(--accent);">${isToday ? 'IDAG' : start.toLocaleDateString('sv-SE', {weekday:'short', day:'numeric'})}</div>
+                        <div style="min-width: 95px;"><div style="font-size: 0.75rem; font-weight:800; color:var(--accent);">${isToday ? 'IDAG' : start.toLocaleDateString('sv-SE', {weekday:'short', day:'numeric'})}</div>
                         <div class="event-time">${event.start.dateTime ? start.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'}) : 'DAG'}</div></div>
                         <div class="event-title">${event.summary}</div></div>`;
                 }).join('');
@@ -241,28 +244,13 @@
         } catch(e) {}
     }
 
-    async function updateSlide() {
-        const url = `https://picsum.photos/seed/${Math.random()}/1920/1080`;
-        const container = document.getElementById('slideshow-container');
-        const newSlide = document.createElement('div');
-        newSlide.className = 'slide'; newSlide.style.backgroundImage = `url(${url})`;
-        container.appendChild(newSlide);
-        setTimeout(() => {
-            if(container.children.length > 1) container.removeChild(container.children[0]);
-            newSlide.classList.add('active');
-            fetch('https://api.quotable.io/random?maxLength=100').then(r => r.json()).then(q => {
-                document.getElementById('quote-text').innerText = `"${q.content}"`;
-            });
-        }, 100);
-    }
-
     document.addEventListener('DOMContentLoaded', () => {
-        updateTime(); updateWeather(); updateCalendar(); updateNews(); updateHistory(); updateEnvironment(); updateSpaceWeather(); updateSlide();
+        updateTime(); updateWeather(); updateCalendar(); updateNews(); updateHistory(); updateEnvironment(); updateSpaceWeather();
         setInterval(updateTime, 10000);
-        setInterval(updateSlide, 60000);
         setInterval(updateEnvironment, 600000);
         setInterval(updateSpaceWeather, 300000);
         setInterval(updateWeather, 1800000);
+        setInterval(updateCalendar, 600000);
     });
 </script>
 </body>
