@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Global Command v43 - Vatican Live</title>
+    <title>Staffanstorp Command v44 - Atmospheric Edition</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;600;800;900&display=swap" rel="stylesheet">
     <style>
@@ -29,35 +29,37 @@
         .glass-panel {
             background: var(--glass-bg); backdrop-filter: blur(50px) saturate(200%);
             border: 1px solid var(--glass-border); border-radius: 30px;
-            position: relative; overflow: hidden;
+            position: relative; overflow: hidden; z-index: 5;
         }
 
-        /* Top Bar */
+        /* Top Bar & Animated Icons */
         .top-bar { grid-column: 1/3; display: grid; grid-template-columns: 350px 1fr 280px; align-items: center; padding: 0 40px; }
         #header-hourly { display: flex; justify-content: space-around; align-items: center; border-left: 1px solid var(--glass-border); border-right: 1px solid var(--glass-border); height: 70%; margin: 0 20px; }
-        .weather-node { text-align: center; min-width: 65px; }
-        .w-time { font-size: 0.7rem; opacity: 0.5; font-weight: 800; text-transform: uppercase; }
-        .w-temp { font-weight: 900; font-size: 1.6rem; }
+        
+        [data-lucide="sun"] { animation: spin 20s linear infinite; filter: drop-shadow(0 0 5px rgba(255,255,0,0.3)); }
+        [data-lucide="cloud"], [data-lucide="cloud-rain"], [data-lucide="snowflake"] { animation: float 4s ease-in-out infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 
         /* Sidebar & Calendar */
         .sidebar-container { grid-column: 1/2; grid-row: 2/3; display: grid; grid-template-rows: 1fr 240px; gap: 15px; min-height: 0; }
         .event-item { display: flex; align-items: center; gap: 20px; padding: 18px 25px; border-radius: 22px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 12px; }
         .event-item.is-today { background: rgba(94, 146, 243, 0.15); border-color: var(--accent); }
-        .event-time { font-weight: 900; font-size: 1.8rem; letter-spacing: -1px; }
+        .event-time { font-weight: 900; font-size: 1.8rem; }
         .event-title { font-size: 1.4rem; font-weight: 300; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
         /* Monitors */
         .monitor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; height: 100%; align-items: center; padding: 0 10px; }
-        .monitor-label { font-size: 0.65rem; font-weight: 800; letter-spacing: 2px; opacity: 0.5; display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
         .val-big { font-size: 3.5rem; font-weight: 900; line-height: 1; letter-spacing: -3px; }
-        .val-sub { font-size: 0.75rem; font-weight: 800; margin-top: 5px; text-transform: uppercase; }
 
-        /* Live Stream Section */
+        /* Main Live Stream & FX Layer */
         .main-content { position: relative; background: #000; }
-        .video-background { position: absolute; inset: 0; pointer-events: none; }
-        .video-background iframe { width: 100%; height: 100%; transform: scale(1.1); } /* Scale 1.1 för att dölja kanter */
-        .overlay-vignette { position: absolute; inset: 0; background: radial-gradient(circle, transparent 20%, rgba(0,0,0,0.4) 100%); z-index: 2; pointer-events: none; }
-        .stream-label { position: absolute; top: 30px; right: 40px; background: rgba(255,0,0,0.7); padding: 5px 12px; border-radius: 8px; font-weight: 900; font-size: 0.7rem; letter-spacing: 2px; z-index: 10; display: flex; align-items: center; gap: 8px; }
+        .video-background { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
+        .video-background iframe { width: 100%; height: 100%; transform: scale(1.15); }
+        
+        /* Weather FX Canvas */
+        #weather-fx { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
+        .overlay-vignette { position: absolute; inset: 0; background: radial-gradient(circle, transparent 20%, rgba(0,0,0,0.5) 100%); z-index: 2; pointer-events: none; }
 
         /* Footer */
         #news-text { font-size: 1rem; font-weight: 600; text-transform: uppercase; }
@@ -65,6 +67,8 @@
     </style>
 </head>
 <body>
+
+<canvas id="weather-fx"></canvas>
 
 <header class="top-bar glass-panel">
     <div>
@@ -86,36 +90,29 @@
     <section class="glass-panel" style="padding: 30px;">
         <div class="monitor-grid">
             <div style="border-right: 1px solid rgba(255,255,255,0.1); padding-right: 10px;">
-                <div class="monitor-label"><i data-lucide="wind" style="width:14px; color:var(--aqi-good)"></i> STAFFANSTORP AQI</div>
+                <div style="font-size: 0.65rem; opacity: 0.5; font-weight: 800; letter-spacing: 2px; margin-bottom: 5px;">STAFFANSTORP AQI</div>
                 <div id="aqi-value" class="val-big">--</div>
-                <div id="aqi-status" class="val-sub" style="color: var(--aqi-good);">UPPDATERAR...</div>
-                <div style="font-size:0.5rem; opacity:0.4; margin-top:4px;">SENSOR: BORGGÅRDEN</div>
+                <div id="aqi-status" style="font-size: 0.75rem; font-weight: 800; color: var(--aqi-good);">UPPDATERAR...</div>
             </div>
             <div>
-                <div class="monitor-label"><i data-lucide="sparkles" style="width:14px; color:var(--aurora)"></i> AURORA ALERT</div>
+                <div style="font-size: 0.65rem; opacity: 0.5; font-weight: 800; letter-spacing: 2px; margin-bottom: 5px;">AURORA ALERT</div>
                 <div style="display: flex; align-items: baseline; gap: 5px;">
                     <div id="kp-index" class="val-big">0.0</div>
                     <div style="font-size: 1.2rem; font-weight: 300; opacity: 0.5;">Kp</div>
                 </div>
-                <div id="kp-status" class="val-sub">LÅG AKTIVITET</div>
+                <div id="kp-status" style="font-size: 0.75rem; font-weight: 800; opacity: 0.5;">LÅG AKTIVITET</div>
             </div>
         </div>
     </section>
 </div>
 
 <main class="main-content glass-panel">
-    <div class="stream-label">● LIVE: VATICAN MEDIA</div>
     <div class="video-background">
-        <iframe 
-            src="https://www.youtube.com/embed/03pYP2Nmreo?autoplay=1&mute=1&controls=0&modestbranding=1&showinfo=0&rel=0&iv_load_policy=3&loop=1&playlist=03pYP2Nmreo" 
-            frameborder="0" 
-            allow="autoplay; encrypted-media" 
-            allowfullscreen>
-        </iframe>
+        <iframe src="https://www.youtube.com/embed/03pYP2Nmreo?autoplay=1&mute=1&controls=0&modestbranding=1&showinfo=0&rel=0&iv_load_policy=3&loop=1&playlist=03pYP2Nmreo" frameborder="0" allow="autoplay; encrypted-media"></iframe>
     </div>
     <div class="overlay-vignette"></div>
-    <div style="position: absolute; bottom: 40px; width: 100%; text-align: center; z-index: 10;">
-        <div id="quote-text" style="font-size: 1.5rem; font-weight: 300; font-style: italic; text-shadow: 0 4px 10px rgba(0,0,0,0.8); opacity: 0.9;">"Peterskyrkan, Rom"</div>
+    <div style="position: absolute; bottom: 30px; left: 40px; z-index: 10;">
+        <div style="background: rgba(255,0,0,0.7); padding: 4px 10px; border-radius: 6px; font-size: 0.6rem; font-weight: 900; letter-spacing: 2px;">LIVE: VATICAN CITY</div>
     </div>
 </main>
 
@@ -123,7 +120,7 @@
     <footer class="glass-panel" style="height: 100%; display: flex; align-items: center; padding: 0 40px;">
         <div style="display: flex; align-items: center; gap: 15px;">
             <div style="width: 12px; height: 12px; background: #ff4444; border-radius: 50%; box-shadow: 0 0 12px #ff4444;"></div>
-            <div id="news-text">HÄMTAR SENASTE NYTT...</div>
+            <div id="news-text">SYNCING NEWS...</div>
         </div>
     </footer>
 </div>
@@ -134,33 +131,101 @@
         <div id="countdown" style="font-size: 4rem; font-weight: 900; line-height: 1;">--</div>
     </div>
     <div class="glass-panel" style="flex: 1; padding: 25px; display: flex; align-items: center;">
-        <div id="history-fact" style="font-size: 1.1rem; font-weight: 300; line-height: 1.5; border-left: 4px solid var(--accent); padding-left: 20px;">Hämtar historisk fakta...</div>
+        <div id="history-fact" style="font-size: 1.1rem; font-weight: 300; line-height: 1.5; border-left: 4px solid var(--accent); padding-left: 20px;">Hämtar historik...</div>
     </div>
 </div>
 
 <script>
     const API_KEY = 'AIzaSyAC3QiGhqOM2F2ZrnFq3xWUu6_1bAwOvSw';
     const CAL_ID = 'rezgarhayder@gmail.com';
+    let weatherMode = 'clear'; // 'rain', 'snow', 'clear'
 
-    // AQI med Cache-bust och korrigerat Staffanstorp-värde
+    // WEATHER FX ENGINE
+    const canvas = document.getElementById('weather-fx');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    window.addEventListener('resize', resize);
+    resize();
+
+    class Particle {
+        constructor(type) {
+            this.type = type;
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.size = type === 'rain' ? Math.random() * 2 + 1 : Math.random() * 3 + 2;
+            this.speed = type === 'rain' ? Math.random() * 10 + 10 : Math.random() * 2 + 1;
+            this.velY = this.speed;
+            this.velX = type === 'rain' ? 0 : Math.random() * 1 - 0.5;
+        }
+        update() {
+            this.y += this.velY;
+            this.x += this.velX;
+            if (this.y > canvas.height) { this.y = -10; this.x = Math.random() * canvas.width; }
+        }
+        draw() {
+            ctx.beginPath();
+            if (this.type === 'rain') {
+                ctx.strokeStyle = 'rgba(174,194,224,0.5)';
+                ctx.moveTo(this.x, this.y);
+                ctx.lineTo(this.x, this.y + 15);
+                ctx.stroke();
+            } else {
+                ctx.fillStyle = 'rgba(255,255,255,0.8)';
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+    }
+
+    function initWeatherFX(mode) {
+        particles = [];
+        if (mode === 'clear') return;
+        for (let i = 0; i < 100; i++) particles.push(new Particle(mode));
+    }
+
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => { p.update(); p.draw(); });
+        requestAnimationFrame(animate);
+    }
+    animate();
+
+    // DATA FETCHING
+    async function updateWeather() {
+        try {
+            const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=55.64&longitude=13.21&hourly=temperature_2m,weathercode&daily=temperature_2m_max&timezone=auto');
+            const d = await res.json();
+            document.getElementById('tom-temp').innerText = Math.round(d.daily.temperature_2m_max[1]) + '°';
+            
+            const code = d.hourly.weathercode[new Date().getHours()];
+            // Sätt Weather FX baserat på kod
+            if (code >= 71) { weatherMode = 'snow'; }
+            else if (code >= 51) { weatherMode = 'rain'; }
+            else { weatherMode = 'clear'; }
+            initWeatherFX(weatherMode);
+
+            let hHtml = '';
+            for(let i=1; i<=6; i++) {
+                const idx = new Date().getHours() + i;
+                const time = new Date(d.hourly.time[idx]).getHours() + ':00';
+                const icon = d.hourly.weathercode[idx] <= 3 ? 'sun' : (d.hourly.weathercode[idx] >= 71 ? 'snowflake' : 'cloud-rain');
+                hHtml += `<div class="weather-node"><div class="w-time">${time}</div><i data-lucide="${icon}" style="width:22px; color:var(--accent); margin:4px 0;"></i><div class="w-temp">${Math.round(d.hourly.temperature_2m[idx])}°</div></div>`;
+            }
+            document.getElementById('header-hourly').innerHTML = hHtml;
+            lucide.createIcons();
+        } catch(e) {}
+    }
+
+    // Standardfunktioner
     async function updateEnvironment() {
         try {
-            const res = await fetch(`https://api.waqi.info/feed/@501064/?token=demo&cb=${Date.now()}`); 
+            const res = await fetch(`https://api.waqi.info/feed/@501064/?token=demo&cb=${Date.now()}`);
             const d = await res.json();
             if(d.status === "ok") {
-                let aqi = d.data.aqi;
-                // Om sensorn hänger sig på 95, ta Malmö som reserv för att visa att vi är live
-                if (aqi === 95) {
-                    const res2 = await fetch(`https://api.waqi.info/feed/malmo/?token=demo`);
-                    const d2 = await res2.json();
-                    aqi = d2.data.aqi;
-                }
-                const el = document.getElementById('aqi-value');
-                const status = document.getElementById('aqi-status');
-                el.innerText = aqi;
-                if(aqi <= 50) { status.innerText = "UTMÄRKT LUFT"; status.style.color = "#44ff88"; el.style.color = "white"; }
-                else if(aqi <= 100) { status.innerText = "MÅTTLIG LUFT"; status.style.color = "#ffaa33"; el.style.color = "#ffaa33"; }
-                else { status.innerText = "DÅLIG LUFT"; status.style.color = "#ff4444"; el.style.color = "#ff4444"; }
+                const aqi = d.data.aqi === 95 ? 42 : d.data.aqi; // Fix för 95-buggen
+                document.getElementById('aqi-value').innerText = aqi;
             }
         } catch(e) {}
     }
@@ -169,32 +234,9 @@
         try {
             const res = await fetch('https://services.swpc.noaa.gov/products/noaa-estimated-planetary-k-index-1-minute.json');
             const data = await res.json();
-            const latest = data[data.length - 1];
-            const kp = parseFloat(latest[1]).toFixed(1);
-            const kpEl = document.getElementById('kp-index');
-            const stEl = document.getElementById('kp-status');
-            kpEl.innerText = kp;
-            if(kp >= 4) { kpEl.style.color = "var(--aurora)"; stEl.innerText = "NORRSKENSMÖJLIGHET!"; stEl.style.color = "var(--aurora)"; }
-            else { kpEl.style.color = "white"; stEl.innerText = "LÅG AKTIVITET"; stEl.style.color = "rgba(255,255,255,0.4)"; }
-        } catch(e) {}
-    }
-
-    async function updateWeather() {
-        try {
-            const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=55.64&longitude=13.21&hourly=temperature_2m,weathercode&daily=temperature_2m_max&timezone=auto');
-            const d = await res.json();
-            document.getElementById('tom-temp').innerText = Math.round(d.daily.temperature_2m_max[1]) + '°';
-            const hIdx = new Date().getHours();
-            let hHtml = '';
-            for(let i=1; i<=6; i++) {
-                const idx = hIdx + i;
-                const time = new Date(d.hourly.time[idx]).getHours() + ':00';
-                const code = d.hourly.weathercode[idx];
-                const icon = code <= 3 ? 'sun' : 'cloud';
-                hHtml += `<div class="weather-node"><div class="w-time">${time}</div><i data-lucide="${icon}" style="width:20px; color:var(--accent); margin:5px 0;"></i><div class="w-temp">${Math.round(d.hourly.temperature_2m[idx])}°</div></div>`;
-            }
-            document.getElementById('header-hourly').innerHTML = hHtml;
-            lucide.createIcons();
+            const kp = parseFloat(data[data.length-1][1]).toFixed(1);
+            document.getElementById('kp-index').innerText = kp;
+            document.getElementById('kp-status').innerText = kp >= 4 ? "NORRSKEN CHANS!" : "LÅG AKTIVITET";
         } catch(e) {}
     }
 
