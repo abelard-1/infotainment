@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Command v46 - Precision Weather</title>
+    <title>Staffanstorp Command v47 - School's Out Edition</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;600;800;900&display=swap" rel="stylesheet">
     <style>
@@ -15,6 +15,7 @@
             --aurora: #ff44ff;
             --aqi-good: #44ff88;
             --easter-gold: #ffaa33;
+            --summer-cyan: #44ffff;
         }
 
         * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
@@ -61,7 +62,12 @@
         .overlay-vignette { position: absolute; inset: 0; background: radial-gradient(circle, transparent 20%, rgba(0,0,0,0.5) 100%); z-index: 2; pointer-events: none; }
 
         .val-big { font-size: 3.5rem; font-weight: 900; line-height: 1; letter-spacing: -3px; }
-        .easter-box { border: 1px solid var(--easter-gold); display: flex; flex-direction: column; justify-content: center; align-items: center; min-width: 140px; }
+        
+        /* Countdown Styles */
+        .countdown-container { display: flex; gap: 10px; height: 100%; }
+        .countdown-item { display: flex; flex-direction: column; justify-content: center; align-items: center; min-width: 120px; padding: 0 15px; }
+        .cd-label { font-size: 0.65rem; font-weight: 900; letter-spacing: 2px; margin-bottom: 2px; }
+        .cd-val { font-size: 3.5rem; font-weight: 900; line-height: 1; }
     </style>
 </head>
 <body>
@@ -115,9 +121,15 @@
 </div>
 
 <div style="grid-column: 2/3; grid-row: 3/4; display: flex; gap: 15px;">
-    <div class="glass-panel easter-box">
-        <div style="font-size: 0.7rem; font-weight: 900; color: var(--easter-gold);">PÅSKLOV</div>
-        <div id="countdown" style="font-size: 4rem; font-weight: 900;">--</div>
+    <div class="glass-panel countdown-container" style="padding: 0 20px;">
+        <div class="countdown-item" style="border-right: 1px solid rgba(255,255,255,0.1);">
+            <div class="cd-label" style="color: var(--easter-gold);">PÅSKLOV</div>
+            <div id="count-easter" class="cd-val">--</div>
+        </div>
+        <div class="countdown-item">
+            <div class="cd-label" style="color: var(--summer-cyan);">SOMMARLOV</div>
+            <div id="count-summer" class="cd-val">--</div>
+        </div>
     </div>
     <div class="glass-panel" style="flex: 1; padding: 25px; display: flex; align-items: center;">
         <div id="history-fact" style="font-size: 1.1rem; border-left: 4px solid var(--accent); padding-left: 20px;">Hämtar historik...</div>
@@ -173,12 +185,11 @@
     }
     animate();
 
-    // PRECISION WEATHER MAPPING
     function getWeatherIcon(code) {
         if (code === 0) return 'sun';
         if (code >= 1 && code <= 2) return 'cloud-sun';
         if (code === 3) return 'cloud';
-        if (code >= 45 && code <= 48) return 'cloud'; // Dimma
+        if (code >= 45 && code <= 48) return 'cloud';
         if (code >= 51 && code <= 67) return 'cloud-rain';
         if (code >= 71 && code <= 77) return 'snowflake';
         if (code >= 80) return 'cloud-rain';
@@ -197,7 +208,6 @@
             else if (currentCode >= 51) newMode = 'rain';
             
             if (newMode !== weatherMode) { weatherMode = newMode; initWeatherFX(weatherMode); }
-
             document.getElementById('tom-temp').innerText = Math.round(d.daily.temperature_2m_max[1]) + '°';
             
             let hHtml = '';
@@ -206,23 +216,23 @@
                 const time = new Date(d.hourly.time[idx]).getHours() + ':00';
                 const code = d.hourly.weathercode[idx];
                 const icon = getWeatherIcon(code);
-                hHtml += `<div class="weather-node">
-                    <div class="w-time">${time}</div>
-                    <i data-lucide="${icon}" style="width:24px; margin:6px 0;"></i>
-                    <div class="w-temp">${Math.round(d.hourly.temperature_2m[idx])}°</div>
-                </div>`;
+                hHtml += `<div class="weather-node"><div class="w-time">${time}</div><i data-lucide="${icon}" style="width:24px; margin:6px 0;"></i><div class="w-temp">${Math.round(d.hourly.temperature_2m[idx])}°</div></div>`;
             }
             document.getElementById('header-hourly').innerHTML = hHtml;
             lucide.createIcons();
-        } catch(e) { console.error("Weather Error", e); }
+        } catch(e) {}
     }
 
-    // Standardfunktioner
     function updateTime() {
         const now = new Date();
         document.getElementById('mini-clock').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
         document.getElementById('mini-date').innerText = now.toLocaleDateString('sv-SE', {weekday:'long', day:'numeric', month:'short'});
-        document.getElementById('countdown').innerText = Math.ceil((new Date('2026-03-30') - now) / 86400000);
+        
+        // Countdowns
+        const diffEaster = new Date('2026-03-30') - now;
+        const diffSummer = new Date('2026-06-12') - now;
+        document.getElementById('count-easter').innerText = Math.max(0, Math.ceil(diffEaster / 86400000));
+        document.getElementById('count-summer').innerText = Math.max(0, Math.ceil(diffSummer / 86400000));
     }
 
     async function updateEnvironment() {
