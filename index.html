@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Command v52 - Celebration Edition</title>
+    <title>Staffanstorp Command v53 - Mega Visuals Edition</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;600;800;900&display=swap" rel="stylesheet">
     <style>
@@ -35,38 +35,40 @@
             position: relative; overflow: hidden; z-index: 10;
         }
 
-        /* HEADER LAYOUT */
-        .top-bar { grid-column: 1/3; display: grid; grid-template-columns: 550px 1fr 180px; align-items: center; padding: 0 40px; }
+        /* HEADER LAYOUT - MEGA SIZE */
+        .top-bar { grid-column: 1/3; display: grid; grid-template-columns: 650px 1fr 180px; align-items: center; padding: 0 40px; }
         
         #greet-container { display: flex; flex-direction: column; }
         #greeting {
-            font-size: 3.2rem; font-weight: 900; letter-spacing: -2px; line-height: 1.1;
-            background: linear-gradient(to bottom, #fff, #aaa); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            font-size: 4.5rem; font-weight: 900; letter-spacing: -3px; line-height: 0.95;
+            background: linear-gradient(to bottom, #fff, #999); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
-        #sub-greeting { font-size: 1.1rem; font-weight: 400; opacity: 0.7; margin-top: 5px; color: var(--accent); }
+        #sub-greeting { font-size: 1.3rem; font-weight: 500; opacity: 0.8; margin-top: 8px; color: var(--accent); }
 
         #header-hourly { 
             display: flex; justify-content: space-evenly; align-items: center; 
             border-left: 1px solid var(--glass-border); border-right: 1px solid var(--glass-border); 
-            height: 70%; margin: 0 30px; 
+            height: 80%; margin: 0 30px; 
         }
 
-        .weather-node i { width: 32px !important; height: 32px !important; margin: 4px 0; }
+        /* MEGA WEATHER ICONS */
+        .weather-node i { width: 48px !important; height: 48px !important; margin: 10px 0; }
+        .weather-node div:last-child { font-size: 1.6rem !important; font-weight: 900; }
+        
         [data-lucide="sun"] { animation: spin 20s linear infinite; color: #ffcc00 !important; }
         [data-lucide="cloud"] { animation: float 6s ease-in-out infinite; color: #b0c4de !important; }
         
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
 
         /* SIDEBAR */
         .sidebar-container { grid-column: 1/2; grid-row: 2/3; display: grid; grid-template-rows: 1fr 240px; gap: 15px; min-height: 0; }
         .event-item { display: flex; align-items: center; gap: 20px; padding: 18px 25px; border-radius: 22px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 12px; }
         .event-item.is-today { background: rgba(94, 146, 243, 0.15); border-color: var(--accent); }
 
-        /* FOOTER CLOCK */
-        .footer-clock-box { display: flex; flex-direction: column; align-items: flex-end; justify-content: center; padding-right: 30px; min-width: 250px; }
-        #footer-time { font-size: 4rem; font-weight: 900; line-height: 1; margin-bottom: -5px; }
-        #footer-date { font-size: 0.9rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; }
+        /* FOOTER CLOCK ONLY */
+        .footer-clock-box { display: flex; align-items: center; justify-content: flex-end; padding-right: 40px; min-width: 250px; }
+        #footer-time { font-size: 5rem; font-weight: 900; line-height: 1; letter-spacing: -2px; }
 
         .val-big { font-size: 3.2rem; font-weight: 900; line-height: 1; letter-spacing: -2px; }
         .main-content { position: relative; background: #000; }
@@ -85,8 +87,8 @@
     </div>
     <div id="header-hourly"></div>
     <div style="text-align: right;">
-        <div style="font-size: 0.65rem; opacity: 0.5; font-weight: 900; letter-spacing: 1px;">IMORGON MAX</div>
-        <div id="tom-temp" style="font-weight: 900; font-size: 2.8rem; line-height: 1;">--°</div>
+        <div style="font-size: 0.75rem; opacity: 0.5; font-weight: 900;">IMORGON</div>
+        <div id="tom-temp" style="font-weight: 900; font-size: 3.5rem; line-height: 1;">--°</div>
     </div>
 </header>
 
@@ -98,14 +100,14 @@
     <section class="glass-panel" style="padding: 30px;">
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
             <div style="border-right: 1px solid rgba(255,255,255,0.1); padding-right: 15px;">
-                <div style="font-size: 0.65rem; opacity: 0.5; font-weight: 800; margin-bottom: 5px;">ELPRIS SE4</div>
+                <div style="font-size: 0.7rem; opacity: 0.5; font-weight: 800; margin-bottom: 5px;">ELPRIS SE4</div>
                 <div style="display: flex; align-items: baseline;">
                     <div id="power-price" class="val-big" style="color: var(--power-green);">--</div>
                     <span style="font-size: 1rem; opacity: 0.6; margin-left: 5px;">öre</span>
                 </div>
             </div>
             <div>
-                <div style="font-size: 0.65rem; opacity: 0.5; font-weight: 800; margin-bottom: 5px;">BITCOIN / USD</div>
+                <div style="font-size: 0.7rem; opacity: 0.5; font-weight: 800; margin-bottom: 5px;">BITCOIN / USD</div>
                 <div id="btc-price" class="val-big" style="color: var(--crypto-orange);">--</div>
             </div>
         </div>
@@ -120,26 +122,25 @@
 
 <div style="grid-column: 1/2; grid-row: 3/4;">
     <footer class="glass-panel" style="height: 100%; display: flex; align-items: center; padding: 0 40px;">
-        <div id="news-text" style="font-weight: 600; text-transform: uppercase; font-size: 0.9rem; flex: 1;">LADDAR NYHETER...</div>
+        <div id="news-text" style="font-weight: 600; text-transform: uppercase; font-size: 1rem; flex: 1;">LADDAR NYHETER...</div>
     </footer>
 </div>
 
 <div style="grid-column: 2/3; grid-row: 3/4; display: flex; gap: 15px;">
-    <div class="glass-panel" style="display: flex; gap: 15px; padding: 0 25px; flex: 1;">
-        <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; border-right: 1px solid rgba(255,255,255,0.1); padding-right: 15px;">
-            <div style="font-size: 0.55rem; font-weight: 900; color: var(--easter-gold);">PÅSK</div>
-            <div id="count-easter" style="font-size: 2.2rem; font-weight: 900;">--</div>
+    <div class="glass-panel" style="display: flex; gap: 20px; padding: 0 30px; flex: 1;">
+        <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; border-right: 1px solid rgba(255,255,255,0.1); padding-right: 20px;">
+            <div style="font-size: 0.65rem; font-weight: 900; color: var(--easter-gold);">PÅSK</div>
+            <div id="count-easter" style="font-size: 2.8rem; font-weight: 900;">--</div>
         </div>
-        <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; border-right: 1px solid rgba(255,255,255,0.1); padding-right: 15px;">
-            <div style="font-size: 0.55rem; font-weight: 900; color: var(--summer-cyan);">SOMMAR</div>
-            <div id="count-summer" style="font-size: 2.2rem; font-weight: 900;">--</div>
+        <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; border-right: 1px solid rgba(255,255,255,0.1); padding-right: 20px;">
+            <div style="font-size: 0.65rem; font-weight: 900; color: var(--summer-cyan);">SOMMAR</div>
+            <div id="count-summer" style="font-size: 2.8rem; font-weight: 900;">--</div>
         </div>
-        <div id="history-fact" style="font-size: 1rem; flex: 1; display: flex; align-items: center; padding-left: 10px; border-left: 3px solid var(--accent);">Hämtar historik...</div>
+        <div id="history-fact" style="font-size: 1.1rem; flex: 1; display: flex; align-items: center; padding-left: 15px; border-left: 4px solid var(--accent);">Hämtar historik...</div>
     </div>
     
     <div class="glass-panel footer-clock-box">
         <div id="footer-time">00:00</div>
-        <div id="footer-date">Tisdag 24 Feb</div>
     </div>
 </div>
 
@@ -149,49 +150,32 @@
     let weatherMode = 'clear';
     let isBirthday = false;
 
-    // FÖDELSEDAGAR (Månad är 0-indexerat, dvs Jan=0, Feb=1)
-    const birthdays = [
-        { name: "Familjen", month: 1, day: 24 } // TEST: Idag 24 feb
-    ];
+    const birthdays = [{ name: "Test", month: 1, day: 24 }]; // Idag som test
 
-    // 1. TID, HÄLSNING & CELEBRATION
     function updateTime() {
         const now = new Date();
         const hrs = now.getHours();
         const m = now.getMonth();
         const d = now.getDate();
         
-        // Kolla födelsedag
-        const bday = birthdays.find(b => b.month === m && b.day === d);
-        
-        // Footer klocka
         document.getElementById('footer-time').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
-        document.getElementById('footer-date').innerText = now.toLocaleDateString('sv-SE', {weekday:'long', day:'numeric', month:'short'});
         
-        // Header Hälsning
-        let greet = "God dag!";
-        if (hrs >= 5 && hrs < 10) greet = "God morgon!";
-        else if (hrs >= 18 && hrs < 22) greet = "God kväll!";
-        else if (hrs >= 22 || hrs < 5) greet = "God natt!";
+        const bday = birthdays.find(b => b.month === m && b.day === d);
+        let greet = hrs >= 5 && hrs < 10 ? "God morgon!" : hrs >= 10 && hrs < 18 ? "God dag!" : hrs >= 18 && hrs < 22 ? "God kväll!" : "God natt!";
         
         if (bday) {
             greet = "Stort grattis!";
             if (!isBirthday) { isBirthday = true; initFX(); }
         }
-        
         document.getElementById('greeting').innerText = greet;
         
-        // Sub-greeting: "Idag är det fredag, 25 mars 2026"
         const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
-        const dateStr = now.toLocaleDateString('sv-SE', options);
-        document.getElementById('sub-greeting').innerText = `Idag är det ${dateStr}`;
+        document.getElementById('sub-greeting').innerText = `Idag är det ${now.toLocaleDateString('sv-SE', options)}`;
 
-        // Nedräkning
         document.getElementById('count-easter').innerText = Math.ceil((new Date('2026-03-30') - now) / 86400000);
         document.getElementById('count-summer').innerText = Math.ceil((new Date('2026-06-12') - now) / 86400000);
     }
 
-    // 2. VÄDER & MARKNAD (Samma som v51)
     async function updateWeather() {
         try {
             const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=55.64&longitude=13.21&hourly=temperature_2m,weathercode&daily=temperature_2m_max&timezone=auto');
@@ -203,16 +187,16 @@
 
             document.getElementById('tom-temp').innerText = Math.round(d.daily.temperature_2m_max[1]) + '°';
             let hHtml = '';
-            for(let i=1; i<=7; i++) {
+            for(let i=1; i<=6; i++) { // 6 timmar räcker när ikonerna är så här stora
                 const idx = nowHour + i;
                 const icon = d.hourly.weathercode[idx] <= 2 ? (d.hourly.weathercode[idx] === 0 ? 'sun' : 'cloud-sun') : (d.hourly.weathercode[idx] === 3 ? 'cloud' : 'cloud-rain');
-                hHtml += `<div class="weather-node" style="text-align:center"><div style="font-size:0.7rem; opacity:0.6;">${new Date(d.hourly.time[idx]).getHours()}:00</div><i data-lucide="${icon}"></i><div>${Math.round(d.hourly.temperature_2m[idx])}°</div></div>`;
+                hHtml += `<div class="weather-node" style="text-align:center"><div style="font-size:0.8rem; opacity:0.6; font-weight:700">${new Date(d.hourly.time[idx]).getHours()}:00</div><i data-lucide="${icon}"></i><div>${Math.round(d.hourly.temperature_2m[idx])}°</div></div>`;
             }
             document.getElementById('header-hourly').innerHTML = hHtml; lucide.createIcons();
         } catch(e) {}
     }
 
-    // 3. FX ENGINE (Konfetti + Väder)
+    // FX ENGINE
     const canvas = document.getElementById('fx-canvas');
     const ctx = canvas.getContext('2d');
     let particles = [];
@@ -220,15 +204,12 @@
     window.addEventListener('resize', resize); resize();
 
     class Particle {
-        constructor(type) {
-            this.type = type;
-            this.reset();
-        }
+        constructor(type) { this.type = type; this.reset(); }
         reset() {
             this.x = Math.random() * canvas.width;
             this.y = Math.random() * canvas.height - canvas.height;
-            this.w = Math.random() * 10 + 5;
-            this.h = Math.random() * 10 + 5;
+            this.w = Math.random() * 12 + 6;
+            this.h = Math.random() * 12 + 6;
             this.speed = Math.random() * 3 + 2;
             this.color = this.type === 'confetti' ? `hsl(${Math.random()*360}, 100%, 50%)` : 'white';
             this.rot = Math.random() * 360;
@@ -240,10 +221,7 @@
             if (this.y > canvas.height) this.reset();
         }
         draw() {
-            ctx.save();
-            ctx.translate(this.x, this.y);
-            ctx.rotate(this.rot * Math.PI / 180);
-            ctx.fillStyle = this.color;
+            ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(this.rot * Math.PI / 180); ctx.fillStyle = this.color;
             if (this.type === 'confetti') ctx.fillRect(-this.w/2, -this.h/2, this.w, this.h);
             else { ctx.beginPath(); ctx.arc(0,0, (weatherMode==='rain'?1:3), 0, Math.PI*2); ctx.fill(); }
             ctx.restore();
@@ -252,31 +230,25 @@
 
     function initFX() {
         particles = [];
-        if (isBirthday) {
-            for(let i=0; i<100; i++) particles.push(new Particle('confetti'));
-        }
-        if (weatherMode !== 'clear') {
-            for(let i=0; i<80; i++) particles.push(new Particle('weather'));
-        }
+        if (isBirthday) for(let i=0; i<120; i++) particles.push(new Particle('confetti'));
+        if (weatherMode !== 'clear') for(let i=0; i<80; i++) particles.push(new Particle('weather'));
     }
 
-    function animate() {
-        ctx.clearRect(0,0,canvas.width,canvas.height);
-        particles.forEach(p => { p.update(); p.draw(); });
-        requestAnimationFrame(animate);
-    }
+    function animate() { ctx.clearRect(0,0,canvas.width,canvas.height); particles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(animate); }
 
-    // 4. RESTEN AV FUNKTIONERNA (Samma som v51)
-    async function updateCalendar() { /* Samma som v51 */
-        const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CAL_ID)}/events?key=${API_KEY}&timeMin=${new Date().toISOString()}&singleEvents=true&orderBy=startTime`);
-        const d = await res.json();
-        if (d.items) {
-            document.getElementById('custom-calendar-list').innerHTML = d.items.slice(0, 4).map(event => {
-                const start = new Date(event.start.dateTime || event.start.date);
-                const isToday = start.toDateString() === new Date().toDateString();
-                return `<div class="event-item ${isToday ? 'is-today' : ''}"><div style="min-width: 80px;"><div style="font-size:0.7rem;color:var(--accent)">${isToday ? 'IDAG' : start.toLocaleDateString('sv-SE',{day:'numeric', month:'short'})}</div><div style="font-size:1.5rem;font-weight:900">${event.start.dateTime ? start.toLocaleTimeString('sv-SE',{hour:'2-digit',minute:'2-digit'}) : 'DAG'}</div></div><div style="font-size:1.2rem;font-weight:300">${event.summary}</div></div>`;
-            }).join('');
-        }
+    // DATA UPDATES
+    async function updateCalendar() {
+        try {
+            const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CAL_ID)}/events?key=${API_KEY}&timeMin=${new Date().toISOString()}&singleEvents=true&orderBy=startTime`);
+            const d = await res.json();
+            if (d.items) {
+                document.getElementById('custom-calendar-list').innerHTML = d.items.slice(0, 4).map(event => {
+                    const start = new Date(event.start.dateTime || event.start.date);
+                    const isToday = start.toDateString() === new Date().toDateString();
+                    return `<div class="event-item ${isToday ? 'is-today' : ''}"><div style="min-width: 80px;"><div style="font-size:0.7rem;color:var(--accent)">${isToday ? 'IDAG' : start.toLocaleDateString('sv-SE',{day:'numeric', month:'short'})}</div><div style="font-size:1.5rem;font-weight:900">${event.start.dateTime ? start.toLocaleTimeString('sv-SE',{hour:'2-digit',minute:'2-digit'}) : 'DAG'}</div></div><div style="font-size:1.2rem;font-weight:300">${event.summary}</div></div>`;
+                }).join('');
+            }
+        } catch(e) {}
     }
 
     async function updateMarkets() {
@@ -289,15 +261,19 @@
     }
 
     async function updateNews() {
-        const r = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.svt.se/nyheter/rss.xml').then(res=>res.json());
-        let items = r.items.map(i => i.title), idx = 0;
-        setInterval(() => { document.getElementById('news-text').innerText = items[idx]; idx = (idx + 1) % items.length; }, 10000);
+        try {
+            const r = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.svt.se/nyheter/rss.xml').then(res=>res.json());
+            let items = r.items.map(i => i.title), idx = 0;
+            setInterval(() => { document.getElementById('news-text').innerText = items[idx]; idx = (idx + 1) % items.length; }, 10000);
+        } catch(e) {}
     }
 
     async function updateHistory() {
-        const r = await fetch(`https://en.wikipedia.org/api/rest_v1/feed/onthisday/events/${new Date().getMonth()+1}/${new Date().getDate()}`).then(res=>res.json());
-        const e = r.events[Math.floor(Math.random()*r.events.length)];
-        document.getElementById('history-fact').innerHTML = `<b style="color:var(--accent)">${e.year}:</b> ${e.text}`;
+        try {
+            const r = await fetch(`https://en.wikipedia.org/api/rest_v1/feed/onthisday/events/${new Date().getMonth()+1}/${new Date().getDate()}`).then(res=>res.json());
+            const e = r.events[Math.floor(Math.random()*r.events.length)];
+            document.getElementById('history-fact').innerHTML = `<b style="color:var(--accent)">${e.year}:</b> ${e.text}`;
+        } catch(e) {}
     }
 
     document.addEventListener('DOMContentLoaded', () => {
