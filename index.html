@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="sv">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Command v49 - Mega Icons & Precise Weather</title>
+    <title>Staffanstorp Command v50 - Restoration Edition</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;600;800;900&display=swap" rel="stylesheet">
     <style>
@@ -38,7 +39,6 @@
             position: relative; overflow: hidden; z-index: 10;
         }
 
-        /* HEADER & MEGA ICONS */
         .top-bar { grid-column: 1/3; display: grid; grid-template-columns: 350px 1fr 280px; align-items: center; padding: 0 40px; }
         #header-hourly { 
             display: flex; justify-content: space-around; align-items: center; 
@@ -46,7 +46,7 @@
             height: 85%; margin: 0 20px; 
         }
         
-        /* Ökad ikonstorlek och tydligare färger */
+        /* MEGA ICONS */
         .weather-node i { width: 38px !important; height: 38px !important; margin: 8px 0; }
         [data-lucide="sun"] { animation: spin 20s linear infinite; color: #ffcc00 !important; }
         [data-lucide="cloud"] { animation: float 6s ease-in-out infinite; color: #b0c4de !important; }
@@ -56,15 +56,14 @@
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
 
-        /* Övrig layout */
         .sidebar-container { grid-column: 1/2; grid-row: 2/3; display: grid; grid-template-rows: 1fr 240px; gap: 15px; min-height: 0; }
         .event-item { display: flex; align-items: center; gap: 20px; padding: 18px 25px; border-radius: 22px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 12px; }
         .event-item.is-today { background: rgba(94, 146, 243, 0.15); border-color: var(--accent); }
-        .val-big { font-size: 3.2rem; font-weight: 900; line-height: 1; letter-spacing: -2px; }
-        
+
         .main-content { position: relative; background: #000; }
         .video-background { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
         .video-background iframe { width: 100%; height: 100%; transform: scale(1.15); }
+        .val-big { font-size: 3.2rem; font-weight: 900; line-height: 1; letter-spacing: -2px; }
     </style>
 </head>
 <body>
@@ -113,7 +112,7 @@
 
 <div style="grid-column: 1/2; grid-row: 3/4;">
     <footer class="glass-panel" style="height: 100%; display: flex; align-items: center; padding: 0 40px;">
-        <div id="news-text" style="font-weight: 600; text-transform: uppercase;">SYNCING...</div>
+        <div id="news-text" style="font-weight: 600; text-transform: uppercase; font-size: 0.9rem;">LADDAR NYHETER...</div>
     </footer>
 </div>
 
@@ -138,11 +137,20 @@
     const CAL_ID = 'rezgarhayder@gmail.com';
     let weatherMode = 'clear';
 
-    // WEATHER ENGINE
+    // 1. TID & NEDRÄKNING
+    function updateTime() {
+        const now = new Date();
+        document.getElementById('mini-clock').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
+        document.getElementById('mini-date').innerText = now.toLocaleDateString('sv-SE', {weekday:'long', day:'numeric', month:'short'});
+        document.getElementById('count-easter').innerText = Math.ceil((new Date('2026-03-30') - now) / 86400000);
+        document.getElementById('count-summer').innerText = Math.ceil((new Date('2026-06-12') - now) / 86400000);
+    }
+
+    // 2. VÄDERMOTOR
     function getWeatherIcon(code) {
         if (code === 0) return 'sun';
         if (code >= 1 && code <= 2) return 'cloud-sun';
-        if (code === 3) return 'cloud'; // Mulet - Här var felet tidigare!
+        if (code === 3) return 'cloud';
         if (code >= 51 && code <= 67) return 'cloud-rain';
         if (code >= 71 && code <= 77) return 'snowflake';
         return 'cloud';
@@ -154,7 +162,6 @@
             const d = await res.json();
             const nowHour = new Date().getHours();
             
-            // FX Trigger
             const code = d.hourly.weathercode[nowHour];
             let newMode = (code >= 71) ? 'snow' : (code >= 51 ? 'rain' : 'clear');
             if (newMode !== weatherMode) { weatherMode = newMode; initWeatherFX(newMode); }
@@ -177,34 +184,64 @@
         } catch(e) {}
     }
 
-    // Standard funktioner (Tid, Kalender, Marknad)
-    function updateTime() {
-        const now = new Date();
-        document.getElementById('mini-clock').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
-        document.getElementById('mini-date').innerText = now.toLocaleDateString('sv-SE', {weekday:'long', day:'numeric', month:'short'});
-        document.getElementById('count-easter').innerText = Math.ceil((new Date('2026-03-30') - now) / 86400000);
-        document.getElementById('count-summer').innerText = Math.ceil((new Date('2026-06-12') - now) / 86400000);
+    // 3. KALENDER
+    async function updateCalendar() {
+        try {
+            const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CAL_ID)}/events?key=${API_KEY}&timeMin=${new Date().toISOString()}&singleEvents=true&orderBy=startTime`);
+            const d = await res.json();
+            if (d.items) {
+                document.getElementById('custom-calendar-list').innerHTML = d.items.slice(0, 4).map(event => {
+                    const start = new Date(event.start.dateTime || event.start.date);
+                    const isToday = start.toDateString() === new Date().toDateString();
+                    return `<div class="event-item ${isToday ? 'is-today' : ''}">
+                        <div style="min-width: 80px;"><div style="font-size:0.7rem;color:var(--accent)">${isToday ? 'IDAG' : start.toLocaleDateString('sv-SE',{day:'numeric', month:'short'})}</div>
+                        <div style="font-size:1.5rem;font-weight:900">${event.start.dateTime ? start.toLocaleTimeString('sv-SE',{hour:'2-digit',minute:'2-digit'}) : 'DAG'}</div></div>
+                        <div style="font-size:1.2rem;font-weight:300">${event.summary}</div></div>`;
+                }).join('');
+            }
+        } catch(e) {}
     }
 
+    // 4. NYHETER & HISTORIK
+    async function updateNews() {
+        try {
+            const r = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.svt.se/nyheter/rss.xml');
+            const d = await r.json();
+            let items = d.items.map(i => i.title), idx = 0;
+            setInterval(() => {
+                const el = document.getElementById('news-text');
+                el.innerText = items[idx]; idx = (idx + 1) % items.length;
+            }, 10000);
+        } catch(e) {}
+    }
+
+    async function updateHistory() {
+        try {
+            const r = await fetch(`https://en.wikipedia.org/api/rest_v1/feed/onthisday/events/${new Date().getMonth()+1}/${new Date().getDate()}`);
+            const d = await r.json();
+            const e = d.events[Math.floor(Math.random()*d.events.length)];
+            document.getElementById('history-fact').innerHTML = `<b style="color:var(--accent)">${e.year}:</b> ${e.text}`;
+        } catch(e) {}
+    }
+
+    // 5. MARKNAD
     async function updateMarkets() {
         try {
             const btcRes = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
             const btcData = await btcRes.json();
             document.getElementById('btc-price').innerText = Math.floor(btcData.bitcoin.usd).toLocaleString();
-            
             const powerRes = await fetch('https://www.elprisetjustnu.se/api/v1/prices/2026/02-24_SE4.json');
             const pData = await powerRes.json();
             document.getElementById('power-price').innerText = (pData[new Date().getHours()].SEK_per_kWh * 100).toFixed(0);
         } catch(e) {}
     }
 
-    // Weather Canvas FX (Regn/Snö)
+    // 6. CANVAS FX
     const canvas = document.getElementById('weather-fx');
     const ctx = canvas.getContext('2d');
     let particles = [];
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.addEventListener('resize', resize); resize();
-
     class P {
         constructor(t) { this.t = t; this.reset(); }
         reset() { this.x = Math.random()*canvas.width; this.y = Math.random()*canvas.height-canvas.height; this.s = this.t==='rain'?20:3; this.v = this.t==='rain'?20:2; }
@@ -214,10 +251,18 @@
     function initWeatherFX(m) { particles = []; if(m!=='clear') for(let i=0;i<150;i++) particles.push(new P(m)); }
     function anim() { ctx.clearRect(0,0,canvas.width,canvas.height); particles.forEach(p=>{p.up();p.dr();}); requestAnimationFrame(anim); }
 
+    // INITIALISERING
     document.addEventListener('DOMContentLoaded', () => {
-        updateTime(); updateWeather(); updateMarkets(); anim();
+        updateTime(); 
+        updateWeather(); 
+        updateCalendar(); 
+        updateNews(); 
+        updateHistory(); 
+        updateMarkets(); 
+        anim();
         setInterval(updateTime, 1000);
         setInterval(updateWeather, 1800000);
+        setInterval(updateCalendar, 600000);
         setInterval(updateMarkets, 300000);
     });
 </script>
