@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Command v48 - Economic Edition</title>
+    <title>Staffanstorp Command v49 - Mega Icons & Precise Weather</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;600;800;900&display=swap" rel="stylesheet">
     <style>
@@ -38,25 +38,33 @@
             position: relative; overflow: hidden; z-index: 10;
         }
 
+        /* HEADER & MEGA ICONS */
         .top-bar { grid-column: 1/3; display: grid; grid-template-columns: 350px 1fr 280px; align-items: center; padding: 0 40px; }
-        #header-hourly { display: flex; justify-content: space-around; align-items: center; border-left: 1px solid var(--glass-border); border-right: 1px solid var(--glass-border); height: 70%; margin: 0 20px; }
+        #header-hourly { 
+            display: flex; justify-content: space-around; align-items: center; 
+            border-left: 1px solid var(--glass-border); border-right: 1px solid var(--glass-border); 
+            height: 85%; margin: 0 20px; 
+        }
         
-        [data-lucide] { animation: float 5s ease-in-out infinite; }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+        /* Ökad ikonstorlek och tydligare färger */
+        .weather-node i { width: 38px !important; height: 38px !important; margin: 8px 0; }
+        [data-lucide="sun"] { animation: spin 20s linear infinite; color: #ffcc00 !important; }
+        [data-lucide="cloud"] { animation: float 6s ease-in-out infinite; color: #b0c4de !important; }
+        [data-lucide="cloud-sun"] { animation: float 5s ease-in-out infinite; color: #cbd5e1 !important; }
+        [data-lucide="cloud-rain"] { animation: float 4s ease-in-out infinite; color: #4facfe !important; }
+        
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
 
+        /* Övrig layout */
         .sidebar-container { grid-column: 1/2; grid-row: 2/3; display: grid; grid-template-rows: 1fr 240px; gap: 15px; min-height: 0; }
         .event-item { display: flex; align-items: center; gap: 20px; padding: 18px 25px; border-radius: 22px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 12px; }
         .event-item.is-today { background: rgba(94, 146, 243, 0.15); border-color: var(--accent); }
-
+        .val-big { font-size: 3.2rem; font-weight: 900; line-height: 1; letter-spacing: -2px; }
+        
         .main-content { position: relative; background: #000; }
         .video-background { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
         .video-background iframe { width: 100%; height: 100%; transform: scale(1.15); }
-
-        .val-big { font-size: 3.2rem; font-weight: 900; line-height: 1; letter-spacing: -2px; }
-        .val-unit { font-size: 1rem; font-weight: 400; opacity: 0.6; margin-left: 5px; }
-        
-        .countdown-container { display: flex; gap: 10px; height: 100%; }
-        .countdown-item { display: flex; flex-direction: column; justify-content: center; align-items: center; min-width: 120px; }
     </style>
 </head>
 <body>
@@ -81,21 +89,17 @@
     </section>
     
     <section class="glass-panel" style="padding: 30px;">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: center;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
             <div style="border-right: 1px solid rgba(255,255,255,0.1); padding-right: 15px;">
-                <div style="font-size: 0.65rem; opacity: 0.5; font-weight: 800; letter-spacing: 1px; margin-bottom: 5px;">ELPRIS SE4</div>
+                <div style="font-size: 0.65rem; opacity: 0.5; font-weight: 800; margin-bottom: 5px;">ELPRIS SE4</div>
                 <div style="display: flex; align-items: baseline;">
                     <div id="power-price" class="val-big" style="color: var(--power-green);">--</div>
-                    <span class="val-unit">öre</span>
+                    <span style="font-size: 1rem; opacity: 0.6; margin-left: 5px;">öre</span>
                 </div>
-                <div id="power-status" style="font-size: 0.7rem; font-weight: 800; margin-top: 5px; opacity: 0.8;">HÄMTAR...</div>
             </div>
             <div>
-                <div style="font-size: 0.65rem; opacity: 0.5; font-weight: 800; letter-spacing: 1px; margin-bottom: 5px;">BITCOIN / USD</div>
-                <div style="display: flex; align-items: baseline;">
-                    <div id="btc-price" class="val-big" style="color: var(--crypto-orange);">--</div>
-                </div>
-                <div id="btc-change" style="font-size: 0.7rem; font-weight: 800; margin-top: 5px;">24H MARKET</div>
+                <div style="font-size: 0.65rem; opacity: 0.5; font-weight: 800; margin-bottom: 5px;">BITCOIN / USD</div>
+                <div id="btc-price" class="val-big" style="color: var(--crypto-orange);">--</div>
             </div>
         </div>
     </section>
@@ -105,24 +109,23 @@
     <div class="video-background">
         <iframe src="https://www.youtube.com/embed/03pYP2Nmreo?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&loop=1&playlist=03pYP2Nmreo" frameborder="0" allow="autoplay; encrypted-media"></iframe>
     </div>
-    <div style="position: absolute; inset: 0; background: radial-gradient(circle, transparent 20%, rgba(0,0,0,0.5) 100%); z-index: 2; pointer-events: none;"></div>
 </main>
 
 <div style="grid-column: 1/2; grid-row: 3/4;">
     <footer class="glass-panel" style="height: 100%; display: flex; align-items: center; padding: 0 40px;">
-        <div id="news-text" style="font-weight: 600; text-transform: uppercase;">LADDAR NYHETER...</div>
+        <div id="news-text" style="font-weight: 600; text-transform: uppercase;">SYNCING...</div>
     </footer>
 </div>
 
 <div style="grid-column: 2/3; grid-row: 3/4; display: flex; gap: 15px;">
-    <div class="glass-panel countdown-container" style="padding: 0 20px;">
-        <div class="countdown-item" style="border-right: 1px solid rgba(255,255,255,0.1);">
-            <div class="cd-label" style="color: var(--easter-gold);">PÅSKLOV</div>
-            <div id="count-easter" class="cd-val" style="font-size: 3rem; font-weight: 900;">--</div>
+    <div class="glass-panel" style="display: flex; gap: 20px; padding: 0 30px;">
+        <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; border-right: 1px solid rgba(255,255,255,0.1); padding-right: 20px;">
+            <div style="font-size: 0.6rem; font-weight: 900; color: var(--easter-gold);">PÅSK</div>
+            <div id="count-easter" style="font-size: 2.8rem; font-weight: 900;">--</div>
         </div>
-        <div class="countdown-item">
-            <div class="cd-label" style="color: var(--summer-cyan);">SOMMARLOV</div>
-            <div id="count-summer" class="cd-val" style="font-size: 3rem; font-weight: 900;">--</div>
+        <div style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+            <div style="font-size: 0.6rem; font-weight: 900; color: var(--summer-cyan);">SOMMAR</div>
+            <div id="count-summer" style="font-size: 2.8rem; font-weight: 900;">--</div>
         </div>
     </div>
     <div class="glass-panel" style="flex: 1; padding: 25px; display: flex; align-items: center;">
@@ -133,51 +136,16 @@
 <script>
     const API_KEY = 'AIzaSyAC3QiGhqOM2F2ZrnFq3xWUu6_1bAwOvSw';
     const CAL_ID = 'rezgarhayder@gmail.com';
-
-    // WEATHER FX ENGINE
-    const canvas = document.getElementById('weather-fx');
-    const ctx = canvas.getContext('2d');
-    let particles = [];
     let weatherMode = 'clear';
 
-    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-    window.addEventListener('resize', resize);
-    resize();
-
-    class Particle {
-        constructor(type) { this.type = type; this.reset(); }
-        reset() {
-            this.x = Math.random() * canvas.width;
-            this.y = Math.random() * canvas.height - canvas.height;
-            this.speed = this.type === 'rain' ? Math.random() * 15 + 15 : Math.random() * 1 + 1;
-        }
-        update() { this.y += this.speed; if (this.y > canvas.height) this.reset(); }
-        draw() {
-            ctx.beginPath();
-            if (this.type === 'rain') {
-                ctx.strokeStyle = 'rgba(174,194,224,0.4)';
-                ctx.moveTo(this.x, this.y); ctx.lineTo(this.x, this.y + 15); ctx.stroke();
-            } else {
-                ctx.fillStyle = 'white'; ctx.arc(this.x, this.y, 2, 0, Math.PI*2); ctx.fill();
-            }
-        }
-    }
-
-    async function updateMarkets() {
-        try {
-            // Elpris SE4 (Hämtas från öppen API)
-            const powerRes = await fetch('https://www.elprisetjustnu.se/api/v1/prices/2026/02-24_SE4.json');
-            const powerData = await powerRes.json();
-            const currentHour = new Date().getHours();
-            const price = (powerData[currentHour].SEK_per_kWh * 100).toFixed(0);
-            document.getElementById('power-price').innerText = price;
-            document.getElementById('power-status').innerText = price > 150 ? "HÖGT PRIS" : "NORMALPRIS";
-
-            // Bitcoin (CoinGecko)
-            const btcRes = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
-            const btcData = await btcRes.json();
-            document.getElementById('btc-price').innerText = Math.floor(btcData.bitcoin.usd).toLocaleString();
-        } catch(e) {}
+    // WEATHER ENGINE
+    function getWeatherIcon(code) {
+        if (code === 0) return 'sun';
+        if (code >= 1 && code <= 2) return 'cloud-sun';
+        if (code === 3) return 'cloud'; // Mulet - Här var felet tidigare!
+        if (code >= 51 && code <= 67) return 'cloud-rain';
+        if (code >= 71 && code <= 77) return 'snowflake';
+        return 'cloud';
     }
 
     async function updateWeather() {
@@ -185,28 +153,31 @@
             const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=55.64&longitude=13.21&hourly=temperature_2m,weathercode&daily=temperature_2m_max&timezone=auto');
             const d = await res.json();
             const nowHour = new Date().getHours();
-            const code = d.hourly.weathercode[nowHour];
             
-            let newMode = 'clear';
-            if (code >= 71) newMode = 'snow'; else if (code >= 51) newMode = 'rain';
-            if (newMode !== weatherMode) { 
-                weatherMode = newMode; 
-                particles = []; 
-                if(newMode !== 'clear') for(let i=0; i<150; i++) particles.push(new Particle(newMode));
-            }
+            // FX Trigger
+            const code = d.hourly.weathercode[nowHour];
+            let newMode = (code >= 71) ? 'snow' : (code >= 51 ? 'rain' : 'clear');
+            if (newMode !== weatherMode) { weatherMode = newMode; initWeatherFX(newMode); }
 
             document.getElementById('tom-temp').innerText = Math.round(d.daily.temperature_2m_max[1]) + '°';
+            
             let hHtml = '';
             for(let i=1; i<=6; i++) {
                 const idx = nowHour + i;
-                const icon = d.hourly.weathercode[idx] <= 3 ? 'sun' : 'cloud-rain';
-                hHtml += `<div style="text-align:center"><div style="font-size:0.7rem;opacity:0.5">${new Date(d.hourly.time[idx]).getHours()}:00</div><i data-lucide="${icon}" style="width:20px;margin:5px 0"></i><div>${Math.round(d.hourly.temperature_2m[idx])}°</div></div>`;
+                const time = new Date(d.hourly.time[idx]).getHours() + ':00';
+                const icon = getWeatherIcon(d.hourly.weathercode[idx]);
+                hHtml += `<div class="weather-node" style="text-align:center">
+                    <div style="font-size:0.75rem; opacity:0.6; font-weight:700">${time}</div>
+                    <i data-lucide="${icon}"></i>
+                    <div style="font-size:1.4rem; font-weight:900">${Math.round(d.hourly.temperature_2m[idx])}°</div>
+                </div>`;
             }
             document.getElementById('header-hourly').innerHTML = hHtml;
             lucide.createIcons();
         } catch(e) {}
     }
 
+    // Standard funktioner (Tid, Kalender, Marknad)
     function updateTime() {
         const now = new Date();
         document.getElementById('mini-clock').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
@@ -215,29 +186,39 @@
         document.getElementById('count-summer').innerText = Math.ceil((new Date('2026-06-12') - now) / 86400000);
     }
 
-    async function updateCalendar() {
-        const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CAL_ID)}/events?key=${API_KEY}&timeMin=${new Date().toISOString()}&singleEvents=true&orderBy=startTime`);
-        const d = await res.json();
-        if (d.items) {
-            document.getElementById('custom-calendar-list').innerHTML = d.items.slice(0, 4).map(event => {
-                const start = new Date(event.start.dateTime || event.start.date);
-                const isToday = start.toDateString() === new Date().toDateString();
-                return `<div class="event-item ${isToday ? 'is-today' : ''}">
-                    <div style="min-width: 80px;"><div style="font-size:0.7rem;color:var(--accent)">${isToday ? 'IDAG' : start.toLocaleDateString('sv-SE',{day:'numeric', month:'short'})}</div>
-                    <div style="font-size:1.5rem;font-weight:900">${event.start.dateTime ? start.toLocaleTimeString('sv-SE',{hour:'2-digit',minute:'2-digit'}) : 'DAG'}</div></div>
-                    <div style="font-size:1.2rem;font-weight:300">${event.summary}</div></div>`;
-            }).join('');
-        }
+    async function updateMarkets() {
+        try {
+            const btcRes = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
+            const btcData = await btcRes.json();
+            document.getElementById('btc-price').innerText = Math.floor(btcData.bitcoin.usd).toLocaleString();
+            
+            const powerRes = await fetch('https://www.elprisetjustnu.se/api/v1/prices/2026/02-24_SE4.json');
+            const pData = await powerRes.json();
+            document.getElementById('power-price').innerText = (pData[new Date().getHours()].SEK_per_kWh * 100).toFixed(0);
+        } catch(e) {}
     }
 
-    function animate() { ctx.clearRect(0,0,canvas.width,canvas.height); particles.forEach(p=>{p.update();p.draw();}); requestAnimationFrame(animate); }
-    
+    // Weather Canvas FX (Regn/Snö)
+    const canvas = document.getElementById('weather-fx');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    window.addEventListener('resize', resize); resize();
+
+    class P {
+        constructor(t) { this.t = t; this.reset(); }
+        reset() { this.x = Math.random()*canvas.width; this.y = Math.random()*canvas.height-canvas.height; this.s = this.t==='rain'?20:3; this.v = this.t==='rain'?20:2; }
+        up() { this.y += this.v; if(this.y>canvas.height) this.reset(); }
+        dr() { ctx.beginPath(); if(this.t==='rain'){ctx.strokeStyle='rgba(174,194,224,0.5)';ctx.moveTo(this.x,this.y);ctx.lineTo(this.x,this.y+this.s);ctx.stroke();}else{ctx.fillStyle='white';ctx.arc(this.x,this.y,this.s,0,Math.PI*2);ctx.fill();} }
+    }
+    function initWeatherFX(m) { particles = []; if(m!=='clear') for(let i=0;i<150;i++) particles.push(new P(m)); }
+    function anim() { ctx.clearRect(0,0,canvas.width,canvas.height); particles.forEach(p=>{p.up();p.dr();}); requestAnimationFrame(anim); }
+
     document.addEventListener('DOMContentLoaded', () => {
-        updateTime(); updateWeather(); updateCalendar(); updateMarkets(); animate();
+        updateTime(); updateWeather(); updateMarkets(); anim();
         setInterval(updateTime, 1000);
-        setInterval(updateMarkets, 300000);
         setInterval(updateWeather, 1800000);
-        setInterval(updateCalendar, 600000);
+        setInterval(updateMarkets, 300000);
     });
 </script>
 </body>
