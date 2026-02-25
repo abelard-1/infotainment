@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Command v53 - Mega Visuals Edition</title>
+    <title>Staffanstorp Command v54 - Sky Blue Edition</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;600;800;900&display=swap" rel="stylesheet">
     <style>
@@ -11,6 +11,8 @@
             --glass-bg: rgba(10, 10, 10, 0.85);
             --glass-border: rgba(255, 255, 255, 0.15);
             --accent: #5e92f3;
+            --sky-blue: #87CEEB;
+            --deep-sky: #00BFFF;
             --text-main: #ffffff;
             --easter-gold: #ffaa33;
             --summer-cyan: #44ffff;
@@ -35,15 +37,20 @@
             position: relative; overflow: hidden; z-index: 10;
         }
 
-        /* HEADER LAYOUT - MEGA SIZE */
+        /* HEADER LAYOUT - SKY BLUE & LIGHT STYLE */
         .top-bar { grid-column: 1/3; display: grid; grid-template-columns: 650px 1fr 180px; align-items: center; padding: 0 40px; }
         
         #greet-container { display: flex; flex-direction: column; }
         #greeting {
-            font-size: 4.5rem; font-weight: 900; letter-spacing: -3px; line-height: 0.95;
-            background: linear-gradient(to bottom, #fff, #999); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            font-size: 4.8rem; 
+            font-weight: 300; /* Bort med det fetade */
+            letter-spacing: -2px; 
+            line-height: 0.95;
+            background: linear-gradient(to right, var(--sky-blue), var(--deep-sky)); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent;
         }
-        #sub-greeting { font-size: 1.3rem; font-weight: 500; opacity: 0.8; margin-top: 8px; color: var(--accent); }
+        #sub-greeting { font-size: 1.3rem; font-weight: 400; opacity: 0.9; margin-top: 8px; color: var(--accent); }
 
         #header-hourly { 
             display: flex; justify-content: space-evenly; align-items: center; 
@@ -66,9 +73,9 @@
         .event-item { display: flex; align-items: center; gap: 20px; padding: 18px 25px; border-radius: 22px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 12px; }
         .event-item.is-today { background: rgba(94, 146, 243, 0.15); border-color: var(--accent); }
 
-        /* FOOTER CLOCK ONLY */
+        /* FOOTER CLOCK */
         .footer-clock-box { display: flex; align-items: center; justify-content: flex-end; padding-right: 40px; min-width: 250px; }
-        #footer-time { font-size: 5rem; font-weight: 900; line-height: 1; letter-spacing: -2px; }
+        #footer-time { font-size: 5.5rem; font-weight: 900; line-height: 1; letter-spacing: -3px; }
 
         .val-big { font-size: 3.2rem; font-weight: 900; line-height: 1; letter-spacing: -2px; }
         .main-content { position: relative; background: #000; }
@@ -83,7 +90,7 @@
 <header class="top-bar glass-panel">
     <div id="greet-container">
         <div id="greeting">God dag!</div>
-        <div id="sub-greeting">Idag är det tisdag, 24 februari 2026</div>
+        <div id="sub-greeting">Idag är det onsdag, 25 februari 2026</div>
     </div>
     <div id="header-hourly"></div>
     <div style="text-align: right;">
@@ -150,7 +157,8 @@
     let weatherMode = 'clear';
     let isBirthday = false;
 
-    const birthdays = [{ name: "Test", month: 1, day: 24 }]; // Idag som test
+    // Födelsedags-test: Ändra till dagens datum för att se konfetti
+    const birthdays = [{ name: "Test", month: 1, day: 25 }]; 
 
     function updateTime() {
         const now = new Date();
@@ -187,7 +195,7 @@
 
             document.getElementById('tom-temp').innerText = Math.round(d.daily.temperature_2m_max[1]) + '°';
             let hHtml = '';
-            for(let i=1; i<=6; i++) { // 6 timmar räcker när ikonerna är så här stora
+            for(let i=1; i<=6; i++) {
                 const idx = nowHour + i;
                 const icon = d.hourly.weathercode[idx] <= 2 ? (d.hourly.weathercode[idx] === 0 ? 'sun' : 'cloud-sun') : (d.hourly.weathercode[idx] === 3 ? 'cloud' : 'cloud-rain');
                 hHtml += `<div class="weather-node" style="text-align:center"><div style="font-size:0.8rem; opacity:0.6; font-weight:700">${new Date(d.hourly.time[idx]).getHours()}:00</div><i data-lucide="${icon}"></i><div>${Math.round(d.hourly.temperature_2m[idx])}°</div></div>`;
@@ -196,7 +204,6 @@
         } catch(e) {}
     }
 
-    // FX ENGINE
     const canvas = document.getElementById('fx-canvas');
     const ctx = canvas.getContext('2d');
     let particles = [];
@@ -236,7 +243,6 @@
 
     function animate() { ctx.clearRect(0,0,canvas.width,canvas.height); particles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(animate); }
 
-    // DATA UPDATES
     async function updateCalendar() {
         try {
             const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CAL_ID)}/events?key=${API_KEY}&timeMin=${new Date().toISOString()}&singleEvents=true&orderBy=startTime`);
@@ -255,7 +261,7 @@
         try {
             const btc = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd').then(r=>r.json());
             document.getElementById('btc-price').innerText = Math.floor(btc.bitcoin.usd).toLocaleString();
-            const pwr = await fetch('https://www.elprisetjustnu.se/api/v1/prices/2026/02-24_SE4.json').then(r=>r.json());
+            const pwr = await fetch('https://www.elprisetjustnu.se/api/v1/prices/2026/02-25_SE4.json').then(r=>r.json());
             document.getElementById('power-price').innerText = (pwr[new Date().getHours()].SEK_per_kWh * 100).toFixed(0);
         } catch(e) {}
     }
