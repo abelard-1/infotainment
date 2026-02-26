@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Command v58 - Traffic & Heritage</title>
+    <title>Staffanstorp Command v59 - Dual Traffic</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;600;800;900&display=swap" rel="stylesheet">
     <style>
@@ -59,11 +59,14 @@
         .event-item { display: flex; align-items: center; gap: 20px; padding: 18px 25px; border-radius: 22px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 12px; }
         .event-item.is-today { background: rgba(94, 146, 243, 0.15); border-color: var(--accent); }
 
-        .traffic-box { position: relative; width: 100%; height: 100%; border-radius: 20px; overflow: hidden; display: grid; grid-template-rows: 1fr 80px; }
-        .traffic-map { width: 100%; height: 100%; filter: invert(90%) hue-rotate(180deg) contrast(1.2) brightness(0.8); pointer-events: none; }
-        .traffic-info { background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-top: 1px solid var(--glass-border); }
-        .traffic-label { font-size: 0.7rem; font-weight: 900; color: var(--accent); text-transform: uppercase; }
-        .traffic-val { font-size: 1.8rem; font-weight: 900; }
+        .traffic-box { position: relative; width: 100%; height: 100%; border-radius: 20px; overflow: hidden; display: grid; grid-template-rows: 1fr 160px; }
+        .traffic-map { width: 100%; height: 100%; filter: invert(90%) hue-rotate(180deg) contrast(1.2) brightness(0.7); pointer-events: none; }
+        
+        .traffic-dest-list { background: rgba(0,0,0,0.4); display: flex; flex-direction: column; justify-content: center; padding: 10px 25px; border-top: 1px solid var(--glass-border); gap: 15px; }
+        .traffic-row { display: flex; justify-content: space-between; align-items: center; }
+        .traffic-label { font-size: 0.75rem; font-weight: 900; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; }
+        .traffic-val { font-size: 2.2rem; font-weight: 900; line-height: 1; }
+        .traffic-status-text { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; }
 
         /* FOOTER LOV-SECTION */
         .lov-container { display: flex; align-items: center; gap: 15px; height: 100%; }
@@ -111,15 +114,25 @@
     
     <section class="glass-panel" style="padding: 10px;">
         <div class="traffic-box">
-            <iframe class="traffic-map" src="https://www.openstreetmap.org/export/embed.html?bbox=13.0645%2C55.6200%2C13.3555%2C55.6750&layer=mapnik" frameborder="0"></iframe>
-            <div class="traffic-info">
-                <div>
-                    <div class="traffic-label">Till Vinstorpsvägen 6</div>
-                    <div id="traffic-time" class="traffic-val">12 min</div>
+            <iframe class="traffic-map" src="https://www.openstreetmap.org/export/embed.html?bbox=12.9500%2C55.5500%2C13.3500%2C55.6800&layer=mapnik" frameborder="0"></iframe>
+            <div class="traffic-dest-list">
+                <div class="traffic-row">
+                    <div>
+                        <div class="traffic-label">Lomma (Vinstorpsv. 6)</div>
+                        <div id="traffic-time-lomma" class="traffic-val">-- min</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div id="status-lomma" class="traffic-status-text">Normalt</div>
+                    </div>
                 </div>
-                <div style="text-align: right;">
-                    <div class="traffic-label">Status</div>
-                    <div id="traffic-status" style="color: var(--summer-cyan); font-weight: 900;">Normalt flöde</div>
+                <div class="traffic-row" style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 10px;">
+                    <div>
+                        <div class="traffic-label">Malmö (Hemsögatan 6)</div>
+                        <div id="traffic-time-malmo" class="traffic-val">-- min</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div id="status-malmo" class="traffic-status-text">Normalt</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -170,7 +183,6 @@
     let weatherMode = 'clear';
     let isBirthday = false;
 
-    // Födelsedagslista (Jan=0, Feb=1...)
     const birthdays = [{ name: "Test", month: 1, day: 26 }]; 
 
     function updateTime() {
@@ -186,7 +198,6 @@
         
         if (bday) { greet = "Stort grattis!"; if (!isBirthday) { isBirthday = true; initFX(); } }
         document.getElementById('greeting').innerText = greet;
-        
         document.getElementById('sub-greeting').innerText = `Idag är det ${now.toLocaleDateString('sv-SE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}`;
 
         document.getElementById('count-easter').innerText = Math.ceil((new Date('2026-03-30') - now) / 86400000);
@@ -212,28 +223,27 @@
         } catch(e) {}
     }
 
-    // TRAFFIC LOGIC (Simulerad realtidsdata baserad på rusningstid)
     function updateTraffic() {
         const now = new Date();
         const hrs = now.getHours();
         const day = now.getDay();
-        let baseTime = 11;
-        let status = "Normalt flöde";
-        let color = "var(--summer-cyan)";
+        const isWorkday = (day >= 1 && day <= 5);
+        const isRush = isWorkday && ((hrs >= 7 && hrs <= 9) || (hrs >= 15 && hrs <= 17));
 
-        if (day >= 1 && day <= 5) {
-            if ((hrs >= 7 && hrs <= 9) || (hrs >= 15 && hrs <= 17)) {
-                baseTime = 16;
-                status = "Tung trafik / Kö";
-                color = "var(--danger)";
-            }
-        }
-        document.getElementById('traffic-time').innerText = baseTime + " min";
-        document.getElementById('traffic-status').innerText = status;
-        document.getElementById('traffic-status').style.color = color;
+        // Lomma Logik
+        let lommaTime = isRush ? 17 : 12;
+        document.getElementById('traffic-time-lomma').innerText = lommaTime + " min";
+        document.getElementById('status-lomma').innerText = isRush ? "KÖVARNING" : "GRÖNT FLÖDE";
+        document.getElementById('status-lomma').style.color = isRush ? "var(--danger)" : "var(--summer-cyan)";
+
+        // Malmö Logik (Lite längre resa)
+        let malmoTime = isRush ? 24 : 16;
+        document.getElementById('traffic-time-malmo').innerText = malmoTime + " min";
+        document.getElementById('status-malmo').innerText = isRush ? "TRÖGT PÅ E22" : "GRÖNT FLÖDE";
+        document.getElementById('status-malmo').style.color = isRush ? "var(--danger)" : "var(--summer-cyan)";
     }
 
-    // PARTICLE FX (Bevarad konfetti & väder)
+    // PARTICLE FX
     const canvas = document.getElementById('fx-canvas');
     const ctx = canvas.getContext('2d');
     let particles = [];
@@ -262,7 +272,6 @@
 
     function animate() { ctx.clearRect(0,0,canvas.width,canvas.height); particles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(animate); }
 
-    // APIs
     async function updateCalendar() {
         try {
             const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CAL_ID)}/events?key=${API_KEY}&timeMin=${new Date().toISOString()}&singleEvents=true&orderBy=startTime`);
@@ -295,10 +304,7 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         updateTime(); updateWeather(); updateCalendar(); updateNews(); updateHistory(); updateTraffic(); animate();
-        setInterval(updateTime, 1000); 
-        setInterval(updateWeather, 1800000); 
-        setInterval(updateCalendar, 600000);
-        setInterval(updateTraffic, 300000);
+        setInterval(updateTime, 1000); setInterval(updateWeather, 1800000); setInterval(updateCalendar, 600000); setInterval(updateTraffic, 300000);
     });
 </script>
 </body>
