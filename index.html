@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Command v55 - Radar Edition</title>
+    <title>Staffanstorp Command v55 - Radar & Sky Blue Edition</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;600;800;900&display=swap" rel="stylesheet">
     <style>
@@ -27,6 +27,7 @@
             gap: 15px; padding: 15px; overflow: hidden;
         }
 
+        /* Particles Layer */
         canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 100; }
 
         .glass-panel {
@@ -35,12 +36,18 @@
             position: relative; overflow: hidden; z-index: 10;
         }
 
-        /* HEADER */
+        /* HEADER SECTION */
         .top-bar { grid-column: 1/3; display: grid; grid-template-columns: 650px 1fr 180px; align-items: center; padding: 0 40px; }
+        
+        #greet-container { display: flex; flex-direction: column; }
         #greeting {
-            font-size: 4.8rem; font-weight: 200; letter-spacing: -2px; line-height: 0.95;
+            font-size: 4.8rem; 
+            font-weight: 200; 
+            letter-spacing: -2px; 
+            line-height: 0.95;
             background: linear-gradient(to right, var(--sky-blue), var(--deep-sky)); 
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent;
         }
         #sub-greeting { font-size: 1.3rem; font-weight: 400; opacity: 0.9; margin-top: 8px; color: var(--accent); }
 
@@ -52,36 +59,47 @@
 
         .weather-node i { width: 48px !important; height: 48px !important; margin: 10px 0; }
         .weather-node div:last-child { font-size: 1.6rem !important; font-weight: 900; }
+        
+        [data-lucide="sun"] { animation: spin 20s linear infinite; color: #ffcc00 !important; }
+        [data-lucide="cloud"] { animation: float 6s ease-in-out infinite; color: #b0c4de !important; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
 
         /* SIDEBAR & RADAR */
         .sidebar-container { grid-column: 1/2; grid-row: 2/3; display: grid; grid-template-rows: 1fr 320px; gap: 15px; min-height: 0; }
         .event-item { display: flex; align-items: center; gap: 20px; padding: 18px 25px; border-radius: 22px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 12px; }
-        
-        .radar-box { position: relative; width: 100%; height: 100%; border-radius: 20px; overflow: hidden; }
-        .radar-label { position: absolute; top: 15px; left: 15px; z-index: 20; background: rgba(0,0,0,0.7); padding: 5px 12px; border-radius: 10px; font-size: 0.7rem; font-weight: 900; color: var(--deep-sky); border: 1px solid var(--deep-sky); }
+        .event-item.is-today { background: rgba(94, 146, 243, 0.15); border-color: var(--accent); }
 
-        /* FOOTER Lov-sektion */
-        .lov-container { display: flex; align-items: center; gap: 15px; height: 100%; }
-        .lov-box { display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 0 10px; }
-        .lov-title { font-size: 0.8rem; font-weight: 900; margin-bottom: -5px; }
-        .lov-days { font-size: 3.5rem; font-weight: 900; line-height: 1; }
-        
-        .vertical-text { 
-            writing-mode: vertical-rl; transform: rotate(180deg); 
-            font-size: 0.9rem; font-weight: 900; opacity: 0.4; 
-            border-left: 1px solid rgba(255,255,255,0.2); padding-left: 10px;
+        .radar-box { position: relative; width: 100%; height: 100%; border-radius: 20px; overflow: hidden; background: #1a1a1a; }
+        .radar-label { 
+            position: absolute; top: 15px; left: 15px; z-index: 20; 
+            background: rgba(0,0,0,0.8); padding: 5px 12px; border-radius: 10px; 
+            font-size: 0.7rem; font-weight: 900; color: var(--deep-sky); border: 1px solid var(--deep-sky); 
         }
 
-        /* CLOCK & NEWS */
-        .footer-clock-box { display: flex; align-items: center; justify-content: flex-end; padding-right: 40px; min-width: 220px; }
-        #footer-time { font-size: 5.5rem; font-weight: 900; line-height: 1; letter-spacing: -3px; }
-
-        .news-wrapper { display: flex; align-items: center; gap: 20px; width: 100%; }
-        .news-tag { background: var(--accent); color: #000; padding: 4px 12px; border-radius: 8px; font-weight: 900; font-size: 0.8rem; }
-
+        /* MAIN VIDEO CONTENT */
         .main-content { position: relative; background: #000; }
         .video-background { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
         .video-background iframe { width: 100%; height: 100%; transform: scale(1.15); }
+
+        /* FOOTER LOV-SECTION */
+        .lov-container { display: flex; align-items: center; gap: 15px; height: 100%; }
+        .lov-box { display: flex; flex-direction: column; justify-content: center; align-items: center; min-width: 120px; }
+        .lov-title { font-size: 1rem; font-weight: 900; margin-bottom: -5px; letter-spacing: 1px; }
+        .lov-days { font-size: 3.8rem; font-weight: 900; line-height: 1; }
+        .vertical-text { 
+            writing-mode: vertical-rl; transform: rotate(180deg); 
+            font-size: 0.8rem; font-weight: 900; opacity: 0.5; 
+            border-left: 1px solid rgba(255,255,255,0.2); padding-left: 10px;
+            height: 70%; display: flex; align-items: center;
+        }
+
+        /* NEWS & CLOCK */
+        .news-wrapper { display: flex; align-items: center; gap: 20px; width: 100%; }
+        .news-tag { background: var(--accent); color: #000; padding: 6px 15px; border-radius: 10px; font-weight: 900; font-size: 0.9rem; letter-spacing: 1px; }
+        
+        .footer-clock-box { display: flex; align-items: center; justify-content: flex-end; padding-right: 40px; min-width: 220px; }
+        #footer-time { font-size: 5.5rem; font-weight: 900; line-height: 1; letter-spacing: -3px; }
     </style>
 </head>
 <body>
@@ -91,11 +109,11 @@
 <header class="top-bar glass-panel">
     <div id="greet-container">
         <div id="greeting">God dag!</div>
-        <div id="sub-greeting">Laddar datum...</div>
+        <div id="sub-greeting">Laddar dag & datum...</div>
     </div>
     <div id="header-hourly"></div>
     <div style="text-align: right;">
-        <div style="font-size: 0.75rem; opacity: 0.5; font-weight: 900;">IMORGON</div>
+        <div style="font-size: 0.75rem; opacity: 0.5; font-weight: 900;">IMORGON MAX</div>
         <div id="tom-temp" style="font-weight: 900; font-size: 3.5rem; line-height: 1;">--°</div>
     </div>
 </header>
@@ -123,7 +141,7 @@
     <footer class="glass-panel" style="height: 100%; display: flex; align-items: center; padding: 0 30px;">
         <div class="news-wrapper">
             <div class="news-tag">NYHETER</div>
-            <div id="news-text" style="font-weight: 600; text-transform: uppercase; font-size: 1rem;">Hämtar senaste nytt...</div>
+            <div id="news-text" style="font-weight: 600; text-transform: uppercase; font-size: 1.1rem;">Hämtar senaste nytt...</div>
         </div>
     </footer>
 </div>
@@ -136,14 +154,14 @@
                 <div id="count-easter" class="lov-days">--</div>
             </div>
             <div class="vertical-text">DAGAR KVAR</div>
-            <div style="width: 20px;"></div>
+            <div style="width: 30px;"></div>
             <div class="lov-box">
                 <div class="lov-title" style="color: var(--summer-cyan);">SOMMARLOV</div>
                 <div id="count-summer" class="lov-days">--</div>
             </div>
             <div class="vertical-text">DAGAR KVAR</div>
         </div>
-        <div id="history-fact" style="font-size: 1.1rem; flex: 1; display: flex; align-items: center; padding-left: 20px; border-left: 1px solid rgba(255,255,255,0.1); margin-left: 10px;">Hämtar historik...</div>
+        <div id="history-fact" style="font-size: 1.1rem; flex: 1; display: flex; align-items: center; padding-left: 20px; border-left: 1px solid rgba(255,255,255,0.1); margin-left: 20px;">Hämtar historik...</div>
     </div>
     
     <div class="glass-panel footer-clock-box">
@@ -157,19 +175,22 @@
     let weatherMode = 'clear';
     let isBirthday = false;
 
+    // Födelsedagslista (Månad är 0-11)
     const birthdays = [{ name: "Test", month: 1, day: 26 }]; 
 
     function updateTime() {
         const now = new Date();
         const hrs = now.getHours();
         
+        // Klocka
         document.getElementById('footer-time').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
         
+        // Hälsning
         const bday = birthdays.find(b => b.month === now.getMonth() && b.day === now.getDate());
         let greet = "God dag!";
         if (hrs >= 5 && hrs < 10) greet = "God morgon!";
         else if (hrs >= 18 && hrs < 23) greet = "God kväll!";
-        else if (hrs >= 23 || hrs < 5) greet = "God natt!"; // Nu från kl 23.00
+        else if (hrs >= 23 || hrs < 5) greet = "God natt!"; // Från kl 23.00
         
         if (bday) {
             greet = "Stort grattis!";
@@ -177,9 +198,11 @@
         }
         document.getElementById('greeting').innerText = greet;
         
+        // Sub-greeting
         const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
         document.getElementById('sub-greeting').innerText = `Idag är det ${now.toLocaleDateString('sv-SE', options)}`;
 
+        // Countdown
         document.getElementById('count-easter').innerText = Math.ceil((new Date('2026-03-30') - now) / 86400000);
         document.getElementById('count-summer').innerText = Math.ceil((new Date('2026-06-12') - now) / 86400000);
     }
@@ -203,7 +226,7 @@
         } catch(e) {}
     }
 
-    // FX ENGINE (Bevarad konfetti/väder)
+    // Particle FX
     const canvas = document.getElementById('fx-canvas');
     const ctx = canvas.getContext('2d');
     let particles = [];
@@ -243,7 +266,7 @@
 
     function animate() { ctx.clearRect(0,0,canvas.width,canvas.height); particles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(animate); }
 
-    // API UPDATES
+    // APIs
     async function updateCalendar() {
         try {
             const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CAL_ID)}/events?key=${API_KEY}&timeMin=${new Date().toISOString()}&singleEvents=true&orderBy=startTime`);
