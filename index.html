@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Command v67 - Wind Intelligence</title>
+    <title>Staffanstorp Command v64 - Wind & Lunch</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel='stylesheet' type='text/css' href='https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.23.0/maps/maps.css'>
     <script src="https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.23.0/maps/maps-web.min.js"></script>
@@ -57,22 +57,26 @@
         .weather-node i { width: 44px !important; height: 44px !important; margin: 5px 0; }
         .weather-node div:last-child { font-size: 1.6rem !important; font-weight: 900; }
 
-        /* SIDEBAR */
+        /* SIDEBAR GRID */
         .sidebar-container { grid-column: 1/2; grid-row: 2/3; display: grid; grid-template-rows: 1fr 240px 185px; gap: 15px; min-height: 0; }
         #custom-calendar-list { font-size: 1.2em; }
         .event-item { display: flex; align-items: center; gap: 25px; padding: 22px 25px; border-radius: 22px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 15px; }
         .event-item.is-today { background: rgba(94, 146, 243, 0.15); border-color: var(--accent); }
 
-        /* WIND MODULE (Replacing Traffic) */
-        .wind-box { padding: 20px; height: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; align-items: center; }
-        .compass-container { position: relative; width: 140px; height: 140px; border: 2px solid var(--glass-border); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-        .compass-label { position: absolute; font-size: 0.6rem; font-weight: 900; opacity: 0.5; }
-        .label-n { top: 5px; } .label-e { right: 5px; } .label-s { bottom: 5px; } .label-w { left: 5px; }
-        #wind-arrow { font-size: 2.5rem; color: var(--accent); transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1); }
-        .wind-info { display: flex; flex-direction: column; gap: 8px; }
-        .wind-stat { font-size: 0.75rem; font-weight: 900; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; }
-        .wind-val { font-size: 2.2rem; font-weight: 900; line-height: 1; }
-        .beaufort-tag { background: var(--glass-border); padding: 4px 10px; border-radius: 8px; font-size: 0.7rem; font-weight: 800; display: inline-block; }
+        /* WIND MODULE */
+        .wind-box { padding: 20px; height: 100%; display: grid; grid-template-columns: 150px 1fr; gap: 20px; align-items: center; }
+        .compass-container { position: relative; width: 140px; height: 140px; border: 2px solid var(--glass-border); border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.02); }
+        .compass-label { position: absolute; font-size: 0.7rem; font-weight: 900; opacity: 0.6; color: var(--accent); }
+        .label-n { top: 8px; } .label-e { right: 8px; } .label-s { bottom: 8px; } .label-w { left: 8px; }
+        #wind-arrow { font-size: 2.5rem; color: var(--text-main); transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        
+        .wind-data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .wind-stat-box { display: flex; flex-direction: column; }
+        .wind-stat-label { font-size: 0.65rem; font-weight: 900; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; }
+        .wind-stat-val { font-size: 1.8rem; font-weight: 900; line-height: 1; }
+        .wind-stat-unit { font-size: 0.8rem; opacity: 0.5; margin-left: 3px; font-weight: 400; }
+        
+        #beaufort-name { color: var(--summer-cyan); font-weight: 800; font-size: 0.85rem; margin-top: 10px; text-transform: uppercase; }
 
         /* LUNCH BOX */
         .lunch-box { padding: 20px 25px; display: flex; flex-direction: column; justify-content: center; gap: 12px; }
@@ -124,15 +128,19 @@
                 <span class="compass-label label-w">V</span>
                 <div id="wind-arrow"><i data-lucide="navigation-2"></i></div>
             </div>
-            <div class="wind-info">
-                <div>
-                    <div class="wind-stat">Byvind</div>
-                    <div id="wind-gust" class="wind-val">--</div>
+            <div class="wind-info-main">
+                <div class="wind-data-grid">
+                    <div class="wind-stat-box">
+                        <div class="wind-stat-label">Vind</div>
+                        <div class="wind-stat-val"><span id="wind-speed">--</span><span class="wind-stat-unit">m/s</span></div>
+                    </div>
+                    <div class="wind-stat-box">
+                        <div class="wind-stat-label">Byvind</div>
+                        <div class="wind-stat-val" style="color: var(--danger);"><span id="wind-gust">--</span><span class="wind-stat-unit">m/s</span></div>
+                    </div>
                 </div>
-                <div>
-                    <div id="beaufort-name" class="wind-stat" style="color: var(--summer-cyan)">Laddar...</div>
-                    <div id="beaufort-num" class="beaufort-tag">Beaufort 0</div>
-                </div>
+                <div id="beaufort-name">Laddar...</div>
+                <div id="beaufort-num" style="font-size: 0.7rem; opacity: 0.6; font-weight: 700; margin-top: 2px;">Beaufort 0</div>
             </div>
         </div>
     </section>
@@ -196,24 +204,25 @@
             const d = await res.json();
             const cur = d.current;
             
-            // Uppdatera kompass (pilen pekar dit vinden blåser)
+            // Kompass-pil (pilen pekar i vindens riktning)
             document.getElementById('wind-arrow').style.transform = `rotate(${cur.wind_direction_10m}deg)`;
             
-            // Uppdatera Byvind
-            document.getElementById('wind-gust').innerText = Math.round(cur.wind_gusts_10m) + ' m/s';
+            // Hastigheter (konverterade till m/s om de kommer i km/h, men Open-Meteo kan ställas in)
+            const speedMS = Math.round(cur.wind_speed_10m / 3.6 * 10) / 10;
+            const gustMS = Math.round(cur.wind_gusts_10m / 3.6 * 10) / 10;
+            
+            document.getElementById('wind-speed').innerText = speedMS;
+            document.getElementById('wind-gust').innerText = gustMS;
 
             // Beaufort-logik
-            const speed = cur.wind_speed_10m / 3.6; // Konvertera km/h till m/s om det behövs, Open-Meteo ger ofta m/s direkt beroende på inställning. Här antas m/s.
-            let bft = 0;
-            let name = "Lugnt";
-            if (speed >= 0.3) { bft = 1; name = "Svag vind"; }
-            if (speed >= 1.6) { bft = 2; name = "Lätt bris"; }
-            if (speed >= 3.4) { bft = 3; name = "God bris"; }
-            if (speed >= 5.5) { bft = 4; name = "Frisk bris"; }
-            if (speed >= 8.0) { bft = 5; name = "Styv bris"; }
-            if (speed >= 10.8) { bft = 6; name = "Hård bris"; }
-            if (speed >= 13.9) { bft = 7; name = "Styv kuling"; }
-            if (speed >= 17.2) { bft = 8; name = "Hård kuling"; }
+            let bft = 0; let name = "Lugnt";
+            if (speedMS >= 0.3) { bft = 1; name = "Svag vind"; }
+            if (speedMS >= 1.6) { bft = 2; name = "Lätt bris"; }
+            if (speedMS >= 3.4) { bft = 3; name = "God bris"; }
+            if (speedMS >= 5.5) { bft = 4; name = "Frisk bris"; }
+            if (speedMS >= 8.0) { bft = 5; name = "Styv bris"; }
+            if (speedMS >= 10.8) { bft = 6; name = "Hård bris"; }
+            if (speedMS >= 13.9) { bft = 7; name = "Styv kuling"; }
             
             document.getElementById('beaufort-num').innerText = `Beaufort ${bft}`;
             document.getElementById('beaufort-name').innerText = name;
