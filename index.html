@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Command v62 - Balanced Layout</title>
+    <title>Staffanstorp Command v63 - Precision Layout</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel='stylesheet' type='text/css' href='https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.23.0/maps/maps.css'>
     <script src="https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.23.0/maps/maps-web.min.js"></script>
@@ -53,13 +53,13 @@
             height: 80%; margin: 0 30px; 
         }
 
-        .weather-node i { width: 48px !important; height: 48px !important; margin: 10px 0; }
+        /* Väder-tid 30% större */
+        .weather-node div:first-child { font-size: 1.05rem !important; opacity: 0.8 !important; font-weight: 800 !important; margin-bottom: 2px; }
+        .weather-node i { width: 44px !important; height: 44px !important; margin: 5px 0; }
         .weather-node div:last-child { font-size: 1.6rem !important; font-weight: 900; }
 
         /* SIDEBAR & TRAFFIC */
         .sidebar-container { grid-column: 1/2; grid-row: 2/3; display: grid; grid-template-rows: 1fr 340px; gap: 15px; min-height: 0; }
-        
-        /* Kalenderinnehåll 20% större */
         #custom-calendar-list { font-size: 1.2em; }
         .event-item { display: flex; align-items: center; gap: 25px; padding: 22px 25px; border-radius: 22px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 15px; }
         .event-item.is-today { background: rgba(94, 146, 243, 0.15); border-color: var(--accent); }
@@ -77,19 +77,11 @@
         .lov-box { display: flex; flex-direction: column; justify-content: center; align-items: center; min-width: 130px; }
         .lov-title { font-size: 1.1rem; font-weight: 900; margin-bottom: -5px; letter-spacing: 1px; }
         .lov-days { font-size: 4rem; font-weight: 900; line-height: 1; }
-        
-        /* Dagar kvar - Nu till vänster, större och endast en gång */
-        .vertical-text-main { 
-            writing-mode: vertical-rl; transform: rotate(180deg); 
-            font-size: 1.1rem; font-weight: 900; opacity: 0.7; 
-            border-right: 1px solid rgba(255,255,255,0.2); padding-right: 15px;
-            height: 80%; display: flex; align-items: center; color: var(--accent);
-            letter-spacing: 2px;
-        }
+        .vertical-text-main { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 1.1rem; font-weight: 900; opacity: 0.7; border-right: 1px solid rgba(255,255,255,0.2); padding-right: 15px; height: 80%; display: flex; align-items: center; color: var(--accent); letter-spacing: 2px; }
 
-        /* CLOCK 30% MINRE */
-        .footer-clock-box { display: flex; align-items: center; justify-content: flex-end; padding-right: 40px; min-width: 180px; }
-        #footer-time { font-size: 3.8rem; font-weight: 900; line-height: 1; letter-spacing: -1px; opacity: 0.9; }
+        /* CLOCK 20% mindre än v62 och CENTRAL */
+        .footer-clock-box { display: flex; align-items: center; justify-content: center; min-width: 180px; }
+        #footer-time { font-size: 3rem; font-weight: 900; line-height: 1; letter-spacing: -1px; opacity: 0.85; }
 
         .news-wrapper { display: flex; align-items: center; gap: 20px; width: 100%; }
         .news-tag { background: var(--accent); color: #000; padding: 6px 15px; border-radius: 10px; font-weight: 900; font-size: 0.9rem; }
@@ -232,7 +224,8 @@
             for(let i=1; i<=6; i++) {
                 const idx = nowHour + i;
                 const icon = d.hourly.weathercode[idx] <= 2 ? (d.hourly.weathercode[idx] === 0 ? 'sun' : 'cloud-sun') : (d.hourly.weathercode[idx] === 3 ? 'cloud' : 'cloud-rain');
-                hHtml += `<div class="weather-node" style="text-align:center"><div style="font-size:0.8rem; opacity:0.6; font-weight:700">${new Date(d.hourly.time[idx]).getHours()}:00</div><i data-lucide="${icon}"></i><div>${Math.round(d.hourly.temperature_2m[idx])}°</div></div>`;
+                // Tidsangivelse-stilen hanteras nu av CSS för weather-node div:first-child
+                hHtml += `<div class="weather-node" style="text-align:center"><div>${new Date(d.hourly.time[idx]).getHours()}:00</div><i data-lucide="${icon}"></i><div>${Math.round(d.hourly.temperature_2m[idx])}°</div></div>`;
             }
             document.getElementById('header-hourly').innerHTML = hHtml; lucide.createIcons();
         } catch(e) {}
@@ -262,18 +255,9 @@
                 document.getElementById('custom-calendar-list').innerHTML = d.items.slice(0, 4).map(event => {
                     const start = new Date(event.start.dateTime || event.start.date);
                     const isToday = start.toDateString() === new Date().toDateString();
-                    // Lägger till veckodag här
                     const weekday = start.toLocaleDateString('sv-SE', { weekday: 'short' }).toUpperCase();
                     const dateNum = start.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' });
-                    
-                    return `
-                    <div class="event-item ${isToday ? 'is-today' : ''}">
-                        <div style="min-width: 100px; text-align:center; border-right: 1px solid rgba(255,255,255,0.1); padding-right:15px;">
-                            <div style="font-size:0.75rem;color:var(--accent);font-weight:900">${isToday ? 'IDAG' : weekday + ' ' + dateNum}</div>
-                            <div style="font-size:1.6rem;font-weight:900">${event.start.dateTime ? start.toLocaleTimeString('sv-SE',{hour:'2-digit',minute:'2-digit'}) : 'HELDAG'}</div>
-                        </div>
-                        <div style="font-size:1.3rem;font-weight:300;padding-left:10px">${event.summary}</div>
-                    </div>`;
+                    return `<div class="event-item ${isToday ? 'is-today' : ''}"><div style="min-width: 100px; text-align:center; border-right: 1px solid rgba(255,255,255,0.1); padding-right:15px;"><div style="font-size:0.75rem;color:var(--accent);font-weight:900">${isToday ? 'IDAG' : weekday + ' ' + dateNum}</div><div style="font-size:1.6rem;font-weight:900">${event.start.dateTime ? start.toLocaleTimeString('sv-SE',{hour:'2-digit',minute:'2-digit'}) : 'HELDAG'}</div></div><div style="font-size:1.3rem;font-weight:300;padding-left:10px">${event.summary}</div></div>`;
                 }).join('');
             }
         } catch(e) {}
