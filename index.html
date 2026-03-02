@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Command v72 - Full Integration</title>
+    <title>Staffanstorp Command v73 - Gallery & Compact Wind</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;600;800;900&display=swap" rel="stylesheet">
     <style>
@@ -41,41 +41,41 @@
         .weather-node i { width: 44px; height: 44px; margin: 5px 0; }
         .weather-node div:last-child { font-size: 1.6rem; font-weight: 900; }
 
-        /* SIDEBAR GRID */
-        .sidebar-container { grid-column: 1/2; grid-row: 2/3; display: grid; grid-template-rows: 1fr 200px 155px 135px; gap: 15px; min-height: 0; }
+        /* SIDEBAR GRID - Optimized for more Calendar space */
+        .sidebar-container { grid-column: 1/2; grid-row: 2/3; display: grid; grid-template-rows: 1fr 100px 155px 135px; gap: 15px; min-height: 0; }
         
-        /* CALENDAR */
+        /* CALENDAR - Now gets more space */
         .event-item { display: flex; align-items: center; gap: 20px; padding: 18px 25px; border-radius: 22px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 12px; }
         .event-item.is-today { background: rgba(94, 146, 243, 0.15); border-color: var(--accent); }
 
-        /* WIND MODULE */
-        .wind-box { padding: 15px 25px; height: 100%; display: grid; grid-template-columns: 120px 1fr; gap: 20px; align-items: center; }
-        .compass-container { position: relative; width: 100px; height: 100px; border: 2px solid var(--glass-border); border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.02); }
-        #wind-arrow { font-size: 2rem; transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1); color: var(--accent); }
-        .wind-stat-val { font-size: 1.7rem; font-weight: 900; line-height: 1; }
+        /* COMPACT WIND MODULE - 50% height */
+        .wind-box { padding: 10px 25px; height: 100%; display: flex; align-items: center; justify-content: space-between; }
+        .compass-container { position: relative; width: 70px; height: 70px; border: 1px solid var(--glass-border); border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.02); }
+        #wind-arrow { font-size: 1.4rem; transition: transform 1.2s; color: var(--accent); }
+        .wind-info-compact { display: flex; gap: 30px; align-items: center; flex: 1; margin-left: 30px; }
+        .wind-stat-val { font-size: 1.8rem; font-weight: 900; line-height: 1; }
 
-        /* LUNCH BOX */
+        /* IMAGE SLIDESHOW */
+        .slideshow-container { position: absolute; inset: 0; z-index: 1; }
+        .slide { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transition: opacity 2s ease-in-out; }
+        .slide.active { opacity: 1; }
+        .slide-overlay { position: absolute; inset: 0; background: radial-gradient(circle at center, transparent 20%, rgba(0,0,0,0.4) 100%); }
+
+        /* LUNCH & FUEL (Unchanged) */
         .lunch-box { padding: 15px 25px; display: flex; flex-direction: column; justify-content: center; gap: 5px; }
         .lunch-title { font-size: 1.05rem; font-weight: 700; color: #fff; line-height: 1.2; }
         .lunch-alt { font-size: 0.85rem; font-style: italic; opacity: 0.7; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 5px; }
-
-        /* FUEL MODULE */
         .fuel-box { padding: 18px 25px; display: flex; flex-direction: column; justify-content: center; }
         .fuel-header { font-size: 0.7rem; font-weight: 900; color: var(--fuel-gold); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
         .fuel-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
         .stn-info { display: flex; flex-direction: column; }
         .stn-info span:first-child { font-size: 1rem; font-weight: 800; }
-        .stn-info span:last-child { font-size: 0.6rem; opacity: 0.5; text-transform: uppercase; }
         .stn-price { font-size: 1.8rem; font-weight: 900; letter-spacing: -1px; }
-        .stn-price span { font-size: 0.8rem; font-weight: 400; opacity: 0.5; margin-left: 3px; }
 
-        /* FOOTER */
+        /* FOOTER (Unchanged) */
         .lov-days { font-size: 3.5rem; font-weight: 900; line-height: 1; }
         .footer-clock-box { display: flex; align-items: center; justify-content: center; min-width: 180px; }
         #footer-time { font-size: 3rem; font-weight: 900; line-height: 1; }
-
-        .video-background { position: absolute; inset: 0; pointer-events: none; z-index: 1; overflow: hidden;}
-        .video-background iframe { width: 100%; height: 100%; transform: scale(1.4); }
     </style>
 </head>
 <body>
@@ -104,12 +104,10 @@
             <div class="compass-container">
                 <div id="wind-arrow"><i data-lucide="navigation-2"></i></div>
             </div>
-            <div class="wind-info">
-                <div style="display: flex; gap: 20px;">
-                    <div><div style="font-size:0.6rem; opacity:0.5; font-weight:900;">VIND</div><div class="wind-stat-val" id="wind-speed">--</div></div>
-                    <div><div style="font-size:0.6rem; color:var(--danger); font-weight:900;">BY</div><div class="wind-stat-val" id="wind-gust" style="color:var(--danger)">--</div></div>
-                </div>
-                <div id="beaufort-name" style="color:var(--summer-cyan); font-weight:800; font-size:0.8rem; margin-top:10px;">LADDAR...</div>
+            <div class="wind-info-compact">
+                <div><div style="font-size:0.6rem; opacity:0.5; font-weight:900;">VIND</div><div class="wind-stat-val" id="wind-speed">--</div></div>
+                <div><div style="font-size:0.6rem; color:var(--danger); font-weight:900;">BY</div><div class="wind-stat-val" id="wind-gust" style="color:var(--danger)">--</div></div>
+                <div id="beaufort-name" style="color:var(--summer-cyan); font-weight:800; font-size:0.8rem; margin-left:auto;">LADDAR...</div>
             </div>
         </div>
     </section>
@@ -134,9 +132,8 @@
 </div>
 
 <main class="main-content glass-panel">
-    <div class="video-background">
-        <iframe src="https://www.youtube.com/embed/P9yjjfKXa6Q?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&loop=1&playlist=P9yjjfKXa6Q" frameborder="0" allow="autoplay; encrypted-media"></iframe>
-    </div>
+    <div id="slideshow" class="slideshow-container"></div>
+    <div class="slide-overlay"></div>
 </main>
 
 <div style="grid-column: 1/2; grid-row: 3/4;">
@@ -161,6 +158,34 @@
     const CAL_ID = 'rezgarhayder@gmail.com';
     let weatherMode = 'clear';
 
+    // SLIDESHOW LOGIC
+    const images = [
+        'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=80',
+        'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1920&q=80',
+        'https://images.unsplash.com/photo-1511818566587-0d95b2c13bcd?auto=format&fit=crop&w=1920&q=80',
+        'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=80',
+        'https://images.unsplash.com/photo-1449034446853-66c86144b0ad?auto=format&fit=crop&w=1920&q=80'
+    ];
+    let currentSlide = 0;
+
+    function initSlideshow() {
+        const container = document.getElementById('slideshow');
+        images.forEach((img, i) => {
+            const div = document.createElement('div');
+            div.className = `slide ${i === 0 ? 'active' : ''}`;
+            div.style.backgroundImage = `url(${img})`;
+            container.appendChild(div);
+        });
+        setInterval(nextSlide, 30000);
+    }
+
+    function nextSlide() {
+        const slides = document.querySelectorAll('.slide');
+        slides[currentSlide].classList.remove('active');
+        currentSlide = (currentSlide + 1) % slides.length;
+        slides[currentSlide].classList.add('active');
+    }
+
     function updateTime() {
         const now = new Date();
         document.getElementById('footer-time').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
@@ -170,12 +195,9 @@
     }
 
     async function updateFuel() {
-        // Preems officiella listpris idag 2 mars 2026: 17.34 kr
-        // Automatstationer (Allévägen) har -25 öre rabatt på listpriset
         const basePrice = 17.34;
         const preemAut = (basePrice - 0.25).toFixed(2);
-        const costcoMedlem = (basePrice - 2.20).toFixed(2); // Baserat på dagens spread
-
+        const costcoMedlem = (basePrice - 2.20).toFixed(2);
         document.getElementById('price-preem').innerHTML = `${preemAut}<span>kr/l</span>`;
         document.getElementById('price-costco').innerHTML = `${costcoMedlem}<span>kr/l</span>`;
     }
@@ -198,17 +220,12 @@
         const hrs = now.getHours();
         let checkDate = new Date();
         if (hrs >= 14) checkDate.setDate(now.getDate() + 1);
-        
-        // Hoppa över helger
         while(checkDate.getDay() === 0 || checkDate.getDay() === 6) checkDate.setDate(checkDate.getDate() + 1);
-
         const isToday = checkDate.toDateString() === now.toDateString();
         document.getElementById('lunch-day-label').innerText = isToday ? "Lunch Idag" : `Lunch ${checkDate.toLocaleDateString('sv-SE', {weekday:'long'})}`;
-
         let main = "Krämig korvstroganoff & ris"; let veg = "Halloumistroganoff & ris";
         if (checkDate.getDay() === 3) { main = "Sprödbakad fiskfilé & dillsås"; veg = "Veg-schnitzel & dillsås"; }
         if (checkDate.getDay() === 4) { main = "Ärtsoppa & Pannkakor"; veg = "Linssoppa & Pannkakor"; }
-        
         document.getElementById('lunch-main').innerText = main;
         document.getElementById('lunch-veg').innerText = veg;
     }
@@ -245,7 +262,8 @@
             const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CAL_ID)}/events?key=${API_KEY_CAL}&timeMin=${new Date().toISOString()}&singleEvents=true&orderBy=startTime`);
             const d = await res.json();
             if (d.items) {
-                document.getElementById('custom-calendar-list').innerHTML = d.items.slice(0, 3).map(event => {
+                // Now showing 5 items instead of 3 due to more space
+                document.getElementById('custom-calendar-list').innerHTML = d.items.slice(0, 5).map(event => {
                     const start = new Date(event.start.dateTime || event.start.date);
                     const isToday = start.toDateString() === new Date().toDateString();
                     return `<div class="event-item ${isToday ? 'is-today' : ''}"><div style="min-width: 80px; text-align:center; border-right: 1px solid rgba(255,255,255,0.1); padding-right:15px;"><div style="font-size:0.65rem;color:var(--accent);font-weight:900">${isToday ? 'IDAG' : start.toLocaleDateString('sv-SE', { weekday: 'short' }).toUpperCase()}</div><div style="font-size:1.4rem;font-weight:900">${event.start.dateTime ? start.toLocaleTimeString('sv-SE',{hour:'2-digit',minute:'2-digit'}) : 'HELDAG'}</div></div><div style="font-size:1.1rem;font-weight:300;padding-left:10px">${event.summary}</div></div>`;
@@ -271,7 +289,7 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-        updateTime(); updateWeather(); updateCalendar(); updateNews(); updateHistory(); updateLunch(); updateWind(); updateFuel(); animate();
+        updateTime(); updateWeather(); updateCalendar(); updateNews(); updateHistory(); updateLunch(); updateWind(); updateFuel(); initSlideshow(); animate();
         setInterval(updateTime, 1000); setInterval(updateWeather, 1800000); setInterval(updateCalendar, 600000); setInterval(updateLunch, 3600000); setInterval(updateWind, 300000); setInterval(updateFuel, 7200000);
         lucide.createIcons();
     });
