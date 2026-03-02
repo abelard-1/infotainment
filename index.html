@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Command v74 - Dynamic Calendar & Fuel</title>
+    <title>Staffanstorp Command v75 - Real School Food API</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;600;800;900&display=swap" rel="stylesheet">
     <style>
@@ -14,7 +14,6 @@
             --sky-blue: #87CEEB;
             --deep-sky: #00BFFF;
             --text-main: #ffffff;
-            --easter-gold: #ffaa33;
             --summer-cyan: #44ffff;
             --danger: #ff4444;
             --fuel-gold: #fbc02d;
@@ -37,7 +36,7 @@
         #greeting { font-size: 4.8rem; font-weight: 200; letter-spacing: -2px; line-height: 0.95; background: linear-gradient(to right, var(--sky-blue), var(--deep-sky)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         #sub-greeting { font-size: 1.3rem; font-weight: 400; opacity: 0.9; margin-top: 8px; color: var(--accent); }
         #header-hourly { display: flex; justify-content: space-evenly; align-items: center; border-left: 1px solid var(--glass-border); border-right: 1px solid var(--glass-border); height: 80%; margin: 0 30px; }
-        .weather-node div:first-child { font-size: 1rem; font-weight: 800; margin-bottom: 2px; }
+        .weather-node div:first-child { font-size: 1rem; font-weight: 800; }
         .weather-node i { width: 40px; height: 40px; margin: 5px 0; }
         .weather-node div:last-child { font-size: 1.5rem; font-weight: 900; }
 
@@ -46,20 +45,12 @@
         .event-item { display: flex; align-items: center; gap: 20px; padding: 15px 25px; border-radius: 22px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 10px; }
         .event-item.is-today { background: rgba(94, 146, 243, 0.15); border-color: var(--accent); }
 
-        /* WIND & LUNCH & FUEL */
-        .wind-box { padding: 15px 25px; height: 100%; display: grid; grid-template-columns: 100px 1fr; gap: 20px; align-items: center; }
-        .compass-container { position: relative; width: 90px; height: 90px; border: 2px solid var(--glass-border); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-        #wind-arrow { font-size: 1.8rem; transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1); color: var(--accent); }
+        /* LUNCH & FUEL */
         .lunch-box { padding: 18px 25px; display: flex; flex-direction: column; justify-content: center; }
         .fuel-box { padding: 18px 25px; display: flex; flex-direction: column; justify-content: center; }
         .fuel-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
         .stn-price { font-size: 1.8rem; font-weight: 900; letter-spacing: -1px; }
         .stn-price span { font-size: 0.8rem; font-weight: 400; opacity: 0.5; margin-left: 3px; }
-
-        /* FOOTER */
-        .lov-days { font-size: 3.5rem; font-weight: 900; line-height: 1; }
-        .footer-clock-box { display: flex; align-items: center; justify-content: center; min-width: 180px; }
-        #footer-time { font-size: 3rem; font-weight: 900; line-height: 1; }
 
         .video-background { position: absolute; inset: 0; pointer-events: none; z-index: 1; overflow: hidden;}
         .video-background iframe { width: 100%; height: 100%; transform: scale(1.4); }
@@ -87,8 +78,10 @@
     </section>
     
     <section class="glass-panel">
-        <div class="wind-box">
-            <div class="compass-container"><div id="wind-arrow"><i data-lucide="navigation-2"></i></div></div>
+        <div style="padding: 15px 25px; height: 100%; display: grid; grid-template-columns: 100px 1fr; gap: 20px; align-items: center;">
+            <div style="border: 2px solid var(--glass-border); border-radius: 50%; width: 90px; height: 90px; display: flex; align-items: center; justify-content: center;">
+                <div id="wind-arrow"><i data-lucide="navigation-2"></i></div>
+            </div>
             <div>
                 <div style="display: flex; gap: 20px;">
                     <div><div style="font-size:0.6rem; opacity:0.5; font-weight:900;">VIND</div><div id="wind-speed" style="font-size:1.7rem; font-weight:900;">--</div></div>
@@ -100,9 +93,9 @@
     </section>
 
     <section class="glass-panel lunch-box">
-        <div style="color:var(--summer-cyan); font-size:0.7rem; font-weight:900; text-transform:uppercase; margin-bottom:5px;"><i data-lucide="utensils" style="width:12px"></i> <span id="lunch-day-label">LUNCH</span></div>
-        <div id="lunch-main" style="font-size:1.05rem; font-weight:700; line-height:1.2;">Hämtar från kalender...</div>
-        <div id="lunch-veg" style="font-size:0.85rem; font-style:italic; opacity:0.7; border-top:1px solid rgba(255,255,255,0.1); padding-top:5px; margin-top:5px;">Väntar på data...</div>
+        <div style="color:var(--summer-cyan); font-size:0.7rem; font-weight:900; text-transform:uppercase; margin-bottom:5px;"><i data-lucide="utensils" style="width:12px"></i> <span id="lunch-day-label">SKOLLUNCH</span></div>
+        <div id="lunch-main" style="font-size:1.05rem; font-weight:700; line-height:1.2;">Hämtar meny...</div>
+        <div id="lunch-veg" style="font-size:0.85rem; font-style:italic; opacity:0.7; border-top:1px solid rgba(255,255,255,0.1); padding-top:5px; margin-top:5px;">Laddar alternativ...</div>
     </section>
 
     <section class="glass-panel fuel-box">
@@ -138,14 +131,13 @@
         </div>
         <div id="history-fact" style="font-size: 1rem; flex: 1; padding-left: 25px; border-left: 1px solid rgba(255,255,255,0.1); margin-left: 25px;">Hämtar historik...</div>
     </div>
-    <div class="glass-panel footer-clock-box"><div id="footer-time">00:00</div></div>
+    <div class="glass-panel footer-clock-box" style="min-width:180px;"><div id="footer-time" style="font-size: 3rem; font-weight: 900;">00:00</div></div>
 </div>
 
 <script>
     const API_KEY_CAL = 'AIzaSyAC3QiGhqOM2F2ZrnFq3xWUu6_1bAwOvSw';
     const CAL_ID = 'rezgarhayder@gmail.com';
     let weatherMode = 'clear';
-    let calendarEvents = [];
 
     function updateTime() {
         const now = new Date();
@@ -155,54 +147,38 @@
         document.getElementById('count-summer').innerText = Math.ceil((new Date('2026-06-12') - now) / 86400000);
     }
 
-    async function updateCalendar() {
+    async function updateLunch() {
         try {
-            const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CAL_ID)}/events?key=${API_KEY_CAL}&timeMin=${new Date().toISOString()}&singleEvents=true&orderBy=startTime`);
-            const d = await res.json();
-            if (d.items) {
-                calendarEvents = d.items;
-                document.getElementById('custom-calendar-list').innerHTML = d.items.slice(0, 4).map(event => {
-                    const start = new Date(event.start.dateTime || event.start.date);
-                    const isToday = start.toDateString() === new Date().toDateString();
-                    return `<div class="event-item ${isToday ? 'is-today' : ''}"><div style="min-width: 75px; text-align:center; border-right: 1px solid rgba(255,255,255,0.1); padding-right:15px;"><div style="font-size:0.6rem;color:var(--accent);font-weight:900">${isToday ? 'IDAG' : start.toLocaleDateString('sv-SE', { weekday: 'short' }).toUpperCase()}</div><div style="font-size:1.3rem;font-weight:900">${event.start.dateTime ? start.toLocaleTimeString('sv-SE',{hour:'2-digit',minute:'2-digit'}) : 'HELDAG'}</div></div><div style="font-size:1.05rem;font-weight:300;padding-left:10px">${event.summary}</div></div>`;
-                }).join('');
-                updateLunch(); 
+            const now = new Date();
+            let checkDate = new Date();
+            if (now.getHours() >= 14) checkDate.setDate(now.getDate() + 1);
+            
+            // Vi hämtar från Mashie API för Staffanstorp (Baldersskolan/Hjärup m.fl)
+            // Använder proxy för att undvika CORS-problem på dashboarden
+            const menuID = "762f275e-8686-4f40-8f96-a45e00949f2b"; // Staffanstorps Skolor Menu ID
+            const dateStr = checkDate.toISOString().split('T')[0];
+            const url = `https://api.allorigins.win/get?url=${encodeURIComponent(`https://mpi.mashie.com/api/v1/pubmenus/${menuID}/weeks?fromDate=${dateStr}&toDate=${dateStr}`)}`;
+
+            const res = await fetch(url);
+            const data = await res.json();
+            const menuData = JSON.parse(data.contents);
+
+            const dayLabel = checkDate.toLocaleDateString('sv-SE', {weekday:'long'}).toUpperCase();
+            document.getElementById('lunch-day-label').innerText = `SKOLLUNCH ${dayLabel}`;
+
+            if (menuData && menuData[0] && menuData[0].Days && menuData[0].Days[0] && menuData[0].Days[0].Meals) {
+                const meals = menuData[0].Days[0].Meals;
+                document.getElementById('lunch-main').innerText = meals[0].Name;
+                document.getElementById('lunch-main').style.color = "#fff";
+                document.getElementById('lunch-veg').innerText = meals[1] ? meals[1].Name : "Vegetariskt alternativ saknas";
+            } else {
+                // Om listan är tom = studiedag eller lov
+                document.getElementById('lunch-main').innerText = "INGEN SKOLLUNCH";
+                document.getElementById('lunch-main').style.color = "var(--danger)";
+                document.getElementById('lunch-veg').innerText = "Studiedag eller lov enligt Mashie.";
             }
-        } catch(e) {}
-    }
-
-    function updateLunch() {
-        const now = new Date();
-        const hrs = now.getHours();
-        let checkDate = new Date();
-        if (hrs >= 14) checkDate.setDate(now.getDate() + 1);
-        while(checkDate.getDay() === 0 || checkDate.getDay() === 6) checkDate.setDate(checkDate.getDate() + 1);
-
-        const checkDateStr = checkDate.toDateString();
-        const displayIsToday = checkDate.toDateString() === now.toDateString();
-        
-        // DYNAMISK KOLL: Sök igenom kalenderhändelser efter studiedag/lov
-        const schoolEvent = calendarEvents.find(e => {
-            const eventDate = new Date(e.start.dateTime || e.start.date).toDateString();
-            const title = e.summary.toLowerCase();
-            return eventDate === checkDateStr && (title.includes("studiedag") || title.includes("lov") || title.includes("ledigt"));
-        });
-
-        document.getElementById('lunch-day-label').innerText = displayIsToday ? "LUNCH IDAG" : `LUNCH ${checkDate.toLocaleDateString('sv-SE', {weekday:'long'}).toUpperCase()}`;
-
-        if (schoolEvent) {
-            document.getElementById('lunch-main').innerText = schoolEvent.summary.toUpperCase();
-            document.getElementById('lunch-main').style.color = "var(--danger)";
-            document.getElementById('lunch-veg').innerText = "Ingen skollunch serveras.";
-        } else {
-            document.getElementById('lunch-main').style.color = "#fff";
-            let main = "Krämig korvstroganoff & ris"; let veg = "Halloumistroganoff & ris";
-            const day = checkDate.getDay();
-            if (day === 3) { main = "Sprödbakad fiskfilé & dillsås"; veg = "Veg-schnitzel & dillsås"; }
-            else if (day === 4) { main = "Ärtsoppa & Pannkakor"; veg = "Linssoppa & Pannkakor"; }
-            else if (day === 5) { main = "Kycklingfilé med dragonsås"; veg = "Veg-bitar med dragonsås"; }
-            document.getElementById('lunch-main').innerText = main;
-            document.getElementById('lunch-veg').innerText = veg;
+        } catch (e) {
+            document.getElementById('lunch-main').innerText = "KUNDE INTE HÄMTA MENY";
         }
     }
 
@@ -254,6 +230,20 @@
     function initFX() { particles = []; if (weatherMode !== 'clear') for(let i=0; i<80; i++) particles.push(new Particle()); }
     function animate() { ctx.clearRect(0,0,canvas.width,canvas.height); particles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(animate); }
 
+    async function updateCalendar() {
+        try {
+            const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CAL_ID)}/events?key=${API_KEY_CAL}&timeMin=${new Date().toISOString()}&singleEvents=true&orderBy=startTime`);
+            const d = await res.json();
+            if (d.items) {
+                document.getElementById('custom-calendar-list').innerHTML = d.items.slice(0, 4).map(event => {
+                    const start = new Date(event.start.dateTime || event.start.date);
+                    const isToday = start.toDateString() === new Date().toDateString();
+                    return `<div class="event-item ${isToday ? 'is-today' : ''}"><div style="min-width: 75px; text-align:center; border-right: 1px solid rgba(255,255,255,0.1); padding-right:15px;"><div style="font-size:0.6rem;color:var(--accent);font-weight:900">${isToday ? 'IDAG' : start.toLocaleDateString('sv-SE', { weekday: 'short' }).toUpperCase()}</div><div style="font-size:1.3rem;font-weight:900">${event.start.dateTime ? start.toLocaleTimeString('sv-SE',{hour:'2-digit',minute:'2-digit'}) : 'HELDAG'}</div></div><div style="font-size:1.05rem;font-weight:300;padding-left:10px">${event.summary}</div></div>`;
+                }).join('');
+            }
+        } catch(e) {}
+    }
+
     async function updateNews() {
         try {
             const r = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.svt.se/nyheter/rss.xml').then(res=>res.json());
@@ -271,8 +261,8 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-        updateTime(); updateWeather(); updateCalendar(); updateNews(); updateHistory(); updateWind(); updateFuel(); animate();
-        setInterval(updateTime, 1000); setInterval(updateWeather, 1800000); setInterval(updateCalendar, 600000); setInterval(updateWind, 300000);
+        updateTime(); updateWeather(); updateCalendar(); updateNews(); updateHistory(); updateWind(); updateFuel(); updateLunch(); animate();
+        setInterval(updateTime, 1000); setInterval(updateWeather, 1800000); setInterval(updateCalendar, 600000); setInterval(updateWind, 300000); setInterval(updateLunch, 3600000);
         lucide.createIcons();
     });
 </script>
