@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Command v80</title>
+    <title>Staffanstorp Wall Command v81</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
@@ -28,12 +28,10 @@
 
         .glass-panel { background: var(--glass-bg); backdrop-filter: blur(40px); border: 2px solid var(--glass-border); border-radius: 45px; position: relative; overflow: hidden; }
 
-        /* HEADER */
         .top-bar { grid-column: 1/3; display: grid; grid-template-columns: 1.2fr 2fr 1fr; align-items: center; padding: 0 50px; }
         #greeting { font-size: 5rem; font-weight: 900; letter-spacing: -2px; }
         #sub-greeting { font-size: 2.2rem; font-weight: 700; color: var(--accent); text-transform: uppercase; }
 
-        /* VÄDER HEADER */
         #header-hourly { display: flex; justify-content: space-around; padding: 0 40px; }
         .weather-node { text-align: center; line-height: 1.2; }
         .weather-node div:first-child { font-size: 1.4rem; font-weight: 700; opacity: 0.6; }
@@ -42,34 +40,29 @@
 
         #tom-temp { font-size: 8rem; font-weight: 900; line-height: 1; text-align: right; color: var(--summer-cyan); }
 
-        /* SIDEBAR */
         .sidebar { grid-column: 1/2; grid-row: 2/3; display: grid; grid-template-rows: 1.2fr 1fr 1fr; gap: 25px; min-height: 0; }
 
-        /* KALENDER */
         .event-item { display: flex; align-items: center; gap: 30px; padding: 30px; border-bottom: 1px solid rgba(255,255,255,0.1); }
         .event-date { min-width: 140px; text-align: center; border-right: 4px solid var(--accent); padding-right: 20px; }
         .event-date div:first-child { font-size: 1.4rem; font-weight: 900; color: var(--accent); }
         .event-date div:last-child { font-size: 3rem; font-weight: 900; }
         .event-summary { font-size: 2.5rem; font-weight: 400; padding-left: 10px; }
 
-        /* LUNCH */
-        .lunch-box { padding: 40px; display: flex; flex-direction: column; justify-content: center; overflow: hidden; }
+        /* LUNCH BOX - Låst höjd för att inte försvinna */
+        .lunch-box { padding: 40px; display: flex; flex-direction: column; justify-content: center; height: 100%; max-height: 100%; overflow: hidden; }
         #lunch-day-title { font-size: 1.4rem; font-weight: 900; color: var(--accent); margin-bottom: 10px; text-transform: uppercase; }
-        #lunch-main { font-size: 2.4rem; font-weight: 900; line-height: 1.1; margin-bottom: 8px; white-space: normal; }
-        #lunch-veg { font-size: 1.6rem; opacity: 0.7; color: #ccc; }
+        #lunch-main { font-size: 2.3rem; font-weight: 900; line-height: 1.1; margin-bottom: 8px; color: #fff; }
+        #lunch-veg { font-size: 1.5rem; opacity: 0.7; color: #ccc; font-style: italic; }
 
-        /* BENSIN */
         .fuel-box { padding: 40px; display: flex; flex-direction: column; justify-content: space-around; }
         .fuel-row { display: flex; justify-content: space-between; align-items: center; }
         .stn-name { font-size: 2.4rem; font-weight: 900; }
         .stn-price { font-size: 4rem; font-weight: 900; color: var(--fuel-gold); }
         .stn-price span { font-size: 1.5rem; margin-left: 10px; opacity: 0.5; }
 
-        /* MAIN VIDEO */
         .main-content { grid-column: 2/3; grid-row: 2/3; }
         .video-background iframe { width: 100%; height: 100%; transform: scale(1.8); }
 
-        /* FOOTER */
         .footer-left { grid-column: 1/2; grid-row: 3/4; padding: 40px; display: flex; align-items: center; }
         .footer-right { grid-column: 2/3; grid-row: 3/4; display: grid; grid-template-columns: 1fr 350px; gap: 25px; }
         
@@ -96,9 +89,9 @@
     <section class="glass-panel" id="calendar-list"></section>
     
     <section class="glass-panel lunch-box">
-        <div id="lunch-day-title">SKOLLUNCH</div>
-        <div id="lunch-main">Hämtar meny...</div>
-        <div id="lunch-veg">...</div>
+        <div id="lunch-day-title">SÖKER LUNCH...</div>
+        <div id="lunch-main">Hämtar matsedel...</div>
+        <div id="lunch-veg"></div>
     </section>
 
     <section class="glass-panel fuel-box">
@@ -120,7 +113,7 @@
 </main>
 
 <footer class="footer-left glass-panel">
-    <div id="news-text" style="font-size: 2.2rem; font-weight: 700; text-transform: uppercase; color: var(--summer-cyan);">Hämtar senaste nytt...</div>
+    <div id="news-text" style="font-size: 2.2rem; font-weight: 700; text-transform: uppercase; color: var(--summer-cyan);">Hämtar nyheter...</div>
 </footer>
 
 <div class="footer-right">
@@ -146,11 +139,29 @@
         const now = new Date();
         document.getElementById('footer-time').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
         document.getElementById('sub-greeting').innerText = now.toLocaleDateString('sv-SE', { weekday: 'long', day: 'numeric', month: 'long' });
-        
         const easter = new Date('2026-03-30');
         const summer = new Date('2026-06-12');
         document.getElementById('count-easter').innerText = Math.max(0, Math.ceil((easter - now) / 86400000));
         document.getElementById('count-summer').innerText = Math.max(0, Math.ceil((summer - now) / 86400000));
+    }
+
+    async function fetchWithRetry(url) {
+        // Försök 1: AllOrigins
+        try {
+            const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}&_=${new Date().getTime()}`);
+            if (res.ok) {
+                const data = await res.json();
+                return JSON.parse(data.contents);
+            }
+        } catch (e) { console.log("AllOrigins failed, trying backup..."); }
+
+        // Försök 2: CorsProxy.io (Backup)
+        try {
+            const res = await fetch(`https://corsproxy.io/?${encodeURIComponent(url)}`);
+            if (res.ok) return await res.json();
+        } catch (e) { console.log("Backup proxy failed too."); }
+        
+        throw new Error("All proxies failed");
     }
 
     async function updateLunch() {
@@ -163,23 +174,14 @@
             let checkDate = new Date();
             if (now.getHours() >= 14) checkDate.setDate(now.getDate() + 1);
             
-            // Staffanstorp Skolor Menu ID
             const menuID = "762f275e-8686-4f40-8f96-a45e00949f2b";
             const fromDate = checkDate.toISOString().split('T')[0];
-            
-            // Vi hämtar 14 dagar framåt för att hantera lov/helger
             const toDate = new Date(checkDate);
             toDate.setDate(toDate.getDate() + 14);
             const toDateStr = toDate.toISOString().split('T')[0];
             
             const mashieUrl = `https://mpi.mashie.com/api/v1/pubmenus/${menuID}/weeks?fromDate=${fromDate}&toDate=${toDateStr}`;
-            const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(mashieUrl)}&timestamp=${new Date().getTime()}`;
-
-            const response = await fetch(proxyUrl);
-            if (!response.ok) throw new Error("Network response was not ok");
-            
-            const data = await response.json();
-            const weeks = JSON.parse(data.contents);
+            const weeks = await fetchWithRetry(mashieUrl);
             
             let foundMeal = null;
             let mealDayStr = "";
@@ -188,14 +190,11 @@
             if (weeks && weeks.length > 0) {
                 for (const week of weeks) {
                     for (const day of week.Days) {
-                        if (day.Meals && day.Meals.length > 0) {
-                            // Kontrollera att det faktiskt finns text i namnet
-                            if (day.Meals[0].Name.length > 2) {
-                                foundMeal = day.Meals;
-                                mealDateObj = new Date(day.Date);
-                                mealDayStr = mealDateObj.toLocaleDateString('sv-SE', {weekday: 'long'});
-                                break;
-                            }
+                        if (day.Meals && day.Meals.length > 0 && day.Meals[0].Name.trim().length > 2) {
+                            foundMeal = day.Meals;
+                            mealDateObj = new Date(day.Date);
+                            mealDayStr = mealDateObj.toLocaleDateString('sv-SE', {weekday: 'long'});
+                            break;
                         }
                     }
                     if (foundMeal) break;
@@ -206,18 +205,13 @@
                 const isToday = mealDateObj.toDateString() === new Date().toDateString();
                 lunchTitle.innerText = isToday ? "LUNCH IDAG" : `NÄSTA LUNCH: ${mealDayStr.toUpperCase()}`;
                 lunchMain.innerText = foundMeal[0].Name;
-                lunchVeg.innerText = foundMeal[1] ? foundMeal[1].Name : "Vegetariskt alternativ saknas";
-                lunchMain.style.color = "#fff";
+                lunchVeg.innerText = foundMeal[1] ? foundMeal[1].Name : "Alternativ saknas";
             } else {
-                lunchMain.innerText = "INGEN MATSEDEL FUNNEN";
-                lunchMain.style.color = "var(--danger)";
-                lunchVeg.innerText = "Kontrollera kommunens hemsida.";
+                lunchMain.innerText = "INGEN MATSEDEL TILLGÄNGLIG";
             }
         } catch(e) {
-            console.error("Lunch Fetch Error:", e);
             lunchMain.innerText = "LUNCH: ANSLUTNINGSFEL";
-            lunchMain.style.color = "var(--danger)";
-            lunchVeg.innerText = "Försöker hämta igen snart...";
+            lunchVeg.innerText = "Proxyservrarna svarar inte just nu.";
         }
     }
 
@@ -261,7 +255,7 @@
         setInterval(update, 1000);
         setInterval(updateWeather, 1800000);
         setInterval(updateCalendar, 600000);
-        setInterval(updateLunch, 3600000); // Uppdaterar lunchen varje timme
+        setInterval(updateLunch, 3600000);
         lucide.createIcons();
     });
 </script>
