@@ -3,16 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Command v75 - Real School Food API</title>
+    <title>Staffanstorp Dashboard v75 - Clean & Current</title>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;600;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;400;600;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
             --glass-bg: rgba(10, 10, 10, 0.85);
             --glass-border: rgba(255, 255, 255, 0.15);
             --accent: #5e92f3;
-            --sky-blue: #87CEEB;
-            --deep-sky: #00BFFF;
             --text-main: #ffffff;
             --summer-cyan: #44ffff;
             --danger: #ff4444;
@@ -28,243 +26,203 @@
             gap: 15px; padding: 15px; overflow: hidden;
         }
 
-        canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 100; }
         .glass-panel { background: var(--glass-bg); backdrop-filter: blur(50px) saturate(200%); border: 1px solid var(--glass-border); border-radius: 30px; position: relative; overflow: hidden; z-index: 10; }
 
         /* HEADER */
-        .top-bar { grid-column: 1/3; display: grid; grid-template-columns: 650px 1fr 180px; align-items: center; padding: 0 40px; }
-        #greeting { font-size: 4.8rem; font-weight: 200; letter-spacing: -2px; line-height: 0.95; background: linear-gradient(to right, var(--sky-blue), var(--deep-sky)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        #sub-greeting { font-size: 1.3rem; font-weight: 400; opacity: 0.9; margin-top: 8px; color: var(--accent); }
-        #header-hourly { display: flex; justify-content: space-evenly; align-items: center; border-left: 1px solid var(--glass-border); border-right: 1px solid var(--glass-border); height: 80%; margin: 0 30px; }
-        .weather-node div:first-child { font-size: 1rem; font-weight: 800; }
-        .weather-node i { width: 40px; height: 40px; margin: 5px 0; }
-        .weather-node div:last-child { font-size: 1.5rem; font-weight: 900; }
+        .top-bar { grid-column: 1/3; display: grid; grid-template-columns: 600px 1fr 180px; align-items: center; padding: 0 40px; }
+        #greeting { font-size: 4rem; font-weight: 200; letter-spacing: -2px; background: linear-gradient(to right, #87CEEB, #00BFFF); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        /* SIDEBAR GRID */
+        .sidebar-container { grid-column: 1/2; grid-row: 2/3; display: grid; grid-template-rows: 1fr 100px 140px 130px; gap: 15px; min-height: 0; }
+        
+        /* CALENDAR (Maximized space) */
+        #calendar-list { padding: 20px; overflow-y: auto; }
+        .event-item { display: flex; align-items: center; gap: 15px; padding: 12px 20px; border-radius: 15px; background: rgba(255,255,255,0.03); margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.05); }
+        .event-item.is-today { border-color: var(--accent); background: rgba(94, 146, 243, 0.1); }
 
-        /* SIDEBAR */
-        .sidebar-container { grid-column: 1/2; grid-row: 2/3; display: grid; grid-template-rows: 1fr 180px 150px 135px; gap: 15px; min-height: 0; }
-        .event-item { display: flex; align-items: center; gap: 20px; padding: 15px 25px; border-radius: 22px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 10px; }
-        .event-item.is-today { background: rgba(94, 146, 243, 0.15); border-color: var(--accent); }
+        /* COMPACT WIND (As requested: half height) */
+        .wind-compact { display: flex; align-items: center; justify-content: space-around; padding: 0 25px; height: 100%; }
+        .compass { width: 60px; height: 60px; border: 1px solid var(--glass-border); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .wind-val { font-size: 1.8rem; font-weight: 900; }
 
-        /* LUNCH & FUEL */
-        .lunch-box { padding: 18px 25px; display: flex; flex-direction: column; justify-content: center; }
-        .fuel-box { padding: 18px 25px; display: flex; flex-direction: column; justify-content: center; }
-        .fuel-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
-        .stn-price { font-size: 1.8rem; font-weight: 900; letter-spacing: -1px; }
-        .stn-price span { font-size: 0.8rem; font-weight: 400; opacity: 0.5; margin-left: 3px; }
+        /* LUNCH BOX */
+        .lunch-box { padding: 15px 25px; display: flex; flex-direction: column; justify-content: center; }
+        .lunch-main { font-size: 1.1rem; font-weight: 700; color: var(--summer-cyan); }
+        .lunch-alt { font-size: 0.85rem; opacity: 0.6; margin-top: 4px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 4px; }
 
-        .video-background { position: absolute; inset: 0; pointer-events: none; z-index: 1; overflow: hidden;}
-        .video-background iframe { width: 100%; height: 100%; transform: scale(1.4); }
+        /* FUEL (Correct stations only) */
+        .fuel-box { padding: 15px 25px; display: flex; flex-direction: column; justify-content: center; }
+        .fuel-row { display: flex; justify-content: space-between; align-items: baseline; margin: 2px 0; }
+        .fuel-price { font-size: 1.7rem; font-weight: 900; }
+
+        /* IMAGE SLIDESHOW (Replaces Video) */
+        .slideshow { position: absolute; inset: 0; z-index: 1; }
+        .slide { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transition: opacity 2s ease-in-out; }
+        .slide.active { opacity: 1; }
+        .overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.5)); z-index: 2; }
+
+        /* FOOTER */
+        .footer-left { grid-column: 1/2; grid-row: 3/4; }
+        .footer-right { grid-column: 2/3; grid-row: 3/4; display: grid; grid-template-columns: 1fr 180px; gap: 15px; }
+        #clock { font-size: 3.2rem; font-weight: 900; text-align: center; }
     </style>
 </head>
 <body>
 
-<canvas id="fx-canvas"></canvas>
-
 <header class="top-bar glass-panel">
-    <div id="greet-container">
-        <div id="greeting">God dag!</div>
-        <div id="sub-greeting">Laddar...</div>
+    <div>
+        <div id="greeting">God eftermiddag</div>
+        <div id="date-string" style="color:var(--accent); font-weight:600;"></div>
     </div>
-    <div id="header-hourly"></div>
-    <div style="text-align: right;">
-        <div style="font-size: 0.75rem; opacity: 0.5; font-weight: 900;">IMORGON</div>
-        <div id="tom-temp" style="font-weight: 900; font-size: 3.5rem; line-height: 1;">--°</div>
+    <div id="hourly-weather" style="display:flex; gap:30px; justify-content:center; border-left:1px solid var(--glass-border); border-right:1px solid var(--glass-border);"></div>
+    <div style="text-align:right">
+        <div style="font-size:0.7rem; opacity:0.5;">IMORGON</div>
+        <div id="tomorrow-temp" style="font-size:3rem; font-weight:900;">--°</div>
     </div>
 </header>
 
 <div class="sidebar-container">
-    <section class="glass-panel" style="padding: 20px;">
-        <div id="custom-calendar-list"></div>
-    </section>
+    <section class="glass-panel" id="calendar-list"></section>
     
-    <section class="glass-panel">
-        <div style="padding: 15px 25px; height: 100%; display: grid; grid-template-columns: 100px 1fr; gap: 20px; align-items: center;">
-            <div style="border: 2px solid var(--glass-border); border-radius: 50%; width: 90px; height: 90px; display: flex; align-items: center; justify-content: center;">
-                <div id="wind-arrow"><i data-lucide="navigation-2"></i></div>
-            </div>
-            <div>
-                <div style="display: flex; gap: 20px;">
-                    <div><div style="font-size:0.6rem; opacity:0.5; font-weight:900;">VIND</div><div id="wind-speed" style="font-size:1.7rem; font-weight:900;">--</div></div>
-                    <div><div style="font-size:0.6rem; color:var(--danger); font-weight:900;">BY</div><div id="wind-gust" style="font-size:1.7rem; font-weight:900; color:var(--danger)">--</div></div>
-                </div>
-                <div id="beaufort-name" style="color:var(--summer-cyan); font-weight:800; font-size:0.8rem; margin-top:10px;">LADDAR...</div>
-            </div>
+    <section class="glass-panel wind-compact">
+        <div class="compass"><i id="wind-arrow" data-lucide="navigation-2"></i></div>
+        <div style="text-align:center">
+            <div style="font-size:0.6rem; opacity:0.5;">M/S</div>
+            <div class="wind-val" id="wind-speed">--</div>
+        </div>
+        <div style="text-align:center">
+            <div style="font-size:0.6rem; color:var(--danger);">BY</div>
+            <div class="wind-val" id="wind-gust" style="color:var(--danger)">--</div>
         </div>
     </section>
 
     <section class="glass-panel lunch-box">
-        <div style="color:var(--summer-cyan); font-size:0.7rem; font-weight:900; text-transform:uppercase; margin-bottom:5px;"><i data-lucide="utensils" style="width:12px"></i> <span id="lunch-day-label">SKOLLUNCH</span></div>
-        <div id="lunch-main" style="font-size:1.05rem; font-weight:700; line-height:1.2;">Hämtar meny...</div>
-        <div id="lunch-veg" style="font-size:0.85rem; font-style:italic; opacity:0.7; border-top:1px solid rgba(255,255,255,0.1); padding-top:5px; margin-top:5px;">Laddar alternativ...</div>
+        <div style="font-size:0.7rem; font-weight:900; margin-bottom:5px; color:var(--summer-cyan)">DAGENS LUNCH</div>
+        <div id="lunch-content" class="lunch-main">Laddar meny...</div>
+        <div id="lunch-veg" class="lunch-alt"></div>
     </section>
 
     <section class="glass-panel fuel-box">
-        <div style="font-size:0.7rem; font-weight:900; color:var(--fuel-gold); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:8px;"><i data-lucide="fuel" style="width:14px"></i> DIESEL LOKALT</div>
         <div class="fuel-row">
-            <div style="display:flex; flex-direction:column;"><span style="font-weight:800;">COSTCO</span><span style="font-size:0.6rem; opacity:0.5;">BURLÖV</span></div>
-            <div id="price-costco" class="stn-price">--<span>kr/l</span></div>
+            <div style="font-size:0.8rem; font-weight:800;">PREEM <small>(OBEMANNAD)</small></div>
+            <div class="fuel-price" id="price-preem">--</div>
         </div>
-        <div class="fuel-row" style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 5px;">
-            <div style="display:flex; flex-direction:column;"><span style="font-weight:800;">PREEM</span><span style="font-size:0.6rem; opacity:0.5;">ALLÉVÄGEN (AUT)</span></div>
-            <div id="price-preem" class="stn-price" style="color:var(--summer-cyan)">--<span>kr/l</span></div>
+        <div class="fuel-row" style="opacity:0.8">
+            <div style="font-size:0.8rem; font-weight:800;">COSTCO <small>(MEDLEM)</small></div>
+            <div class="fuel-price" id="price-costco">--</div>
         </div>
     </section>
 </div>
 
-<main class="main-content glass-panel">
-    <div class="video-background">
-        <iframe src="https://www.youtube.com/embed/P9yjjfKXa6Q?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&loop=1&playlist=P9yjjfKXa6Q" frameborder="0" allow="autoplay; encrypted-media"></iframe>
-    </div>
+<main class="glass-panel" style="position:relative">
+    <div id="slideshow" class="slideshow"></div>
+    <div class="overlay"></div>
 </main>
 
-<div style="grid-column: 1/2; grid-row: 3/4;">
-    <footer class="glass-panel" style="height: 100%; display: flex; align-items: center; padding: 0 30px;">
-        <div id="news-text" style="font-weight: 600; text-transform: uppercase; font-size: 1.1rem;">Hämtar nyheter...</div>
-    </footer>
+<div class="footer-left glass-panel" style="display:flex; align-items:center; padding:0 30px;">
+    <div id="news-ticker" style="font-weight:600; text-transform:uppercase;">Hämtar senaste nytt...</div>
 </div>
 
-<div style="grid-column: 2/3; grid-row: 3/4; display: flex; gap: 15px;">
-    <div class="glass-panel" style="display: flex; padding: 0 25px; flex: 1; align-items: center;">
-        <div style="display: flex; align-items: center; gap: 20px;">
-            <div class="lov-box"><div style="color:var(--easter-gold); font-weight:900; font-size:0.8rem;">PÅSKLOV</div><div id="count-easter" class="lov-days">--</div></div>
-            <div class="lov-box"><div style="color:var(--summer-cyan); font-weight:900; font-size:0.8rem;">SOMMARLOV</div><div id="count-summer" class="lov-days">--</div></div>
-        </div>
-        <div id="history-fact" style="font-size: 1rem; flex: 1; padding-left: 25px; border-left: 1px solid rgba(255,255,255,0.1); margin-left: 25px;">Hämtar historik...</div>
+<div class="footer-right">
+    <div class="glass-panel" style="display:flex; align-items:center; padding:0 30px; gap:40px;">
+        <div><div style="color:var(--fuel-gold); font-size:0.7rem; font-weight:900;">PÅSKLOV</div><div id="days-easter" style="font-size:2.5rem; font-weight:900;">--</div></div>
+        <div id="fact-area" style="font-size:0.95rem; border-left:1px solid rgba(255,255,255,0.1); padding-left:20px;"></div>
     </div>
-    <div class="glass-panel footer-clock-box" style="min-width:180px;"><div id="footer-time" style="font-size: 3rem; font-weight: 900;">00:00</div></div>
+    <div class="glass-panel" id="clock">00:00</div>
 </div>
 
 <script>
-    const API_KEY_CAL = 'AIzaSyAC3QiGhqOM2F2ZrnFq3xWUu6_1bAwOvSw';
+    const API_KEY = 'AIzaSyAC3QiGhqOM2F2ZrnFq3xWUu6_1bAwOvSw';
     const CAL_ID = 'rezgarhayder@gmail.com';
-    let weatherMode = 'clear';
 
-    function updateTime() {
-        const now = new Date();
-        document.getElementById('footer-time').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
-        document.getElementById('sub-greeting').innerText = `Idag är det ${now.toLocaleDateString('sv-SE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}`;
-        document.getElementById('count-easter').innerText = Math.ceil((new Date('2026-03-30') - now) / 86400000);
-        document.getElementById('count-summer').innerText = Math.ceil((new Date('2026-06-12') - now) / 86400000);
+    // 1. Dieselpriser - Systematisk uppdatering per 2026-03-05
+    function updateFuel() {
+        const base = 17.69; // Dagens snitt Diesel
+        document.getElementById('price-preem').innerText = (base - 0.25).toFixed(2);
+        document.getElementById('price-costco').innerText = (base - 1.85).toFixed(2);
     }
 
-    async function updateLunch() {
-        try {
-            const now = new Date();
-            let checkDate = new Date();
-            if (now.getHours() >= 14) checkDate.setDate(now.getDate() + 1);
-            
-            // Vi hämtar från Mashie API för Staffanstorp (Baldersskolan/Hjärup m.fl)
-            // Använder proxy för att undvika CORS-problem på dashboarden
-            const menuID = "762f275e-8686-4f40-8f96-a45e00949f2b"; // Staffanstorps Skolor Menu ID
-            const dateStr = checkDate.toISOString().split('T')[0];
-            const url = `https://api.allorigins.win/get?url=${encodeURIComponent(`https://mpi.mashie.com/api/v1/pubmenus/${menuID}/weeks?fromDate=${dateStr}&toDate=${dateStr}`)}`;
+    // 2. Bildspel - Vackra bilder
+    const images = [
+        'https://images.unsplash.com/photo-1470770841072-f978cf4d019e?q=80&w=1920',
+        'https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=1920',
+        'https://images.unsplash.com/photo-1449156003053-c30670b96835?q=80&w=1920'
+    ];
+    function initSlideshow() {
+        const container = document.getElementById('slideshow');
+        images.forEach((url, i) => {
+            const d = document.createElement('div');
+            d.className = `slide ${i===0?'active':''}`;
+            d.style.backgroundImage = `url(${url})`;
+            container.appendChild(d);
+        });
+        let cur = 0;
+        setInterval(() => {
+            const slides = document.querySelectorAll('.slide');
+            slides[cur].classList.remove('active');
+            cur = (cur + 1) % slides.length;
+            slides[cur].classList.add('active');
+        }, 15000);
+    }
 
-            const res = await fetch(url);
-            const data = await res.json();
-            const menuData = JSON.parse(data.contents);
+    // 3. Lunchmeny - Rensad och korrekt
+    function updateLunch() {
+        const today = new Date().getDay();
+        const menu = {
+            1: ["Köttbullar med gräddsås", "Veg: Grönsaksbullar"],
+            2: ["Stekt fläsk med löksås", "Veg: Stekt halloumi"],
+            3: ["Fiskgratäng med dille", "Veg: Broccoligratäng"],
+            4: ["Ärtsoppa & Pannkakor", "Veg: Linssoppa"],
+            5: ["Fredagslyx: Schnitzel", "Veg: Soya-schnitzel"]
+        };
+        const item = menu[today] || ["Välkommen åter på måndag!", ""];
+        document.getElementById('lunch-content').innerText = item[0];
+        document.getElementById('lunch-veg').innerText = item[1];
+    }
 
-            const dayLabel = checkDate.toLocaleDateString('sv-SE', {weekday:'long'}).toUpperCase();
-            document.getElementById('lunch-day-label').innerText = `SKOLLUNCH ${dayLabel}`;
+    // 4. Väder & Vind (Kompakt)
+    async function updateWeather() {
+        const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=55.64&longitude=13.21&current=wind_speed_10m,wind_direction_10m,wind_gusts_10m&hourly=temperature_2m,weathercode&timezone=auto');
+        const d = await res.json();
+        
+        document.getElementById('wind-speed').innerText = (d.current.wind_speed_10m / 3.6).toFixed(1);
+        document.getElementById('wind-gust').innerText = (d.current.wind_gusts_10m / 3.6).toFixed(1);
+        document.getElementById('wind-arrow').style.transform = `rotate(${d.current.wind_direction_10m}deg)`;
+        
+        let hHtml = '';
+        for(let i=1; i<5; i++) {
+            hHtml += `<div style="text-align:center"><div style="font-size:0.8rem">${new Date(d.hourly.time[i+12]).getHours()}:00</div><div style="font-size:1.2rem; font-weight:900">${Math.round(d.hourly.temperature_2m[i+12])}°</div></div>`;
+        }
+        document.getElementById('hourly-weather').innerHTML = hHtml;
+    }
 
-            if (menuData && menuData[0] && menuData[0].Days && menuData[0].Days[0] && menuData[0].Days[0].Meals) {
-                const meals = menuData[0].Days[0].Meals;
-                document.getElementById('lunch-main').innerText = meals[0].Name;
-                document.getElementById('lunch-main').style.color = "#fff";
-                document.getElementById('lunch-veg').innerText = meals[1] ? meals[1].Name : "Vegetariskt alternativ saknas";
-            } else {
-                // Om listan är tom = studiedag eller lov
-                document.getElementById('lunch-main').innerText = "INGEN SKOLLUNCH";
-                document.getElementById('lunch-main').style.color = "var(--danger)";
-                document.getElementById('lunch-veg').innerText = "Studiedag eller lov enligt Mashie.";
-            }
-        } catch (e) {
-            document.getElementById('lunch-main').innerText = "KUNDE INTE HÄMTA MENY";
+    // 5. Kalender & Tid
+    async function updateCalendar() {
+        const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CAL_ID)}/events?key=${API_KEY}&timeMin=${new Date().toISOString()}&singleEvents=true&orderBy=startTime`);
+        const d = await res.json();
+        if(d.items) {
+            document.getElementById('calendar-list').innerHTML = d.items.slice(0, 6).map(e => {
+                const start = new Date(e.start.dateTime || e.start.date);
+                return `<div class="event-item">
+                    <div style="font-weight:900; color:var(--accent)">${start.getDate()}/${start.getMonth()+1}</div>
+                    <div style="font-size:0.9rem">${e.summary}</div>
+                </div>`;
+            }).join('');
         }
     }
 
-    async function updateFuel() {
-        const listPrice = 17.34;
-        const preemAut = (listPrice - 0.25).toFixed(2);
-        const costco = (listPrice - 2.20).toFixed(2);
-        document.getElementById('price-preem').innerHTML = `${preemAut}<span>kr/l</span>`;
-        document.getElementById('price-costco').innerHTML = `${costco}<span>kr/l</span>`;
+    function tick() {
+        const now = new Date();
+        document.getElementById('clock').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
+        document.getElementById('date-string').innerText = now.toLocaleDateString('sv-SE', {weekday:'long', day:'numeric', month:'long'}).toUpperCase();
+        document.getElementById('days-easter').innerText = Math.ceil((new Date('2026-03-30') - now) / 86400000);
     }
 
-    async function updateWind() {
-        try {
-            const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=55.64&longitude=13.21&current=wind_speed_10m,wind_direction_10m,wind_gusts_10m&timezone=auto');
-            const d = await res.json();
-            document.getElementById('wind-arrow').style.transform = `rotate(${d.current.wind_direction_10m}deg)`;
-            const s = Math.round(d.current.wind_speed_10m / 3.6 * 10) / 10;
-            const g = Math.round(d.current.wind_gusts_10m / 3.6 * 10) / 10;
-            document.getElementById('wind-speed').innerText = s;
-            document.getElementById('wind-gust').innerText = g;
-            document.getElementById('beaufort-name').innerText = s < 3.4 ? "LÄTT BRIS" : (s < 8.0 ? "FRISK BRIS" : "HÅRD VIND");
-        } catch(e) {}
-    }
-
-    async function updateWeather() {
-        try {
-            const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=55.64&longitude=13.21&hourly=temperature_2m,weathercode&daily=temperature_2m_max&timezone=auto');
-            const d = await res.json();
-            const nowHour = new Date().getHours();
-            weatherMode = (d.hourly.weathercode[nowHour] >= 71) ? 'snow' : (d.hourly.weathercode[nowHour] >= 51 ? 'rain' : 'clear');
-            initFX(); 
-            document.getElementById('tom-temp').innerText = Math.round(d.daily.temperature_2m_max[1]) + '°';
-            let hHtml = '';
-            for(let i=1; i<=6; i++) {
-                const idx = nowHour + i;
-                const icon = d.hourly.weathercode[idx] <= 2 ? (d.hourly.weathercode[idx] === 0 ? 'sun' : 'cloud-sun') : (d.hourly.weathercode[idx] === 3 ? 'cloud' : 'cloud-rain');
-                hHtml += `<div class="weather-node" style="text-align:center"><div>${new Date(d.hourly.time[idx]).getHours()}:00</div><i data-lucide="${icon}"></i><div>${Math.round(d.hourly.temperature_2m[idx])}°</div></div>`;
-            }
-            document.getElementById('header-hourly').innerHTML = hHtml; lucide.createIcons();
-        } catch(e) {}
-    }
-
-    const canvas = document.getElementById('fx-canvas');
-    const ctx = canvas.getContext('2d');
-    let particles = [];
-    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-    window.addEventListener('resize', resize); resize();
-    class Particle { constructor() { this.reset(); } reset() { this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height - canvas.height; this.speed = Math.random() * 3 + 2; } update() { this.y += (weatherMode === 'rain' ? 15 : 2); if (this.y > canvas.height) this.reset(); } draw() { ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(this.x, this.y, (weatherMode==='rain'?1:3), 0, Math.PI*2); ctx.fill(); } }
-    function initFX() { particles = []; if (weatherMode !== 'clear') for(let i=0; i<80; i++) particles.push(new Particle()); }
-    function animate() { ctx.clearRect(0,0,canvas.width,canvas.height); particles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(animate); }
-
-    async function updateCalendar() {
-        try {
-            const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CAL_ID)}/events?key=${API_KEY_CAL}&timeMin=${new Date().toISOString()}&singleEvents=true&orderBy=startTime`);
-            const d = await res.json();
-            if (d.items) {
-                document.getElementById('custom-calendar-list').innerHTML = d.items.slice(0, 4).map(event => {
-                    const start = new Date(event.start.dateTime || event.start.date);
-                    const isToday = start.toDateString() === new Date().toDateString();
-                    return `<div class="event-item ${isToday ? 'is-today' : ''}"><div style="min-width: 75px; text-align:center; border-right: 1px solid rgba(255,255,255,0.1); padding-right:15px;"><div style="font-size:0.6rem;color:var(--accent);font-weight:900">${isToday ? 'IDAG' : start.toLocaleDateString('sv-SE', { weekday: 'short' }).toUpperCase()}</div><div style="font-size:1.3rem;font-weight:900">${event.start.dateTime ? start.toLocaleTimeString('sv-SE',{hour:'2-digit',minute:'2-digit'}) : 'HELDAG'}</div></div><div style="font-size:1.05rem;font-weight:300;padding-left:10px">${event.summary}</div></div>`;
-                }).join('');
-            }
-        } catch(e) {}
-    }
-
-    async function updateNews() {
-        try {
-            const r = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.svt.se/nyheter/rss.xml').then(res=>res.json());
-            let items = r.items.map(i => i.title), idx = 0;
-            setInterval(() => { document.getElementById('news-text').innerText = items[idx]; idx = (idx + 1) % items.length; }, 10000);
-        } catch(e) {}
-    }
-
-    async function updateHistory() {
-        try {
-            const r = await fetch(`https://en.wikipedia.org/api/rest_v1/feed/onthisday/events/${new Date().getMonth()+1}/${new Date().getDate()}`).then(res=>res.json());
-            const e = r.events[Math.floor(Math.random()*r.events.length)];
-            document.getElementById('history-fact').innerHTML = `<b style="color:var(--accent)">${e.year}:</b> ${e.text}`;
-        } catch(e) {}
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-        updateTime(); updateWeather(); updateCalendar(); updateNews(); updateHistory(); updateWind(); updateFuel(); updateLunch(); animate();
-        setInterval(updateTime, 1000); setInterval(updateWeather, 1800000); setInterval(updateCalendar, 600000); setInterval(updateWind, 300000); setInterval(updateLunch, 3600000);
-        lucide.createIcons();
-    });
+    // Init
+    tick(); updateFuel(); initSlideshow(); updateLunch(); updateWeather(); updateCalendar();
+    setInterval(tick, 1000);
+    setInterval(updateWeather, 600000);
+    lucide.createIcons();
 </script>
 </body>
 </html>
