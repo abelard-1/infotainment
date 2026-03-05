@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Command v82 - Slideshow Edition</title>
+    <title>Staffanstorp Wall Command v83</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
@@ -59,7 +59,6 @@
         .stn-price { font-size: 4rem; font-weight: 900; color: var(--fuel-gold); }
         .stn-price span { font-size: 1.5rem; margin-left: 10px; opacity: 0.5; }
 
-        /* SLIDESHOW CONTAINER */
         .main-content { grid-column: 2/3; grid-row: 2/3; background: #000; position: relative; }
         .slide {
             position: absolute; inset: 0;
@@ -141,13 +140,12 @@
     const API_KEY_CAL = 'AIzaSyAC3QiGhqOM2F2ZrnFq3xWUu6_1bAwOvSw';
     const CAL_ID = 'rezgarhayder@gmail.com';
 
-    // BILDSPELSMOTOR
     const slideshowImages = [
-        "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=1200&q=80", // Natur
-        "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80", // Berg
-        "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1200&q=80", // Skog
-        "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1200&q=80", // Sjö
-        "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80"  // Alperna
+        "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80"
     ];
 
     let currentSlide = 1;
@@ -155,12 +153,9 @@
         const nextSlide = currentSlide === 1 ? 2 : 1;
         const activeEl = document.getElementById(`slide${currentSlide}`);
         const nextEl = document.getElementById(`slide${nextSlide}`);
-        
-        // Generera en random natur-bild från Unsplash för oändlig variation
-        const newImgUrl = `https://source.unsplash.com/random/1600x900/?nature,landscape,architecture&sig=${Math.random()}`;
+        const newImgUrl = `https://images.unsplash.com/photo-${Math.random() < 0.5 ? '1470071459604-3b5ec3a7fe05' : '1441974231531-c6227db76b6e'}?auto=format&fit=crop&w=1600&q=80&sig=${Math.random()}`;
         
         nextEl.style.backgroundImage = `url('${newImgUrl}')`;
-        
         setTimeout(() => {
             activeEl.classList.remove('active');
             nextEl.classList.add('active');
@@ -185,7 +180,7 @@
                 const data = await res.json();
                 return JSON.parse(data.contents);
             }
-        } catch (e) { console.log("AllOrigins failed..."); }
+        } catch (e) { }
         try {
             const res = await fetch(`https://corsproxy.io/?${encodeURIComponent(url)}`);
             if (res.ok) return await res.json();
@@ -259,21 +254,21 @@
     }
 
     async function updateFuel() {
-        const base = 17.34;
-        document.getElementById('price-preem').innerHTML = `${(base - 0.25).toFixed(2)}<span>kr/l</span>`;
-        document.getElementById('price-costco').innerHTML = `${(base - 2.20).toFixed(2)}<span>kr/l</span>`;
+        const preemPrice = 17.89; 
+        const costcoPrice = 15.97; 
+        document.getElementById('price-preem').innerHTML = `${preemPrice.toFixed(2)}<span>kr/l</span>`;
+        document.getElementById('price-costco').innerHTML = `${costcoPrice.toFixed(2)}<span>kr/l</span>`;
     }
 
     document.addEventListener('DOMContentLoaded', () => {
         update(); updateWeather(); updateCalendar(); updateLunch(); updateFuel();
-        // Sätt startbild
         document.getElementById('slide1').style.backgroundImage = `url('${slideshowImages[0]}')`;
-        
         setInterval(update, 1000);
         setInterval(updateWeather, 1800000);
         setInterval(updateCalendar, 600000);
         setInterval(updateLunch, 3600000);
-        setInterval(updateSlideshow, 60000); // Byt bild var 60:e sekund
+        setInterval(updateSlideshow, 60000);
+        setInterval(updateFuel, 86400000);
         lucide.createIcons();
     });
 </script>
