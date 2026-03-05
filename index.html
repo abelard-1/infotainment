@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Command v78</title>
+    <title>Staffanstorp Wall Command v79</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
@@ -21,7 +21,7 @@
             font-family: 'Inter', sans-serif; background-color: #000;
             height: 100vh; width: 100vw; color: #fff;
             display: grid; 
-            grid-template-columns: 750px 1fr; /* Bredare för att rymma stor text */
+            grid-template-columns: 750px 1fr;
             grid-template-rows: 180px 1fr 200px;
             gap: 25px; padding: 25px; overflow: hidden;
         }
@@ -33,7 +33,7 @@
         #greeting { font-size: 5rem; font-weight: 900; letter-spacing: -2px; }
         #sub-greeting { font-size: 2.2rem; font-weight: 700; color: var(--accent); text-transform: uppercase; }
 
-        /* VÄDER HEADER (200%) */
+        /* VÄDER HEADER */
         #header-hourly { display: flex; justify-content: space-around; padding: 0 40px; }
         .weather-node { text-align: center; line-height: 1.2; }
         .weather-node div:first-child { font-size: 1.4rem; font-weight: 700; opacity: 0.6; }
@@ -43,7 +43,7 @@
         #tom-temp { font-size: 8rem; font-weight: 900; line-height: 1; text-align: right; color: var(--summer-cyan); }
 
         /* SIDEBAR */
-        .sidebar { grid-column: 1/2; grid-row: 2/3; display: grid; grid-template-rows: 1.2fr 1fr 1fr; gap: 25px; }
+        .sidebar { grid-column: 1/2; grid-row: 2/3; display: grid; grid-template-rows: 1.2fr 1fr 1fr; gap: 25px; min-height: 0; }
 
         /* KALENDER */
         .event-item { display: flex; align-items: center; gap: 30px; padding: 30px; border-bottom: 1px solid rgba(255,255,255,0.1); }
@@ -52,10 +52,11 @@
         .event-date div:last-child { font-size: 3rem; font-weight: 900; }
         .event-summary { font-size: 2.5rem; font-weight: 400; padding-left: 10px; }
 
-        /* LUNCH */
-        .lunch-box { padding: 40px; display: flex; flex-direction: column; justify-content: center; }
-        #lunch-main { font-size: 2.8rem; font-weight: 900; line-height: 1.1; margin-bottom: 10px; }
-        #lunch-veg { font-size: 1.8rem; opacity: 0.7; color: #ccc; }
+        /* LUNCH - Justerad för att synas helt */
+        .lunch-box { padding: 40px; display: flex; flex-direction: column; justify-content: center; overflow: hidden; }
+        #lunch-day-title { font-size: 1.4rem; font-weight: 900; color: var(--accent); margin-bottom: 10px; text-transform: uppercase; }
+        #lunch-main { font-size: 2.4rem; font-weight: 900; line-height: 1.1; margin-bottom: 8px; white-space: normal; }
+        #lunch-veg { font-size: 1.6rem; opacity: 0.7; color: #ccc; }
 
         /* BENSIN */
         .fuel-box { padding: 40px; display: flex; flex-direction: column; justify-content: space-around; }
@@ -95,8 +96,8 @@
     <section class="glass-panel" id="calendar-list"></section>
     
     <section class="glass-panel lunch-box">
-        <div style="font-size: 1.4rem; font-weight: 900; color: var(--accent); margin-bottom: 15px;">DAGENS LUNCH</div>
-        <div id="lunch-main">Hämtar...</div>
+        <div id="lunch-day-title">SKOLLUNCH</div>
+        <div id="lunch-main">Hämtar meny...</div>
         <div id="lunch-veg">...</div>
     </section>
 
@@ -156,22 +157,51 @@
         try {
             const now = new Date();
             let checkDate = new Date();
+            // Om klockan är efter 14, titta på morgondagen
             if (now.getHours() >= 14) checkDate.setDate(now.getDate() + 1);
-            const dateStr = checkDate.toISOString().split('T')[0];
+            
             const menuID = "762f275e-8686-4f40-8f96-a45e00949f2b";
-            const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(`https://mpi.mashie.com/api/v1/pubmenus/${menuID}/weeks?fromDate=${dateStr}&toDate=${dateStr}`)}`);
+            // Hämta för 7 dagar framåt för att säkert hitta nästa lunch
+            const fromDate = checkDate.toISOString().split('T')[0];
+            const toDate = new Date(checkDate);
+            toDate.setDate(toDate.getDate() + 7);
+            const toDateStr = toDate.toISOString().split('T')[0];
+            
+            const url = `https://mpi.mashie.com/api/v1/pubmenus/${menuID}/weeks?fromDate=${fromDate}&toDate=${toDateStr}`;
+            const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`);
             const data = await res.json();
-            const menu = JSON.parse(data.contents);
-            if (menu[0]?.Days[0]?.Meals) {
-                document.getElementById('lunch-main').innerText = menu[0].Days[0].Meals[0].Name;
-                document.getElementById('lunch-veg').innerText = menu[0].Days[0].Meals[1]?.Name || "";
+            const weeks = JSON.parse(data.contents);
+            
+            let foundMeal = null;
+            let mealDay = "";
+
+            if (weeks && weeks.length > 0) {
+                // Gå igenom veckorna och dagarna för att hitta första dagen med mat
+                for (let w of weeks) {
+                    for (let d of w.Days) {
+                        if (d.Meals && d.Meals.length > 0 && d.Meals[0].Name.trim() !== "") {
+                            foundMeal = d.Meals;
+                            mealDay = new Date(d.Date).toLocaleDateString('sv-SE', {weekday: 'long'});
+                            break;
+                        }
+                    }
+                    if (foundMeal) break;
+                }
+            }
+
+            if (foundMeal) {
+                const isTargetDay = new Date(checkDate).toDateString() === new Date(weeks[0].Days[0].Date).toDateString();
+                document.getElementById('lunch-day-title').innerText = isTargetDay ? "LUNCH IDAG/NÄSTA" : `LUNCH ${mealDay.toUpperCase()}`;
+                document.getElementById('lunch-main').innerText = foundMeal[0].Name;
+                document.getElementById('lunch-veg').innerText = foundMeal[1]?.Name || "Vegetariskt alternativ saknas";
                 document.getElementById('lunch-main').style.color = "#fff";
             } else {
-                document.getElementById('lunch-main').innerText = "INGEN SKOLLUNCH / LOV";
+                document.getElementById('lunch-main').innerText = "INGA MATSEDLAR TILLGÄNGLIGA";
                 document.getElementById('lunch-main').style.color = "var(--danger)";
-                document.getElementById('lunch-veg').innerText = "Kontrollera läsårstiderna";
             }
-        } catch(e) {}
+        } catch(e) {
+            document.getElementById('lunch-main').innerText = "KUNDE INTE HÄMTA LUNCH";
+        }
     }
 
     async function updateWeather() {
@@ -214,6 +244,7 @@
         setInterval(update, 1000);
         setInterval(updateWeather, 1800000);
         setInterval(updateCalendar, 600000);
+        setInterval(updateLunch, 3600000);
         lucide.createIcons();
     });
 </script>
