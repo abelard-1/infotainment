@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Command v81</title>
+    <title>Staffanstorp Wall Command v82 - Slideshow Edition</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
@@ -26,7 +26,7 @@
             gap: 25px; padding: 25px; overflow: hidden;
         }
 
-        .glass-panel { background: var(--glass-bg); backdrop-filter: blur(40px); border: 2px solid var(--glass-border); border-radius: 45px; position: relative; overflow: hidden; }
+        .glass-panel { background: var(--glass-bg); backdrop-filter: blur(40px); border: 2px solid var(--glass-border); border-radius: 45px; position: relative; overflow: hidden; z-index: 10; }
 
         .top-bar { grid-column: 1/3; display: grid; grid-template-columns: 1.2fr 2fr 1fr; align-items: center; padding: 0 50px; }
         #greeting { font-size: 5rem; font-weight: 900; letter-spacing: -2px; }
@@ -48,8 +48,7 @@
         .event-date div:last-child { font-size: 3rem; font-weight: 900; }
         .event-summary { font-size: 2.5rem; font-weight: 400; padding-left: 10px; }
 
-        /* LUNCH BOX - Låst höjd för att inte försvinna */
-        .lunch-box { padding: 40px; display: flex; flex-direction: column; justify-content: center; height: 100%; max-height: 100%; overflow: hidden; }
+        .lunch-box { padding: 40px; display: flex; flex-direction: column; justify-content: center; height: 100%; overflow: hidden; }
         #lunch-day-title { font-size: 1.4rem; font-weight: 900; color: var(--accent); margin-bottom: 10px; text-transform: uppercase; }
         #lunch-main { font-size: 2.3rem; font-weight: 900; line-height: 1.1; margin-bottom: 8px; color: #fff; }
         #lunch-veg { font-size: 1.5rem; opacity: 0.7; color: #ccc; font-style: italic; }
@@ -60,8 +59,16 @@
         .stn-price { font-size: 4rem; font-weight: 900; color: var(--fuel-gold); }
         .stn-price span { font-size: 1.5rem; margin-left: 10px; opacity: 0.5; }
 
-        .main-content { grid-column: 2/3; grid-row: 2/3; }
-        .video-background iframe { width: 100%; height: 100%; transform: scale(1.8); }
+        /* SLIDESHOW CONTAINER */
+        .main-content { grid-column: 2/3; grid-row: 2/3; background: #000; position: relative; }
+        .slide {
+            position: absolute; inset: 0;
+            background-size: cover;
+            background-position: center;
+            opacity: 0;
+            transition: opacity 2s ease-in-out;
+        }
+        .slide.active { opacity: 1; }
 
         .footer-left { grid-column: 1/2; grid-row: 3/4; padding: 40px; display: flex; align-items: center; }
         .footer-right { grid-column: 2/3; grid-row: 3/4; display: grid; grid-template-columns: 1fr 350px; gap: 25px; }
@@ -106,10 +113,9 @@
     </section>
 </div>
 
-<main class="main-content glass-panel">
-    <div style="position: absolute; inset: 0; pointer-events: none;">
-        <iframe src="https://www.youtube.com/embed/P9yjjfKXa6Q?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&loop=1&playlist=P9yjjfKXa6Q" frameborder="0" style="width:100%; height:100%;"></iframe>
-    </div>
+<main class="main-content glass-panel" id="slideshow-container">
+    <div class="slide active" id="slide1"></div>
+    <div class="slide" id="slide2"></div>
 </main>
 
 <footer class="footer-left glass-panel">
@@ -135,6 +141,33 @@
     const API_KEY_CAL = 'AIzaSyAC3QiGhqOM2F2ZrnFq3xWUu6_1bAwOvSw';
     const CAL_ID = 'rezgarhayder@gmail.com';
 
+    // BILDSPELSMOTOR
+    const slideshowImages = [
+        "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=1200&q=80", // Natur
+        "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80", // Berg
+        "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1200&q=80", // Skog
+        "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1200&q=80", // Sjö
+        "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80"  // Alperna
+    ];
+
+    let currentSlide = 1;
+    function updateSlideshow() {
+        const nextSlide = currentSlide === 1 ? 2 : 1;
+        const activeEl = document.getElementById(`slide${currentSlide}`);
+        const nextEl = document.getElementById(`slide${nextSlide}`);
+        
+        // Generera en random natur-bild från Unsplash för oändlig variation
+        const newImgUrl = `https://source.unsplash.com/random/1600x900/?nature,landscape,architecture&sig=${Math.random()}`;
+        
+        nextEl.style.backgroundImage = `url('${newImgUrl}')`;
+        
+        setTimeout(() => {
+            activeEl.classList.remove('active');
+            nextEl.classList.add('active');
+            currentSlide = nextSlide;
+        }, 1000); 
+    }
+
     function update() {
         const now = new Date();
         document.getElementById('footer-time').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
@@ -146,21 +179,17 @@
     }
 
     async function fetchWithRetry(url) {
-        // Försök 1: AllOrigins
         try {
             const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}&_=${new Date().getTime()}`);
             if (res.ok) {
                 const data = await res.json();
                 return JSON.parse(data.contents);
             }
-        } catch (e) { console.log("AllOrigins failed, trying backup..."); }
-
-        // Försök 2: CorsProxy.io (Backup)
+        } catch (e) { console.log("AllOrigins failed..."); }
         try {
             const res = await fetch(`https://corsproxy.io/?${encodeURIComponent(url)}`);
             if (res.ok) return await res.json();
-        } catch (e) { console.log("Backup proxy failed too."); }
-        
+        } catch (e) { }
         throw new Error("All proxies failed");
     }
 
@@ -168,31 +197,22 @@
         const lunchMain = document.getElementById('lunch-main');
         const lunchVeg = document.getElementById('lunch-veg');
         const lunchTitle = document.getElementById('lunch-day-title');
-        
         try {
             const now = new Date();
             let checkDate = new Date();
             if (now.getHours() >= 14) checkDate.setDate(now.getDate() + 1);
-            
             const menuID = "762f275e-8686-4f40-8f96-a45e00949f2b";
             const fromDate = checkDate.toISOString().split('T')[0];
             const toDate = new Date(checkDate);
             toDate.setDate(toDate.getDate() + 14);
-            const toDateStr = toDate.toISOString().split('T')[0];
-            
-            const mashieUrl = `https://mpi.mashie.com/api/v1/pubmenus/${menuID}/weeks?fromDate=${fromDate}&toDate=${toDateStr}`;
+            const mashieUrl = `https://mpi.mashie.com/api/v1/pubmenus/${menuID}/weeks?fromDate=${fromDate}&toDate=${toDate.toISOString().split('T')[0]}`;
             const weeks = await fetchWithRetry(mashieUrl);
-            
-            let foundMeal = null;
-            let mealDayStr = "";
-            let mealDateObj = null;
-
+            let foundMeal = null; let mealDayStr = ""; let mealDateObj = null;
             if (weeks && weeks.length > 0) {
                 for (const week of weeks) {
                     for (const day of week.Days) {
                         if (day.Meals && day.Meals.length > 0 && day.Meals[0].Name.trim().length > 2) {
-                            foundMeal = day.Meals;
-                            mealDateObj = new Date(day.Date);
+                            foundMeal = day.Meals; mealDateObj = new Date(day.Date);
                             mealDayStr = mealDateObj.toLocaleDateString('sv-SE', {weekday: 'long'});
                             break;
                         }
@@ -200,19 +220,13 @@
                     if (foundMeal) break;
                 }
             }
-
             if (foundMeal) {
                 const isToday = mealDateObj.toDateString() === new Date().toDateString();
                 lunchTitle.innerText = isToday ? "LUNCH IDAG" : `NÄSTA LUNCH: ${mealDayStr.toUpperCase()}`;
                 lunchMain.innerText = foundMeal[0].Name;
                 lunchVeg.innerText = foundMeal[1] ? foundMeal[1].Name : "Alternativ saknas";
-            } else {
-                lunchMain.innerText = "INGEN MATSEDEL TILLGÄNGLIG";
             }
-        } catch(e) {
-            lunchMain.innerText = "LUNCH: ANSLUTNINGSFEL";
-            lunchVeg.innerText = "Proxyservrarna svarar inte just nu.";
-        }
+        } catch(e) { lunchMain.innerText = "LUNCH: ANSLUTNINGSFEL"; }
     }
 
     async function updateWeather() {
@@ -252,10 +266,14 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         update(); updateWeather(); updateCalendar(); updateLunch(); updateFuel();
+        // Sätt startbild
+        document.getElementById('slide1').style.backgroundImage = `url('${slideshowImages[0]}')`;
+        
         setInterval(update, 1000);
         setInterval(updateWeather, 1800000);
         setInterval(updateCalendar, 600000);
         setInterval(updateLunch, 3600000);
+        setInterval(updateSlideshow, 60000); // Byt bild var 60:e sekund
         lucide.createIcons();
     });
 </script>
