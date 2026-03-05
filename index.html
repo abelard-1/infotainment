@@ -3,170 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Command v77</title>
+    <title>Staffanstorp Wall Command v78</title>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --glass-bg: rgba(10, 10, 10, 0.9);
-            --glass-border: rgba(255, 255, 255, 0.2);
+            --glass-bg: rgba(10, 10, 10, 0.95);
+            --glass-border: rgba(255, 255, 255, 0.15);
             --accent: #5e92f3;
-            --sky-blue: #87CEEB;
             --summer-cyan: #44ffff;
             --danger: #ff4444;
             --fuel-gold: #fbc02d;
         }
 
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            font-family: 'Inter', sans-serif; background-color: #000; margin: 0;
+            font-family: 'Inter', sans-serif; background-color: #000;
             height: 100vh; width: 100vw; color: #fff;
-            display: grid; grid-template-columns: 650px 1fr; /* Bredare sidebar för större text */
-            grid-template-rows: 20vh minmax(0, 1fr) 15vh;
-            gap: 20px; padding: 20px; overflow: hidden;
+            display: grid; 
+            grid-template-columns: 750px 1fr; /* Bredare för att rymma stor text */
+            grid-template-rows: 180px 1fr 200px;
+            gap: 25px; padding: 25px; overflow: hidden;
         }
 
-        .glass-panel { background: var(--glass-bg); backdrop-filter: blur(40px); border: 2px solid var(--glass-border); border-radius: 40px; position: relative; overflow: hidden; }
+        .glass-panel { background: var(--glass-bg); backdrop-filter: blur(40px); border: 2px solid var(--glass-border); border-radius: 45px; position: relative; overflow: hidden; }
 
-        /* HEADER & DATE */
-        .top-bar { grid-column: 1/3; display: grid; grid-template-columns: 1fr 2fr 300px; align-items: center; padding: 0 50px; }
-        #greeting { font-size: 5.5rem; font-weight: 900; letter-spacing: -3px; }
-        #sub-greeting { font-size: 2.5rem; font-weight: 400; color: var(--accent); margin-top: 10px; } /* DUBBEL STORLEK */
+        /* HEADER */
+        .top-bar { grid-column: 1/3; display: grid; grid-template-columns: 1.2fr 2fr 1fr; align-items: center; padding: 0 50px; }
+        #greeting { font-size: 5rem; font-weight: 900; letter-spacing: -2px; }
+        #sub-greeting { font-size: 2.2rem; font-weight: 700; color: var(--accent); text-transform: uppercase; }
 
-        /* VÄDER TIMME FÖR TIMME (200% STÖRRE) */
-        #header-hourly { display: flex; justify-content: space-around; align-items: center; gap: 30px; }
-        .weather-node { text-align: center; transform: scale(1.8); } /* REJÄL ÖKNING */
-        .weather-node div:first-child { font-size: 1.2rem; font-weight: 700; margin-bottom: 5px; }
-        .weather-node div:last-child { font-size: 2rem; font-weight: 900; }
+        /* VÄDER HEADER (200%) */
+        #header-hourly { display: flex; justify-content: space-around; padding: 0 40px; }
+        .weather-node { text-align: center; line-height: 1.2; }
+        .weather-node div:first-child { font-size: 1.4rem; font-weight: 700; opacity: 0.6; }
+        .weather-node i { width: 60px !important; height: 60px !important; margin: 10px 0; color: var(--accent); }
+        .weather-node div:last-child { font-size: 2.8rem; font-weight: 900; }
 
-        /* IMORGON (200% STÖRRE) */
-        #tom-temp { font-weight: 900; font-size: 7rem; line-height: 1; color: var(--sky-blue); }
+        #tom-temp { font-size: 8rem; font-weight: 900; line-height: 1; text-align: right; color: var(--summer-cyan); }
 
-        /* SIDEBAR GRID */
-        .sidebar-container { grid-column: 1/2; grid-row: 2/3; display: grid; grid-template-rows: 1.2fr 180px 1fr 180px; gap: 20px; }
-        
-        /* KALENDER (DUBBELT SÅ STOR) */
-        .event-item { display: flex; align-items: center; gap: 30px; padding: 25px; border-radius: 30px; border: 2px solid rgba(255,255,255,0.1); margin-bottom: 15px; }
-        .event-time-box { min-width: 140px; text-align: center; border-right: 3px solid var(--accent); padding-right: 20px; }
-        .event-time-box div:first-child { font-size: 1.2rem; font-weight: 900; color: var(--accent); }
-        .event-time-box div:last-child { font-size: 2.5rem; font-weight: 900; }
-        .event-summary { font-size: 2.2rem; font-weight: 400; } /* DUBBEL STORLEK */
+        /* SIDEBAR */
+        .sidebar { grid-column: 1/2; grid-row: 2/3; display: grid; grid-template-rows: 1.2fr 1fr 1fr; gap: 25px; }
 
-        /* LUNCH (DUBBELT SÅ STOR) */
-        .lunch-box { padding: 30px; }
-        #lunch-main { font-size: 2.4rem; font-weight: 800; line-height: 1.1; margin: 15px 0; }
-        #lunch-veg { font-size: 1.6rem; opacity: 0.7; }
+        /* KALENDER */
+        .event-item { display: flex; align-items: center; gap: 30px; padding: 30px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .event-date { min-width: 140px; text-align: center; border-right: 4px solid var(--accent); padding-right: 20px; }
+        .event-date div:first-child { font-size: 1.4rem; font-weight: 900; color: var(--accent); }
+        .event-date div:last-child { font-size: 3rem; font-weight: 900; }
+        .event-summary { font-size: 2.5rem; font-weight: 400; padding-left: 10px; }
 
-        /* BENSIN (DUBBELT SÅ STORA NAMN) */
-        .fuel-box { padding: 30px; }
-        .stn-name { font-size: 2rem; font-weight: 900; } /* DUBBEL STORLEK */
-        .stn-price { font-size: 3.5rem; font-weight: 900; color: var(--summer-cyan); }
-        .stn-price span { font-size: 1.5rem; opacity: 0.5; margin-left: 5px; }
+        /* LUNCH */
+        .lunch-box { padding: 40px; display: flex; flex-direction: column; justify-content: center; }
+        #lunch-main { font-size: 2.8rem; font-weight: 900; line-height: 1.1; margin-bottom: 10px; }
+        #lunch-veg { font-size: 1.8rem; opacity: 0.7; color: #ccc; }
 
-        /* LOV-RÄKNARE (STÖRRE OCH TILLBAKA) */
-        .lov-container { display: flex; gap: 40px; align-items: center; }
-        .lov-box { text-align: center; }
-        .lov-label { font-size: 1.2rem; font-weight: 900; margin-bottom: 5px; }
-        .lov-days { font-size: 5rem; font-weight: 900; line-height: 1; }
+        /* BENSIN */
+        .fuel-box { padding: 40px; display: flex; flex-direction: column; justify-content: space-around; }
+        .fuel-row { display: flex; justify-content: space-between; align-items: center; }
+        .stn-name { font-size: 2.4rem; font-weight: 900; }
+        .stn-price { font-size: 4rem; font-weight: 900; color: var(--fuel-gold); }
+        .stn-price span { font-size: 1.5rem; margin-left: 10px; opacity: 0.5; }
 
         /* MAIN VIDEO */
-        .main-content { position: relative; background: #000; }
-        .video-background iframe { width: 100%; height: 100%; transform: scale(2.0); } /* Zoom för vägg */
+        .main-content { grid-column: 2/3; grid-row: 2/3; }
+        .video-background iframe { width: 100%; height: 100%; transform: scale(1.8); }
 
-        .footer-time { font-size: 5rem; font-weight: 900; }
+        /* FOOTER */
+        .footer-left { grid-column: 1/2; grid-row: 3/4; padding: 40px; display: flex; align-items: center; }
+        .footer-right { grid-column: 2/3; grid-row: 3/4; display: grid; grid-template-columns: 1fr 350px; gap: 25px; }
+        
+        .lov-display { display: flex; align-items: center; gap: 60px; padding: 0 40px; }
+        .lov-item { text-align: center; }
+        .lov-val { font-size: 6rem; font-weight: 900; line-height: 1; }
+        .lov-lab { font-size: 1.3rem; font-weight: 900; letter-spacing: 2px; }
+
+        #footer-time { font-size: 7rem; font-weight: 900; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.05); }
     </style>
 </head>
 <body>
 
-<canvas id="fx-canvas"></canvas>
-
 <header class="top-bar glass-panel">
     <div>
         <div id="greeting">God dag!</div>
-        <div id="sub-greeting">Laddar datum...</div>
+        <div id="sub-greeting">LADDAR...</div>
     </div>
     <div id="header-hourly"></div>
-    <div style="text-align: right;">
-        <div style="font-size: 1.2rem; font-weight: 900; opacity: 0.6;">IMORGON</div>
-        <div id="tom-temp">--°</div>
-    </div>
+    <div id="tom-temp">--°</div>
 </header>
 
-<div class="sidebar-container">
-    <section class="glass-panel" style="padding: 25px;">
-        <div id="custom-calendar-list"></div>
-    </section>
+<div class="sidebar">
+    <section class="glass-panel" id="calendar-list"></section>
     
-    <section class="glass-panel" style="display: flex; align-items: center; padding: 0 40px;">
-        <div id="wind-arrow" style="transform: scale(2.5); color: var(--accent); margin-right: 50px;"><i data-lucide="navigation-2"></i></div>
-        <div>
-            <div style="display: flex; gap: 40px;">
-                <div><div style="font-size:1rem; opacity:0.5; font-weight:900;">VIND</div><div id="wind-speed" style="font-size:3rem; font-weight:900;">--</div></div>
-                <div><div style="font-size:1rem; color:var(--danger); font-weight:900;">BY</div><div id="wind-gust" style="font-size:3rem; font-weight:900; color:var(--danger)">--</div></div>
-            </div>
-        </div>
-    </section>
-
     <section class="glass-panel lunch-box">
-        <div style="color:var(--summer-cyan); font-size:1.2rem; font-weight:900;"><i data-lucide="utensils" style="width:20px"></i> <span id="lunch-day-label">LUNCH</span></div>
-        <div id="lunch-main">Hämtar meny...</div>
-        <div id="lunch-veg">Laddar alternativ...</div>
+        <div style="font-size: 1.4rem; font-weight: 900; color: var(--accent); margin-bottom: 15px;">DAGENS LUNCH</div>
+        <div id="lunch-main">Hämtar...</div>
+        <div id="lunch-veg">...</div>
     </section>
 
     <section class="glass-panel fuel-box">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <div class="stn-name">COSTCO</div>
+        <div class="fuel-row">
+            <div class="stn-name">COSTCO BURLÖV</div>
             <div id="price-costco" class="stn-price">--<span>kr/l</span></div>
         </div>
-        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 2px solid rgba(255,255,255,0.1); padding-top: 20px;">
-            <div class="stn-name">PREEM (AUT)</div>
+        <div class="fuel-row" style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
+            <div class="stn-name">PREEM ALLÉVÄGEN</div>
             <div id="price-preem" class="stn-price">--<span>kr/l</span></div>
         </div>
     </section>
 </div>
 
 <main class="main-content glass-panel">
-    <div class="video-background" style="position: absolute; inset: 0; overflow: hidden;">
-        <iframe src="https://www.youtube.com/embed/P9yjjfKXa6Q?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&loop=1&playlist=P9yjjfKXa6Q" frameborder="0"></iframe>
+    <div style="position: absolute; inset: 0; pointer-events: none;">
+        <iframe src="https://www.youtube.com/embed/P9yjjfKXa6Q?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&loop=1&playlist=P9yjjfKXa6Q" frameborder="0" style="width:100%; height:100%;"></iframe>
     </div>
 </main>
 
-<div style="grid-column: 1/2; grid-row: 3/4;">
-    <footer class="glass-panel" style="height: 100%; display: flex; align-items: center; padding: 0 40px;">
-        <div id="news-text" style="font-weight: 700; font-size: 2rem; text-transform: uppercase;">Laddar nyheter...</div>
-    </footer>
-</div>
+<footer class="footer-left glass-panel">
+    <div id="news-text" style="font-size: 2.2rem; font-weight: 700; text-transform: uppercase; color: var(--summer-cyan);">Hämtar senaste nytt...</div>
+</footer>
 
-<div style="grid-column: 2/3; grid-row: 3/4; display: flex; gap: 20px;">
-    <div class="glass-panel" style="display: flex; padding: 0 50px; flex: 1; align-items: center; justify-content: space-between;">
-        <div class="lov-container">
-            <div class="lov-box">
-                <div class="lov-label" style="color:var(--fuel-gold)">PÅSKLOV</div>
-                <div id="count-easter" class="lov-days">--</div>
-            </div>
-            <div class="lov-box">
-                <div class="lov-label" style="color:var(--summer-cyan)">SOMMARLOV</div>
-                <div id="count-summer" class="lov-days">--</div>
-            </div>
+<div class="footer-right">
+    <div class="glass-panel lov-display">
+        <div class="lov-item">
+            <div id="count-easter" class="lov-val" style="color: var(--fuel-gold);">--</div>
+            <div class="lov-lab">PÅSKLOV</div>
         </div>
-        <div id="history-fact" style="font-size: 1.5rem; max-width: 500px; border-left: 3px solid rgba(255,255,255,0.1); padding-left: 30px;">Hämtar historik...</div>
+        <div class="lov-item">
+            <div id="count-summer" class="lov-val" style="color: var(--summer-cyan);">--</div>
+            <div class="lov-lab">SOMMARLOV</div>
+        </div>
+        <div id="history-fact" style="font-size: 1.5rem; margin-left: 40px; opacity: 0.8; border-left: 2px solid #333; padding-left: 30px;">...</div>
     </div>
-    <div class="glass-panel" style="min-width: 300px; display: flex; align-items: center; justify-content: center;">
-        <div id="footer-time" class="footer-time">00:00</div>
-    </div>
+    <div class="glass-panel" id="footer-time">00:00</div>
 </div>
 
 <script>
     const API_KEY_CAL = 'AIzaSyAC3QiGhqOM2F2ZrnFq3xWUu6_1bAwOvSw';
     const CAL_ID = 'rezgarhayder@gmail.com';
-    let weatherMode = 'clear';
 
-    function updateTime() {
+    function update() {
         const now = new Date();
         document.getElementById('footer-time').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
-        document.getElementById('sub-greeting').innerText = now.toLocaleDateString('sv-SE', { weekday: 'long', day: 'numeric', month: 'long' }).toUpperCase();
+        document.getElementById('sub-greeting').innerText = now.toLocaleDateString('sv-SE', { weekday: 'long', day: 'numeric', month: 'long' });
         
-        // Lov-räknare
         const easter = new Date('2026-03-30');
         const summer = new Date('2026-06-12');
         document.getElementById('count-easter').innerText = Math.max(0, Math.ceil((easter - now) / 86400000));
@@ -178,40 +157,20 @@
             const now = new Date();
             let checkDate = new Date();
             if (now.getHours() >= 14) checkDate.setDate(now.getDate() + 1);
-            
-            const menuID = "762f275e-8686-4f40-8f96-a45e00949f2b"; 
             const dateStr = checkDate.toISOString().split('T')[0];
-            const url = `https://api.allorigins.win/get?url=${encodeURIComponent(`https://mpi.mashie.com/api/v1/pubmenus/${menuID}/weeks?fromDate=${dateStr}&toDate=${dateStr}`)}`;
-
-            const res = await fetch(url);
+            const menuID = "762f275e-8686-4f40-8f96-a45e00949f2b";
+            const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(`https://mpi.mashie.com/api/v1/pubmenus/${menuID}/weeks?fromDate=${dateStr}&toDate=${dateStr}`)}`);
             const data = await res.json();
-            const menuData = JSON.parse(data.contents);
-
-            if (menuData && menuData[0]?.Days[0]?.Meals) {
-                const meals = menuData[0].Days[0].Meals;
-                document.getElementById('lunch-main').innerText = meals[0].Name;
-                document.getElementById('lunch-veg').innerText = meals[1] ? meals[1].Name : "";
+            const menu = JSON.parse(data.contents);
+            if (menu[0]?.Days[0]?.Meals) {
+                document.getElementById('lunch-main').innerText = menu[0].Days[0].Meals[0].Name;
+                document.getElementById('lunch-veg').innerText = menu[0].Days[0].Meals[1]?.Name || "";
+                document.getElementById('lunch-main').style.color = "#fff";
             } else {
-                document.getElementById('lunch-main').innerText = "INGEN SKOLLUNCH";
+                document.getElementById('lunch-main').innerText = "INGEN SKOLLUNCH / LOV";
                 document.getElementById('lunch-main').style.color = "var(--danger)";
-                document.getElementById('lunch-veg').innerText = "Lov eller studiedag";
+                document.getElementById('lunch-veg').innerText = "Kontrollera läsårstiderna";
             }
-        } catch (e) { document.getElementById('lunch-main').innerText = "MENY-FEL"; }
-    }
-
-    async function updateFuel() {
-        const base = 17.34; // Listpris Preem 2026-03-05
-        document.getElementById('price-preem').innerHTML = `${(base - 0.25).toFixed(2)}<span>kr/l</span>`;
-        document.getElementById('price-costco').innerHTML = `${(base - 2.20).toFixed(2)}<span>kr/l</span>`;
-    }
-
-    async function updateWind() {
-        try {
-            const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=55.64&longitude=13.21&current=wind_speed_10m,wind_direction_10m,wind_gusts_10m&timezone=auto');
-            const d = await res.json();
-            document.getElementById('wind-arrow').style.transform = `scale(2.5) rotate(${d.current.wind_direction_10m}deg)`;
-            document.getElementById('wind-speed').innerText = Math.round(d.current.wind_speed_10m / 3.6);
-            document.getElementById('wind-gust').innerText = Math.round(d.current.wind_gusts_10m / 3.6);
         } catch(e) {}
     }
 
@@ -219,16 +178,15 @@
         try {
             const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=55.64&longitude=13.21&hourly=temperature_2m,weathercode&daily=temperature_2m_max&timezone=auto');
             const d = await res.json();
-            const nowHour = new Date().getHours();
+            const nowH = new Date().getHours();
             document.getElementById('tom-temp').innerText = Math.round(d.daily.temperature_2m_max[1]) + '°';
-            
-            let hHtml = '';
-            for(let i=2; i<=10; i+=2) { // Varannan timme för att få plats med större text
-                const idx = nowHour + i;
+            let h = '';
+            for(let i=2; i<=8; i+=2) {
+                const idx = nowH + i;
                 const icon = d.hourly.weathercode[idx] <= 2 ? (d.hourly.weathercode[idx] === 0 ? 'sun' : 'cloud-sun') : 'cloud-rain';
-                hHtml += `<div class="weather-node"><div>${new Date(d.hourly.time[idx]).getHours()}:00</div><i data-lucide="${icon}"></i><div>${Math.round(d.hourly.temperature_2m[idx])}°</div></div>`;
+                h += `<div class="weather-node"><div>${new Date(d.hourly.time[idx]).getHours()}:00</div><i data-lucide="${icon}"></i><div>${Math.round(d.hourly.temperature_2m[idx])}°</div></div>`;
             }
-            document.getElementById('header-hourly').innerHTML = hHtml; lucide.createIcons();
+            document.getElementById('header-hourly').innerHTML = h; lucide.createIcons();
         } catch(e) {}
     }
 
@@ -237,17 +195,23 @@
             const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CAL_ID)}/events?key=${API_KEY_CAL}&timeMin=${new Date().toISOString()}&singleEvents=true&orderBy=startTime`);
             const d = await res.json();
             if (d.items) {
-                document.getElementById('custom-calendar-list').innerHTML = d.items.slice(0, 3).map(event => {
-                    const start = new Date(event.start.dateTime || event.start.date);
-                    return `<div class="event-item"><div class="event-time-box"><div>${start.toLocaleDateString('sv-SE', { weekday: 'short' }).toUpperCase()}</div><div>${event.start.dateTime ? start.toLocaleTimeString('sv-SE',{hour:'2-digit',minute:'2-digit'}) : 'DAG'}</div></div><div class="event-summary">${event.summary}</div></div>`;
+                document.getElementById('calendar-list').innerHTML = d.items.slice(0, 3).map(e => {
+                    const s = new Date(e.start.dateTime || e.start.date);
+                    return `<div class="event-item"><div class="event-date"><div>${s.toLocaleDateString('sv-SE',{weekday:'short'}).toUpperCase()}</div><div>${e.start.dateTime ? s.toLocaleTimeString('sv-SE',{hour:'2-digit',minute:'2-digit'}) : 'HELDAG'}</div></div><div class="event-summary">${e.summary}</div></div>`;
                 }).join('');
             }
         } catch(e) {}
     }
 
+    async function updateFuel() {
+        const base = 17.34;
+        document.getElementById('price-preem').innerHTML = `${(base - 0.25).toFixed(2)}<span>kr/l</span>`;
+        document.getElementById('price-costco').innerHTML = `${(base - 2.20).toFixed(2)}<span>kr/l</span>`;
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
-        updateTime(); updateWeather(); updateCalendar(); updateFuel(); updateLunch(); updateWind();
-        setInterval(updateTime, 1000);
+        update(); updateWeather(); updateCalendar(); updateLunch(); updateFuel();
+        setInterval(update, 1000);
         setInterval(updateWeather, 1800000);
         setInterval(updateCalendar, 600000);
         lucide.createIcons();
