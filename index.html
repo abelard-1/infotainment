@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Command v83</title>
+    <title>Staffanstorp Wall Command v84</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
@@ -14,6 +14,7 @@
             --summer-cyan: #44ffff;
             --danger: #ff4444;
             --fuel-gold: #fbc02d;
+            --today-glow: rgba(94, 146, 243, 0.4);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -42,7 +43,15 @@
 
         .sidebar { grid-column: 1/2; grid-row: 2/3; display: grid; grid-template-rows: 1.2fr 1fr 1fr; gap: 25px; min-height: 0; }
 
-        .event-item { display: flex; align-items: center; gap: 30px; padding: 30px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        /* KALENDER MODIFIERAD FÖR TYDLIGHET */
+        .event-item { display: flex; align-items: center; gap: 30px; padding: 30px; border-bottom: 1px solid rgba(255,255,255,0.1); transition: all 0.5s ease; }
+        .event-item.is-today { 
+            background: rgba(94, 146, 243, 0.1); 
+            border: 3px solid var(--accent);
+            box-shadow: inset 0 0 20px var(--today-glow);
+            border-radius: 25px;
+            margin: 5px;
+        }
         .event-date { min-width: 140px; text-align: center; border-right: 4px solid var(--accent); padding-right: 20px; }
         .event-date div:first-child { font-size: 1.4rem; font-weight: 900; color: var(--accent); }
         .event-date div:last-child { font-size: 3rem; font-weight: 900; }
@@ -60,23 +69,17 @@
         .stn-price span { font-size: 1.5rem; margin-left: 10px; opacity: 0.5; }
 
         .main-content { grid-column: 2/3; grid-row: 2/3; background: #000; position: relative; }
-        .slide {
-            position: absolute; inset: 0;
-            background-size: cover;
-            background-position: center;
-            opacity: 0;
-            transition: opacity 2s ease-in-out;
-        }
+        .slide { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transition: opacity 2s ease-in-out; }
         .slide.active { opacity: 1; }
 
         .footer-left { grid-column: 1/2; grid-row: 3/4; padding: 40px; display: flex; align-items: center; }
+        #news-text { font-size: 2.2rem; font-weight: 700; text-transform: uppercase; color: var(--summer-cyan); transition: opacity 0.5s ease; width: 100%; }
+
         .footer-right { grid-column: 2/3; grid-row: 3/4; display: grid; grid-template-columns: 1fr 350px; gap: 25px; }
-        
         .lov-display { display: flex; align-items: center; gap: 60px; padding: 0 40px; }
         .lov-item { text-align: center; }
         .lov-val { font-size: 6rem; font-weight: 900; line-height: 1; }
         .lov-lab { font-size: 1.3rem; font-weight: 900; letter-spacing: 2px; }
-
         #footer-time { font-size: 7rem; font-weight: 900; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.05); }
     </style>
 </head>
@@ -118,7 +121,7 @@
 </main>
 
 <footer class="footer-left glass-panel">
-    <div id="news-text" style="font-size: 2.2rem; font-weight: 700; text-transform: uppercase; color: var(--summer-cyan);">Hämtar nyheter...</div>
+    <div id="news-text">LADDAR NYHETER...</div>
 </footer>
 
 <div class="footer-right">
@@ -140,35 +143,48 @@
     const API_KEY_CAL = 'AIzaSyAC3QiGhqOM2F2ZrnFq3xWUu6_1bAwOvSw';
     const CAL_ID = 'rezgarhayder@gmail.com';
 
-    const slideshowImages = [
-        "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=1200&q=80",
-        "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80",
-        "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1200&q=80",
-        "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1200&q=80",
-        "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80"
-    ];
-
+    // BILDSPEL
+    const slideshowImages = ["https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=1200&q=80","https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80","https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1200&q=80"];
     let currentSlide = 1;
     function updateSlideshow() {
         const nextSlide = currentSlide === 1 ? 2 : 1;
         const activeEl = document.getElementById(`slide${currentSlide}`);
         const nextEl = document.getElementById(`slide${nextSlide}`);
         const newImgUrl = `https://images.unsplash.com/photo-${Math.random() < 0.5 ? '1470071459604-3b5ec3a7fe05' : '1441974231531-c6227db76b6e'}?auto=format&fit=crop&w=1600&q=80&sig=${Math.random()}`;
-        
         nextEl.style.backgroundImage = `url('${newImgUrl}')`;
+        setTimeout(() => { activeEl.classList.remove('active'); nextEl.classList.add('active'); currentSlide = nextSlide; }, 1000); 
+    }
+
+    // NYHETER (RSS logik)
+    let headlines = []; let newsIdx = 0;
+    async function updateNews() {
+        try {
+            const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent('https://feeds.bbci.co.uk/news/world/rss.xml')}`);
+            const data = await res.json();
+            const parser = new DOMParser();
+            const xml = parser.parseFromString(data.contents, "text/xml");
+            const items = xml.querySelectorAll("item");
+            headlines = Array.from(items).map(i => i.querySelector("title").textContent);
+            displayNextHeadline();
+        } catch(e) { document.getElementById('news-text').innerText = "VÄRLDSHÄNDELSER UPPDATERAS..."; }
+    }
+
+    function displayNextHeadline() {
+        if (headlines.length === 0) return;
+        const el = document.getElementById('news-text');
+        el.style.opacity = 0;
         setTimeout(() => {
-            activeEl.classList.remove('active');
-            nextEl.classList.add('active');
-            currentSlide = nextSlide;
-        }, 1000); 
+            el.innerText = headlines[newsIdx];
+            el.style.opacity = 1;
+            newsIdx = (newsIdx + 1) % headlines.length;
+        }, 500);
     }
 
     function update() {
         const now = new Date();
         document.getElementById('footer-time').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
         document.getElementById('sub-greeting').innerText = now.toLocaleDateString('sv-SE', { weekday: 'long', day: 'numeric', month: 'long' });
-        const easter = new Date('2026-03-30');
-        const summer = new Date('2026-06-12');
+        const easter = new Date('2026-03-30'); const summer = new Date('2026-06-12');
         document.getElementById('count-easter').innerText = Math.max(0, Math.ceil((easter - now) / 86400000));
         document.getElementById('count-summer').innerText = Math.max(0, Math.ceil((summer - now) / 86400000));
     }
@@ -176,50 +192,23 @@
     async function fetchWithRetry(url) {
         try {
             const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}&_=${new Date().getTime()}`);
-            if (res.ok) {
-                const data = await res.json();
-                return JSON.parse(data.contents);
-            }
+            if (res.ok) { const data = await res.json(); return JSON.parse(data.contents); }
         } catch (e) { }
-        try {
-            const res = await fetch(`https://corsproxy.io/?${encodeURIComponent(url)}`);
-            if (res.ok) return await res.json();
-        } catch (e) { }
-        throw new Error("All proxies failed");
+        throw new Error("Proxy fail");
     }
 
     async function updateLunch() {
         const lunchMain = document.getElementById('lunch-main');
-        const lunchVeg = document.getElementById('lunch-veg');
-        const lunchTitle = document.getElementById('lunch-day-title');
         try {
-            const now = new Date();
-            let checkDate = new Date();
+            const now = new Date(); let checkDate = new Date();
             if (now.getHours() >= 14) checkDate.setDate(now.getDate() + 1);
             const menuID = "762f275e-8686-4f40-8f96-a45e00949f2b";
-            const fromDate = checkDate.toISOString().split('T')[0];
-            const toDate = new Date(checkDate);
-            toDate.setDate(toDate.getDate() + 14);
-            const mashieUrl = `https://mpi.mashie.com/api/v1/pubmenus/${menuID}/weeks?fromDate=${fromDate}&toDate=${toDate.toISOString().split('T')[0]}`;
+            const mashieUrl = `https://mpi.mashie.com/api/v1/pubmenus/${menuID}/weeks?fromDate=${checkDate.toISOString().split('T')[0]}&toDate=${checkDate.toISOString().split('T')[0]}`;
             const weeks = await fetchWithRetry(mashieUrl);
-            let foundMeal = null; let mealDayStr = ""; let mealDateObj = null;
-            if (weeks && weeks.length > 0) {
-                for (const week of weeks) {
-                    for (const day of week.Days) {
-                        if (day.Meals && day.Meals.length > 0 && day.Meals[0].Name.trim().length > 2) {
-                            foundMeal = day.Meals; mealDateObj = new Date(day.Date);
-                            mealDayStr = mealDateObj.toLocaleDateString('sv-SE', {weekday: 'long'});
-                            break;
-                        }
-                    }
-                    if (foundMeal) break;
-                }
-            }
-            if (foundMeal) {
-                const isToday = mealDateObj.toDateString() === new Date().toDateString();
-                lunchTitle.innerText = isToday ? "LUNCH IDAG" : `NÄSTA LUNCH: ${mealDayStr.toUpperCase()}`;
-                lunchMain.innerText = foundMeal[0].Name;
-                lunchVeg.innerText = foundMeal[1] ? foundMeal[1].Name : "Alternativ saknas";
+            if (weeks && weeks[0]) {
+                document.getElementById('lunch-day-title').innerText = "LUNCH IDAG";
+                lunchMain.innerText = weeks[0].Days[0].Meals[0].Name;
+                document.getElementById('lunch-veg').innerText = weeks[0].Days[0].Meals[1]?.Name || "";
             }
         } catch(e) { lunchMain.innerText = "LUNCH: ANSLUTNINGSFEL"; }
     }
@@ -245,30 +234,32 @@
             const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CAL_ID)}/events?key=${API_KEY_CAL}&timeMin=${new Date().toISOString()}&singleEvents=true&orderBy=startTime`);
             const d = await res.json();
             if (d.items) {
+                const todayStr = new Date().toDateString();
                 document.getElementById('calendar-list').innerHTML = d.items.slice(0, 3).map(e => {
                     const s = new Date(e.start.dateTime || e.start.date);
-                    return `<div class="event-item"><div class="event-date"><div>${s.toLocaleDateString('sv-SE',{weekday:'short'}).toUpperCase()}</div><div>${e.start.dateTime ? s.toLocaleTimeString('sv-SE',{hour:'2-digit',minute:'2-digit'}) : 'HELDAG'}</div></div><div class="event-summary">${e.summary}</div></div>`;
+                    const isToday = s.toDateString() === todayStr;
+                    return `<div class="event-item ${isToday ? 'is-today' : ''}"><div class="event-date"><div>${s.toLocaleDateString('sv-SE',{weekday:'short'}).toUpperCase()}</div><div>${e.start.dateTime ? s.toLocaleTimeString('sv-SE',{hour:'2-digit',minute:'2-digit'}) : 'HELDAG'}</div></div><div class="event-summary">${e.summary}</div></div>`;
                 }).join('');
             }
         } catch(e) {}
     }
 
     async function updateFuel() {
-        const preemPrice = 17.89; 
-        const costcoPrice = 15.97; 
-        document.getElementById('price-preem').innerHTML = `${preemPrice.toFixed(2)}<span>kr/l</span>`;
-        document.getElementById('price-costco').innerHTML = `${costcoPrice.toFixed(2)}<span>kr/l</span>`;
+        const base = 17.34;
+        document.getElementById('price-preem').innerHTML = `${(base - 0.25).toFixed(2)}<span>kr/l</span>`;
+        document.getElementById('price-costco').innerHTML = `${(base - 2.20).toFixed(2)}<span>kr/l</span>`;
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-        update(); updateWeather(); updateCalendar(); updateLunch(); updateFuel();
+        update(); updateWeather(); updateCalendar(); updateLunch(); updateFuel(); updateNews();
         document.getElementById('slide1').style.backgroundImage = `url('${slideshowImages[0]}')`;
         setInterval(update, 1000);
         setInterval(updateWeather, 1800000);
         setInterval(updateCalendar, 600000);
         setInterval(updateLunch, 3600000);
         setInterval(updateSlideshow, 60000);
-        setInterval(updateFuel, 86400000);
+        setInterval(displayNextHeadline, 15000); // Byt rubrik var 15:e sek
+        setInterval(updateNews, 1800000); // Uppdatera källan var 30:e min
         lucide.createIcons();
     });
 </script>
