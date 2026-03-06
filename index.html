@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v93</title>
+    <title>Staffanstorp Wall Dashboard v94</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
@@ -37,7 +37,19 @@
             background: linear-gradient(135deg, #0a0a0a 0%, #151515 100%);
         }
 
-        #greeting { font-size: 6.5rem; font-weight: 900; line-height: 0.85; letter-spacing: -4px; margin-bottom: 5px; }
+        /* JUSTERAD HÄLSNING: Maximalt stor, en rad, rätt skiftläge */
+        #greeting { 
+            font-size: 7rem; 
+            font-weight: 900; 
+            line-height: 1; 
+            letter-spacing: -4px; 
+            margin-bottom: 5px; 
+            white-space: nowrap; 
+            overflow: hidden; 
+            text-transform: lowercase; 
+        }
+        #greeting::first-letter { text-transform: uppercase; }
+
         #date-sub { font-size: 2.8rem; font-weight: 300; color: var(--accent); margin-bottom: 20px; text-transform: capitalize; }
 
         .section-label { font-size: 1.3rem; font-weight: 900; text-transform: uppercase; letter-spacing: 4px; color: rgba(255,255,255,0.3); margin-bottom: 20px; }
@@ -132,7 +144,7 @@
 
     <div class="info-panel">
         <header>
-            <div id="greeting">Hej!</div>
+            <div id="greeting">Laddar...</div>
             <div id="date-sub">Laddar...</div>
         </header>
 
@@ -194,7 +206,6 @@
         document.getElementById('greeting').innerText = greetingText;
         document.getElementById('clock').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
         
-        // Uppdaterad rad för headern
         const dateStr = now.toLocaleDateString('sv-SE', { weekday: 'long', day: 'numeric', month: 'long' });
         document.getElementById('date-sub').innerText = "Idag är det " + dateStr;
         
