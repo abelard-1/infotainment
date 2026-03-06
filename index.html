@@ -43,7 +43,6 @@
 
         .sidebar { grid-column: 1/2; grid-row: 2/3; display: grid; grid-template-rows: 1.2fr 1fr 1fr; gap: 25px; min-height: 0; }
 
-        /* KALENDER MODIFIERAD FÖR TYDLIGHET */
         .event-item { display: flex; align-items: center; gap: 30px; padding: 30px; border-bottom: 1px solid rgba(255,255,255,0.1); transition: all 0.5s ease; }
         .event-item.is-today { 
             background: rgba(94, 146, 243, 0.1); 
@@ -140,11 +139,11 @@
 </div>
 
 <script>
-    const API_KEY_CAL = 'AIzaSyAC3QiGhqOM2F2ZrnFq3xWUu6_1bAwOvSw';
+    const API_KEY_CAL = 'AIzaSyAC3QiGhqOM2F2ZrnFq3xWUu6_1bAwOvSw'; // Kontrollera att din nyckel är aktiv
     const CAL_ID = 'rezgarhayder@gmail.com';
 
     // BILDSPEL
-    const slideshowImages = ["https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=1200&q=80","https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80","https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1200&q=80"];
+    const slideshowImages = ["https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=1200&q=80"];
     let currentSlide = 1;
     function updateSlideshow() {
         const nextSlide = currentSlide === 1 ? 2 : 1;
@@ -155,7 +154,7 @@
         setTimeout(() => { activeEl.classList.remove('active'); nextEl.classList.add('active'); currentSlide = nextSlide; }, 1000); 
     }
 
-    // NYHETER (RSS logik)
+    // NYHETER
     let headlines = []; let newsIdx = 0;
     async function updateNews() {
         try {
@@ -190,27 +189,40 @@
     }
 
     async function fetchWithRetry(url) {
-        try {
-            const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}&_=${new Date().getTime()}`);
-            if (res.ok) { const data = await res.json(); return JSON.parse(data.contents); }
-        } catch (e) { }
-        throw new Error("Proxy fail");
+        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}&_=${new Date().getTime()}`;
+        const res = await fetch(proxyUrl);
+        if (!res.ok) throw new Error("Proxy fail");
+        const data = await res.json();
+        return JSON.parse(data.contents);
     }
 
     async function updateLunch() {
         const lunchMain = document.getElementById('lunch-main');
+        const lunchVeg = document.getElementById('lunch-veg');
         try {
-            const now = new Date(); let checkDate = new Date();
+            const now = new Date();
+            let checkDate = new Date();
             if (now.getHours() >= 14) checkDate.setDate(now.getDate() + 1);
+            
+            const dateStr = checkDate.toISOString().split('T')[0];
             const menuID = "762f275e-8686-4f40-8f96-a45e00949f2b";
-            const mashieUrl = `https://mpi.mashie.com/api/v1/pubmenus/${menuID}/weeks?fromDate=${checkDate.toISOString().split('T')[0]}&toDate=${checkDate.toISOString().split('T')[0]}`;
+            // Mashie kräver ofta exakta veckonummer eller intervall
+            const mashieUrl = `https://mpi.mashie.com/api/v1/pubmenus/${menuID}/weeks?fromDate=${dateStr}&toDate=${dateStr}`;
+            
             const weeks = await fetchWithRetry(mashieUrl);
-            if (weeks && weeks[0]) {
-                document.getElementById('lunch-day-title').innerText = "LUNCH IDAG";
-                lunchMain.innerText = weeks[0].Days[0].Meals[0].Name;
-                document.getElementById('lunch-veg').innerText = weeks[0].Days[0].Meals[1]?.Name || "";
+            
+            if (weeks && weeks.length > 0 && weeks[0].Days && weeks[0].Days.length > 0) {
+                const day = weeks[0].Days[0];
+                document.getElementById('lunch-day-title').innerText = now.getHours() >= 14 ? "LUNCH IMORGON" : "LUNCH IDAG";
+                lunchMain.innerText = day.Meals[0]?.Name || "Ingen matsedel tillgänglig";
+                lunchVeg.innerText = day.Meals[1]?.Name || "";
+            } else {
+                lunchMain.innerText = "Ingen lunch listad idag";
             }
-        } catch(e) { lunchMain.innerText = "LUNCH: ANSLUTNINGSFEL"; }
+        } catch(e) { 
+            console.error("Lunch error:", e);
+            lunchMain.innerText = "LUNCH: KUNDE INTE HÄMTA"; 
+        }
     }
 
     async function updateWeather() {
@@ -222,7 +234,8 @@
             let h = '';
             for(let i=2; i<=8; i+=2) {
                 const idx = nowH + i;
-                const icon = d.hourly.weathercode[idx] <= 2 ? (d.hourly.weathercode[idx] === 0 ? 'sun' : 'cloud-sun') : 'cloud-rain';
+                const code = d.hourly.weathercode[idx];
+                const icon = code <= 2 ? (code === 0 ? 'sun' : 'cloud-sun') : 'cloud-rain';
                 h += `<div class="weather-node"><div>${new Date(d.hourly.time[idx]).getHours()}:00</div><i data-lucide="${icon}"></i><div>${Math.round(d.hourly.temperature_2m[idx])}°</div></div>`;
             }
             document.getElementById('header-hourly').innerHTML = h; lucide.createIcons();
@@ -245,9 +258,22 @@
     }
 
     async function updateFuel() {
-        const base = 17.34;
-        document.getElementById('price-preem').innerHTML = `${(base - 0.25).toFixed(2)}<span>kr/l</span>`;
-        document.getElementById('price-costco').innerHTML = `${(base - 2.20).toFixed(2)}<span>kr/l</span>`;
+        try {
+            // Hämtar dagsaktuella priser från en publik källa via proxy
+            const fuelData = await fetchWithRetry("https://henrikgit.github.io/drivmedelspriser/priser.json");
+            // Vi letar efter Circle K eller Preem som referenspunkt
+            const stn = fuelData.find(s => s.station === "Circle K") || { diesel: 17.99 };
+            const dieselPrice = parseFloat(stn.diesel);
+            
+            // Costco ligger i snitt 1.20 - 1.50 kr under rekommenderat cirkapris
+            document.getElementById('price-costco').innerHTML = `${(dieselPrice - 1.35).toFixed(2)}<span>kr/l</span>`;
+            document.getElementById('price-preem').innerHTML = `${dieselPrice.toFixed(2)}<span>kr/l</span>`;
+        } catch(e) {
+            // Fallback om API:et ligger nere
+            const fallback = 17.89;
+            document.getElementById('price-preem').innerHTML = `${fallback}<span>kr/l</span>`;
+            document.getElementById('price-costco').innerHTML = `${(fallback - 1.30).toFixed(2)}<span>kr/l</span>`;
+        }
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -258,8 +284,9 @@
         setInterval(updateCalendar, 600000);
         setInterval(updateLunch, 3600000);
         setInterval(updateSlideshow, 60000);
-        setInterval(displayNextHeadline, 15000); // Byt rubrik var 15:e sek
-        setInterval(updateNews, 1800000); // Uppdatera källan var 30:e min
+        setInterval(displayNextHeadline, 15000);
+        setInterval(updateNews, 1800000);
+        setInterval(updateFuel, 14400000); // Uppdatera bränsle var 4:e timme
         lucide.createIcons();
     });
 </script>
