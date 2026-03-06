@@ -246,27 +246,34 @@
 
     async function updateFuel() {
         try {
-            // Hämtar från StoreFinder Malmö som innehåller bensinstationspriserna
-            const costcoHtml = await fetchWithRetry("https://www.costco.se/store-finder/Malmo");
+            // Hämta hela listan för Skåne län från bensinpriser.nu
+            const html = await fetchWithRetry("https://bensinpriser.nu/stationer/diesel/skane-lan/");
             const parser = new DOMParser();
-            const doc = parser.parseFromString(costcoHtml, 'text/html');
-            const bodyText = doc.body.innerText;
+            const doc = parser.parseFromString(html, "text/html");
             
-            // Regex för att hitta "Premium Diesel" följt av priset
-            const dieselMatch = bodyText.match(/Premium Diesel\.\s*(\d+[,.]\d+)\s*SEK/i);
+            // Hitta alla tabellrader
+            const rows = Array.from(doc.querySelectorAll("tr"));
             
-            if (dieselMatch) {
-                document.getElementById('price-costco').innerHTML = `${dieselMatch[1]}<span>kr/l</span>`;
+            // 1. Leta efter Costco
+            const costcoRow = rows.find(r => r.innerText.includes("Costco"));
+            if (costcoRow) {
+                const priceMatch = costcoRow.innerText.match(/(\d+[,.]\d+)kr/);
+                if (priceMatch) {
+                    document.getElementById('price-costco').innerHTML = `${priceMatch[1]}<span>kr/l</span>`;
+                }
             }
 
-            // Referenspris Preem/Circle K
-            const preemDataRaw = await fetchWithRetry("https://henrikgit.github.io/drivmedelspriser/priser.json");
-            const globalPrices = JSON.parse(preemDataRaw);
-            const refPrice = globalPrices.find(s => s.station === "Preem" || s.station === "Circle K")?.diesel || "--,--";
-            document.getElementById('price-preem').innerHTML = `${refPrice}<span>kr/l</span>`;
+            // 2. Leta efter Preem eller Ingo i Malmö/Arlöv som referens
+            const preemRow = rows.find(r => r.innerText.includes("Preem") || r.innerText.includes("Ingo") || r.innerText.includes("din-X"));
+            if (preemRow) {
+                const priceMatch = preemRow.innerText.match(/(\d+[,.]\d+)kr/);
+                if (priceMatch) {
+                    document.getElementById('price-preem').innerHTML = `${priceMatch[1]}<span>kr/l</span>`;
+                }
+            }
             
         } catch(e) {
-            console.error("Fuel update failed", e);
+            console.error("Kunde inte hämta priser från bensinpriser.nu", e);
         }
     }
 
@@ -280,7 +287,7 @@
         setInterval(updateSlideshow, 60000);
         setInterval(displayNextHeadline, 15000);
         setInterval(updateNews, 1800000);
-        setInterval(updateFuel, 7200000); 
+        setInterval(updateFuel, 3600000); // Uppdatera varje timme
         lucide.createIcons();
     });
 </script>
