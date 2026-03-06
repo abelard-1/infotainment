@@ -3,98 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Command v86 - Matilda Edition</title>
+    <title>Staffanstorp Command v87</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel='stylesheet' type='text/css' href='https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.23.0/maps/maps.css'>
     <script src="https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.23.0/maps/maps-web.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;600;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --glass-bg: rgba(10, 10, 10, 0.85);
+            --glass-bg: rgba(10, 10, 10, 0.9);
             --glass-border: rgba(255, 255, 255, 0.15);
             --accent: #5e92f3;
-            --sky-blue: #87CEEB;
-            --deep-sky: #00BFFF;
-            --text-main: #ffffff;
-            --easter-gold: #ffaa33;
             --summer-cyan: #44ffff;
+            --fuel-gold: #fbc02d;
         }
 
-        * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            font-family: 'Inter', sans-serif; background-color: #000; margin: 0;
-            height: 100vh; width: 100vw; color: var(--text-main);
+            font-family: 'Inter', sans-serif; background-color: #000;
+            height: 100vh; width: 100vw; color: #fff;
             display: grid; grid-template-columns: 520px 1fr;
-            grid-template-rows: 15vh minmax(0, 1fr) 12vh;
-            gap: 15px; padding: 15px; overflow: hidden;
+            grid-template-rows: 150px 1fr 130px;
+            gap: 20px; padding: 20px; overflow: hidden;
         }
 
-        canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 100; }
-        .glass-panel { background: var(--glass-bg); backdrop-filter: blur(50px) saturate(200%); border: 1px solid var(--glass-border); border-radius: 30px; position: relative; overflow: hidden; z-index: 10; }
+        .glass-panel { background: var(--glass-bg); backdrop-filter: blur(40px); border: 1px solid var(--glass-border); border-radius: 35px; overflow: hidden; position: relative; }
 
         /* HEADER */
-        .top-bar { grid-column: 1/3; display: grid; grid-template-columns: 650px 1fr 180px; align-items: center; padding: 0 40px; }
-        #greeting { font-size: 4.8rem; font-weight: 200; letter-spacing: -2px; line-height: 0.95; background: linear-gradient(to right, var(--sky-blue), var(--deep-sky)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        #sub-greeting { font-size: 1.3rem; font-weight: 400; opacity: 0.9; margin-top: 8px; color: var(--accent); }
-        #header-hourly { display: flex; justify-content: space-evenly; align-items: center; border-left: 1px solid var(--glass-border); border-right: 1px solid var(--glass-border); height: 80%; margin: 0 30px; }
-        .weather-node div:last-child { font-size: 1.6rem !important; font-weight: 900; }
+        .top-bar { grid-column: 1/3; display: flex; align-items: center; justify-content: space-between; padding: 0 40px; }
+        #greeting { font-size: 3.5rem; font-weight: 900; letter-spacing: -2px; }
+        #sub-greeting { font-size: 1.5rem; color: var(--accent); font-weight: 400; }
+        #tom-temp { font-size: 4rem; font-weight: 900; color: var(--summer-cyan); }
 
-        /* SIDEBAR & KALENDER KORRIGERING */
-        .sidebar-container { grid-column: 1/2; grid-row: 2/3; display: grid; grid-template-rows: 1fr 280px 145px; gap: 15px; min-height: 0; }
-        .event-item { display: flex; align-items: center; gap: 20px; padding: 22px; border-radius: 22px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 12px; transition: 0.3s; }
+        /* SIDEBAR */
+        .sidebar { grid-column: 1/2; grid-row: 2/3; display: grid; grid-template-rows: 1fr 220px 220px; gap: 20px; }
         
-        /* TYDLIGARE RAM FÖR DAGENS HÄNDELSER */
+        /* KALENDER */
+        .event-item { display: flex; align-items: center; gap: 20px; padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .event-item.is-today { 
             background: rgba(94, 146, 243, 0.15); 
-            border: 3px solid var(--accent) !important; 
-            box-shadow: 0 0 20px rgba(94, 146, 243, 0.4);
-            transform: scale(1.02);
+            border: 2px solid var(--accent); 
+            border-radius: 25px; margin: 5px;
+            box-shadow: 0 0 15px rgba(94, 146, 243, 0.3);
         }
 
-        /* LUNCH BOX */
-        .lunch-box { padding: 15px 25px; display: flex; flex-direction: column; justify-content: center; gap: 5px; }
-        .lunch-title { font-size: 1.1rem; font-weight: 700; color: #fff; line-height: 1.2; }
-        .lunch-alt { font-size: 0.85rem; opacity: 0.7; font-style: italic; }
+        /* LUNCH - NU SOM IFRAME FÖR ATT FIXA MATILDA */
+        .lunch-container { position: relative; background: #fff; border-radius: 25px; }
+        .lunch-container iframe { width: 100%; height: 100%; border: none; border-radius: 25px; }
+        .lunch-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 40px; background: var(--glass-bg); display: flex; align-items: center; padding-left: 20px; font-weight: 900; font-size: 0.8rem; color: var(--summer-cyan); z-index: 5; }
 
-        /* SLIDESHOW */
-        .main-content { position: relative; background: #000; overflow: hidden; }
-        .slide { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transition: opacity 2s ease-in-out; }
+        /* TRAFFIC */
+        #map { width: 100%; height: 100%; }
+
+        /* MAIN / SLIDESHOW */
+        .main-content { grid-column: 2/3; grid-row: 2/3; position: relative; }
+        .slide { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transition: opacity 2s; }
         .slide.active { opacity: 1; }
 
-        /* FOOTER NYHETER */
-        #news-text { font-size: 1.1rem; font-weight: 600; text-transform: uppercase; color: var(--summer-cyan); }
-        .lov-days { font-size: 4rem; font-weight: 900; line-height: 1; }
+        /* FOOTER */
+        .footer-left { grid-column: 1/2; grid-row: 3/4; display: flex; align-items: center; padding: 0 30px; font-size: 1.2rem; font-weight: 700; color: var(--summer-cyan); text-transform: uppercase; }
+        .footer-right { grid-column: 2/3; grid-row: 3/4; display: grid; grid-template-columns: 1fr 200px; gap: 20px; }
+        .lov-box { display: flex; align-items: center; justify-content: space-around; padding: 0 20px; }
+        .lov-item { text-align: center; }
+        .lov-val { font-size: 3rem; font-weight: 900; line-height: 1; color: var(--fuel-gold); }
+        .lov-lab { font-size: 0.7rem; font-weight: 900; opacity: 0.6; }
+        #footer-time { display: flex; align-items: center; justify-content: center; font-size: 3.5rem; font-weight: 900; background: rgba(255,255,255,0.05); }
     </style>
 </head>
 <body>
 
-<canvas id="fx-canvas"></canvas>
-
 <header class="top-bar glass-panel">
     <div>
         <div id="greeting">God dag!</div>
-        <div id="sub-greeting">Laddar...</div>
+        <div id="sub-greeting">Laddar datum...</div>
     </div>
-    <div id="header-hourly"></div>
     <div style="text-align: right;">
-        <div style="font-size: 0.75rem; opacity: 0.5; font-weight: 900;">IMORGON</div>
-        <div id="tom-temp" style="font-weight: 900; font-size: 3.5rem; line-height: 1;">--°</div>
+        <div style="font-size: 0.8rem; opacity: 0.5;">IMORGON</div>
+        <div id="tom-temp">--°</div>
     </div>
 </header>
 
-<div class="sidebar-container">
-    <section class="glass-panel" style="padding: 20px;" id="calendar-container">
-        <div id="custom-calendar-list"></div>
-    </section>
+<div class="sidebar">
+    <section class="glass-panel" id="calendar-list" style="padding: 10px;"></section>
     
-    <section class="glass-panel" style="padding: 8px;">
-        <div id="map" style="width:100%; height:100%; border-radius:20px;"></div>
+    <section class="glass-panel">
+        <div id="map"></div>
     </section>
 
-    <section class="glass-panel lunch-box">
-        <div style="font-size:0.7rem; font-weight:900; color:var(--summer-cyan); text-transform:uppercase;">Lunch Idag</div>
-        <div id="lunch-main" class="lunch-title">Hämtar från Matilda...</div>
-        <div id="lunch-veg" class="lunch-alt"></div>
+    <section class="glass-panel lunch-container">
+        <div class="lunch-overlay">LUNCHSEDEL STAFFANSTORP</div>
+        <iframe src="https://menu.matildaplatform.com/embed?displayMode=Week&distributorId=67ebb44bea58e3e60ce63da0"></iframe>
     </section>
 </div>
 
@@ -103,32 +100,28 @@
     <div class="slide" id="slide2"></div>
 </main>
 
-<div style="grid-column: 1/2; grid-row: 3/4;">
-    <footer class="glass-panel" style="height: 100%; display: flex; align-items: center; padding: 0 30px;">
-        <div id="news-text">Laddar senaste nyheterna...</div>
-    </footer>
-</div>
+<footer class="footer-left glass-panel">
+    <div id="news-text">Hämtar nyheter...</div>
+</footer>
 
-<div style="grid-column: 2/3; grid-row: 3/4; display: flex; gap: 15px;">
-    <div class="glass-panel" style="display: flex; padding: 0 25px; flex: 1; align-items: center; gap: 20px;">
-        <div style="text-align:center; min-width:100px;">
-            <div style="font-size:0.8rem; font-weight:900; color:var(--easter-gold);">PÅSKLOV</div>
-            <div id="count-easter" class="lov-days">--</div>
+<div class="footer-right">
+    <div class="glass-panel lov-box">
+        <div class="lov-item">
+            <div id="count-easter" class="lov-val">--</div>
+            <div class="lov-lab">PÅSKLOV</div>
         </div>
-        <div style="text-align:center; min-width:100px;">
-            <div style="font-size:0.8rem; font-weight:900; color:var(--summer-cyan);">SOMMARLOV</div>
-            <div id="count-summer" class="lov-days">--</div>
+        <div class="lov-item">
+            <div id="count-summer" class="lov-val" style="color: var(--summer-cyan);">--</div>
+            <div class="lov-lab">SOMMARLOV</div>
         </div>
-        <div id="history-fact" style="font-size: 1rem; border-left: 1px solid rgba(255,255,255,0.1); padding-left:20px;"></div>
+        <div id="history-fact" style="font-size: 0.9rem; max-width: 250px; opacity: 0.8; border-left: 1px solid #333; padding-left: 15px;">...</div>
     </div>
-    <div class="glass-panel" style="display:flex; align-items:center; justify-content:center; min-width:180px;">
-        <div id="footer-time" style="font-size:3.5rem; font-weight:900;">00:00</div>
-    </div>
+    <div class="glass-panel" id="footer-time">00:00</div>
 </div>
 
 <script>
-    const CAL_ID = 'rezgarhayder@gmail.com';
     const API_KEY_CAL = 'AIzaSyAC3QiGhqOM2F2ZrnFq3xWUu6_1bAwOvSw';
+    const CAL_ID = 'rezgarhayder@gmail.com';
 
     // BILDSPEL
     let currentSlide = 1;
@@ -136,37 +129,13 @@
         const nextSlide = currentSlide === 1 ? 2 : 1;
         const activeEl = document.getElementById(`slide${currentSlide}`);
         const nextEl = document.getElementById(`slide${nextSlide}`);
-        nextEl.style.backgroundImage = `url('https://picsum.photos/1200/800?random=${Math.random()}')`;
+        const topics = ['nature', 'landscape', 'architecture', 'space'];
+        const topic = topics[Math.floor(Math.random() * topics.length)];
+        nextEl.style.backgroundImage = `url('https://source.unsplash.com/1600x900/?${topic}&sig=${Math.random()}')`;
         setTimeout(() => { activeEl.classList.remove('active'); nextEl.classList.add('active'); currentSlide = nextSlide; }, 1000);
     }
 
-    // MATILDA LUNCH HÄMTNING
-    async function updateLunch() {
-        try {
-            // Vi använder en proxy för att läsa av Staffanstorps Matilda-sida
-            const proxyUrl = 'https://api.allorigins.win/get?url=';
-            const targetUrl = 'https://menu.matildaplatform.com/meals/week/67ebb44bea58e3e60ce63da0_matsedel-grundskola';
-            const res = await fetch(proxyUrl + encodeURIComponent(targetUrl));
-            const data = await res.json();
-            
-            // Eftersom Matilda laddas med JS kan vi inte skrapa den enkelt, 
-            // men vi kan simulera ett "smart" urval baserat på veckodag om API:et nekar oss
-            const days = ["Söndag","Måndag","Tisdag","Onsdag","Torsdag","Fredag","Lördag"];
-            const today = new Date().getDay();
-            
-            if (today === 0 || today === 6) {
-                document.getElementById('lunch-main').innerText = "Trevlig helg!";
-                document.getElementById('lunch-veg').innerText = "Ingen skolmat idag.";
-            } else {
-                // Här sätter vi in en "fallback" som ser äkta ut tills Matilda tillåter Cross-Origin fullt ut
-                // I v86 har jag optimerat detta för att visa de vanligaste rätterna för Staffanstorp
-                document.getElementById('lunch-main').innerText = "Se matsedeln på Matilda";
-                document.getElementById('lunch-veg').innerText = "Länk: menu.matildaplatform.com";
-            }
-        } catch(e) { console.log("Lunch error", e); }
-    }
-
-    // NYHETER (SVT via RSS2JSON)
+    // NYHETER
     async function updateNews() {
         try {
             const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.svt.se/nyheter/rss.xml');
@@ -175,30 +144,31 @@
             setInterval(() => {
                 document.getElementById('news-text').innerText = data.items[idx].title;
                 idx = (idx + 1) % data.items.length;
-            }, 15000);
-        } catch(e) { document.getElementById('news-text').innerText = "Nyheter tillfälligt otillgängliga"; }
+            }, 10000);
+        } catch(e) {}
     }
 
+    // KALENDER
     async function updateCalendar() {
         try {
             const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CAL_ID)}/events?key=${API_KEY_CAL}&timeMin=${new Date().toISOString()}&singleEvents=true&orderBy=startTime`);
             const d = await res.json();
             const today = new Date().toDateString();
-            document.getElementById('custom-calendar-list').innerHTML = d.items.slice(0, 4).map(e => {
+            document.getElementById('calendar-list').innerHTML = d.items.slice(0, 4).map(e => {
                 const s = new Date(e.start.dateTime || e.start.date);
                 const isToday = s.toDateString() === today;
-                return `
-                    <div class="event-item ${isToday ? 'is-today' : ''}">
-                        <div style="min-width: 80px; text-align:center; border-right:1px solid rgba(255,255,255,0.1); padding-right:15px;">
-                            <div style="font-size:0.7rem; color:var(--accent); font-weight:900;">${isToday ? 'IDAG' : s.toLocaleDateString('sv-SE',{weekday:'short'}).toUpperCase()}</div>
-                            <div style="font-size:1.4rem; font-weight:900;">${e.start.dateTime ? s.toLocaleTimeString('sv-SE',{hour:'2-digit',minute:'2-digit'}) : 'HELD'}</div>
-                        </div>
-                        <div style="font-size:1.2rem; font-weight:400; padding-left:10px;">${e.summary}</div>
-                    </div>`;
+                return `<div class="event-item ${isToday ? 'is-today' : ''}">
+                    <div style="min-width: 70px; text-align: center; border-right: 1px solid rgba(255,255,255,0.1); padding-right: 10px;">
+                        <div style="font-size: 0.7rem; color: var(--accent); font-weight: 900;">${isToday ? 'IDAG' : s.toLocaleDateString('sv-SE', {weekday:'short'}).toUpperCase()}</div>
+                        <div style="font-size: 1.2rem; font-weight: 900;">${e.start.dateTime ? s.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'}) : 'HELDAG'}</div>
+                    </div>
+                    <div style="font-size: 1.1rem; padding-left: 10px;">${e.summary}</div>
+                </div>`;
             }).join('');
         } catch(e) {}
     }
 
+    // TID OCH NEDRÄKNING
     function updateTime() {
         const now = new Date();
         document.getElementById('footer-time').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
@@ -207,15 +177,24 @@
         document.getElementById('count-summer').innerText = Math.max(0, Math.ceil((new Date('2026-06-12') - now) / 86400000));
     }
 
+    // VÄDER
+    async function updateWeather() {
+        try {
+            const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=55.64&longitude=13.21&daily=temperature_2m_max&timezone=auto');
+            const d = await res.json();
+            document.getElementById('tom-temp').innerText = Math.round(d.daily.temperature_2m_max[1]) + '°';
+        } catch(e) {}
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
-        updateTime(); updateCalendar(); updateNews(); updateLunch();
+        updateTime(); updateCalendar(); updateNews(); updateWeather(); updateSlideshow();
         setInterval(updateTime, 1000);
         setInterval(updateCalendar, 600000);
-        setInterval(updateSlideshow, 30000);
-        setInterval(updateLunch, 3600000);
-        // TomTom karta (ersätt med din nyckel)
+        setInterval(updateSlideshow, 60000);
+        
+        // TomTom karta (Använd din nyckel här)
         if(typeof tt !== 'undefined') {
-            tt.map({ key: 'DIN_NYCKEL', container: 'map', center: [13.21, 55.64], zoom: 12, style: 'https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.23.0/maps/styles/night.json' });
+            tt.map({ key: 'DIN_NYCKEL', container: 'map', center: [13.21, 55.64], zoom: 11, style: 'https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.23.0/maps/styles/night.json' });
         }
     });
 </script>
