@@ -154,17 +154,15 @@
         setTimeout(() => { activeEl.classList.remove('active'); nextEl.classList.add('active'); currentSlide = nextSlide; }, 1000); 
     }
 
-    // NYHETER (FIXAD)
+    // NYHETER
     let headlines = []; let newsIdx = 0;
     async function updateNews() {
         try {
-            // Vi använder BBC World RSS
             const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent('https://feeds.bbci.co.uk/news/world/rss.xml')}`);
             const data = await res.json();
             const parser = new DOMParser();
             const xml = parser.parseFromString(data.contents, "text/xml");
             const items = xml.querySelectorAll("item");
-            // Rensar titlarna från skräp
             headlines = Array.from(items).map(i => i.querySelector("title").textContent.trim());
             if (headlines.length > 0) displayNextHeadline();
         } catch(e) { document.getElementById('news-text').innerText = "VÄRLDSHÄNDELSER UPPDATERAS..."; }
@@ -197,35 +195,25 @@
         return data.contents; 
     }
 
-    // LUNCHMENY (FIXAD)
+    // LUNCHMENY
     async function updateLunch() {
         const lunchMain = document.getElementById('lunch-main');
         const lunchVeg = document.getElementById('lunch-veg');
         try {
             const now = new Date(); let checkDate = new Date();
-            // Om klockan är efter 14, visa morgondagens mat
             if (now.getHours() >= 14) checkDate.setDate(now.getDate() + 1);
-            
             const menuID = "762f275e-8686-4f40-8f96-a45e00949f2b";
             const dateStr = checkDate.toISOString().split('T')[0];
             const mashieUrl = `https://mpi.mashie.com/api/v1/pubmenus/${menuID}/weeks?fromDate=${dateStr}&toDate=${dateStr}`;
-            
             const raw = await fetchWithRetry(mashieUrl);
             const weeks = JSON.parse(raw);
-            
             if (weeks && weeks.length > 0 && weeks[0].Days && weeks[0].Days.length > 0) {
                 const day = weeks[0].Days[0];
                 document.getElementById('lunch-day-title').innerText = now.getHours() >= 14 ? "LUNCH IMORGON" : "LUNCH IDAG";
-                lunchMain.innerText = day.Meals[0] ? day.Meals[0].Name : "Ingen meny tillgänglig";
+                lunchMain.innerText = day.Meals[0] ? day.Meals[0].Name : "Ingen meny";
                 lunchVeg.innerText = day.Meals[1] ? day.Meals[1].Name : "";
-            } else {
-                lunchMain.innerText = "Ingen lunch serveras idag.";
-                lunchVeg.innerText = "";
             }
-        } catch(e) { 
-            lunchMain.innerText = "LUNCH: ANSLUTNINGSFEL"; 
-            console.error("Lunch error:", e);
-        }
+        } catch(e) { lunchMain.innerText = "LUNCH: ANSLUTNINGSFEL"; }
     }
 
     async function updateWeather() {
@@ -259,6 +247,7 @@
         } catch(e) {}
     }
 
+    // DIESELPRISER (FIXAD)
     async function updateFuel() {
         try {
             const html = await fetchWithRetry("https://bensinpriser.nu/stationer/diesel/skane-lan/");
@@ -266,18 +255,25 @@
             const doc = parser.parseFromString(html, "text/html");
             const rows = Array.from(doc.querySelectorAll("tr"));
             
-            const costcoRow = rows.find(r => r.innerText.includes("Costco"));
+            // Leta efter Costco Malmö
+            const costcoRow = rows.find(r => r.innerText.includes("Costco") && r.innerText.includes("Malmö"));
             if (costcoRow) {
                 const priceMatch = costcoRow.innerText.match(/(\d+[,.]\d+)kr/);
                 if (priceMatch) document.getElementById('price-costco').innerHTML = `${priceMatch[1]}<span>kr/l</span>`;
             }
 
-            const preemRow = rows.find(r => r.innerText.includes("Preem") || r.innerText.includes("Ingo"));
+            // Leta efter Preem Staffanstorp (Önsvala Allé 2 dyker ofta upp som "Staffanstorp")
+            const preemRow = rows.find(r => r.innerText.includes("Preem") && (r.innerText.includes("Staffanstorp") || r.innerText.includes("Önsvala")));
             if (preemRow) {
                 const priceMatch = preemRow.innerText.match(/(\d+[,.]\d+)kr/);
                 if (priceMatch) document.getElementById('price-preem').innerHTML = `${priceMatch[1]}<span>kr/l</span>`;
+            } else {
+                // Fallback: Ta första bästa Preem-pris i Skåne om Staffanstorp inte syns på första sidan
+                const fallbackRow = rows.find(r => r.innerText.includes("Preem"));
+                const priceMatch = fallbackRow.innerText.match(/(\d+[,.]\d+)kr/);
+                if (priceMatch) document.getElementById('price-preem').innerHTML = `${priceMatch[1]}<span>kr/l</span>`;
             }
-        } catch(e) {}
+        } catch(e) { console.error("Fuel error:", e); }
     }
 
     document.addEventListener('DOMContentLoaded', () => {
