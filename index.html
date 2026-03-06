@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v101</title>
+    <title>Staffanstorp Wall Dashboard v102</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
@@ -108,7 +108,6 @@
             padding-right: 20px;
         }
         
-        /* FÖRSTORADE KALENDERHÄNDELSER */
         .ev-day-name { font-size: 1.3rem; font-weight: 900; color: var(--accent); text-transform: uppercase; }
         .ev-date-num { font-size: 2.8rem; font-weight: 900; line-height: 1.1; }
         .event-title { font-size: 2.6rem; font-weight: 400; flex: 1; line-height: 1.2; }
@@ -129,8 +128,8 @@
         }
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
-        /* FÖRSTORADE VÄDERKOMPONENTER */
-        .weather-box i { width: 75px; height: 75px; color: var(--accent); display: block; }
+        /* VÄDERIKONER DUBBELT SÅ STORA (från 75px till 150px) */
+        .weather-box i { width: 150px; height: 150px; color: var(--accent); display: block; margin: 0 auto; }
         .weather-temp { font-size: 3.8rem; font-weight: 900; margin-top: 5px; }
         .weather-hour { font-size: 1.4rem; opacity: 0.6; font-weight: 900; }
 
@@ -308,14 +307,28 @@
         }
     }
 
-    /* HÄMTAR NYHETER FRÅN AL JAZEERA VIA RSS-PROXY */
+    /* HÄMTAR NYHETER FRÅN AL JAZEERA VIA ALLORIGINS (Direkt XML-parsing) */
     async function fetchNews() {
         try {
-            const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fwww.aljazeera.com%2Fxml%2Frss%2Fall.xml');
-            const data = await res.json();
-            newsItems = data.items.slice(0, 10).map(item => item.title);
-            rotateNews();
-        } catch(e) { document.getElementById('news-text').innerText = "Kunde inte ladda nyheter från Al Jazeera."; }
+            const rssUrl = encodeURIComponent('https://www.aljazeera.com/xml/rss/all.xml');
+            const res = await fetch(`https://api.allorigins.win/raw?url=${rssUrl}`);
+            const text = await res.text();
+            
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(text, "text/xml");
+            const items = xmlDoc.querySelectorAll("item title");
+            
+            newsItems = Array.from(items).slice(0, 15).map(item => item.textContent);
+            
+            if (newsItems.length > 0) {
+                rotateNews();
+            } else {
+                throw new Error("Inga nyhetsrubriker hittades.");
+            }
+        } catch(e) { 
+            console.error(e);
+            document.getElementById('news-text').innerText = "Kunde inte ladda nyheter från Al Jazeera."; 
+        }
     }
 
     function rotateNews() {
