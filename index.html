@@ -139,7 +139,7 @@
 </div>
 
 <script>
-    const API_KEY_CAL = 'AIzaSyAC3QiGhqOM2F2ZrnFq3xWUu6_1bAwOvSw'; // Kontrollera att din nyckel är aktiv
+    const API_KEY_CAL = 'AIzaSyAC3QiGhqOM2F2ZrnFq3xWUu6_1bAwOvSw';
     const CAL_ID = 'rezgarhayder@gmail.com';
 
     // BILDSPEL
@@ -189,40 +189,28 @@
     }
 
     async function fetchWithRetry(url) {
-        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}&_=${new Date().getTime()}`;
-        const res = await fetch(proxyUrl);
+        const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}&_=${new Date().getTime()}`);
         if (!res.ok) throw new Error("Proxy fail");
         const data = await res.json();
-        return JSON.parse(data.contents);
+        return data.contents; 
     }
 
     async function updateLunch() {
         const lunchMain = document.getElementById('lunch-main');
-        const lunchVeg = document.getElementById('lunch-veg');
         try {
-            const now = new Date();
-            let checkDate = new Date();
+            const now = new Date(); let checkDate = new Date();
             if (now.getHours() >= 14) checkDate.setDate(now.getDate() + 1);
-            
-            const dateStr = checkDate.toISOString().split('T')[0];
             const menuID = "762f275e-8686-4f40-8f96-a45e00949f2b";
-            // Mashie kräver ofta exakta veckonummer eller intervall
+            const dateStr = checkDate.toISOString().split('T')[0];
             const mashieUrl = `https://mpi.mashie.com/api/v1/pubmenus/${menuID}/weeks?fromDate=${dateStr}&toDate=${dateStr}`;
-            
-            const weeks = await fetchWithRetry(mashieUrl);
-            
-            if (weeks && weeks.length > 0 && weeks[0].Days && weeks[0].Days.length > 0) {
-                const day = weeks[0].Days[0];
+            const raw = await fetchWithRetry(mashieUrl);
+            const weeks = JSON.parse(raw);
+            if (weeks && weeks[0] && weeks[0].Days[0]) {
                 document.getElementById('lunch-day-title').innerText = now.getHours() >= 14 ? "LUNCH IMORGON" : "LUNCH IDAG";
-                lunchMain.innerText = day.Meals[0]?.Name || "Ingen matsedel tillgänglig";
-                lunchVeg.innerText = day.Meals[1]?.Name || "";
-            } else {
-                lunchMain.innerText = "Ingen lunch listad idag";
+                lunchMain.innerText = weeks[0].Days[0].Meals[0].Name;
+                document.getElementById('lunch-veg').innerText = weeks[0].Days[0].Meals[1]?.Name || "";
             }
-        } catch(e) { 
-            console.error("Lunch error:", e);
-            lunchMain.innerText = "LUNCH: KUNDE INTE HÄMTA"; 
-        }
+        } catch(e) { lunchMain.innerText = "LUNCH: ANSLUTNINGSFEL"; }
     }
 
     async function updateWeather() {
@@ -234,8 +222,7 @@
             let h = '';
             for(let i=2; i<=8; i+=2) {
                 const idx = nowH + i;
-                const code = d.hourly.weathercode[idx];
-                const icon = code <= 2 ? (code === 0 ? 'sun' : 'cloud-sun') : 'cloud-rain';
+                const icon = d.hourly.weathercode[idx] <= 2 ? (d.hourly.weathercode[idx] === 0 ? 'sun' : 'cloud-sun') : 'cloud-rain';
                 h += `<div class="weather-node"><div>${new Date(d.hourly.time[idx]).getHours()}:00</div><i data-lucide="${icon}"></i><div>${Math.round(d.hourly.temperature_2m[idx])}°</div></div>`;
             }
             document.getElementById('header-hourly').innerHTML = h; lucide.createIcons();
@@ -259,20 +246,27 @@
 
     async function updateFuel() {
         try {
-            // Hämtar dagsaktuella priser från en publik källa via proxy
-            const fuelData = await fetchWithRetry("https://henrikgit.github.io/drivmedelspriser/priser.json");
-            // Vi letar efter Circle K eller Preem som referenspunkt
-            const stn = fuelData.find(s => s.station === "Circle K") || { diesel: 17.99 };
-            const dieselPrice = parseFloat(stn.diesel);
+            // Hämtar Costcos hemsida för Burlöv via proxy
+            const costcoHtml = await fetchWithRetry("https://www.costco.se/varuhus/burlov");
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(costcoHtml, 'text/html');
+            const bodyText = doc.body.innerText;
             
-            // Costco ligger i snitt 1.20 - 1.50 kr under rekommenderat cirkapris
-            document.getElementById('price-costco').innerHTML = `${(dieselPrice - 1.35).toFixed(2)}<span>kr/l</span>`;
-            document.getElementById('price-preem').innerHTML = `${dieselPrice.toFixed(2)}<span>kr/l</span>`;
+            // Regex för att hitta "Diesel" följt av siffror (hanterar både punkt och komma)
+            const dieselMatch = bodyText.match(/Diesel\s*(\d+[,.]\d+)/i);
+            
+            if (dieselMatch) {
+                document.getElementById('price-costco').innerHTML = `${dieselMatch[1].replace('.', ',')}<span>kr/l</span>`;
+            }
+
+            // Hämtar dagsaktuellt referenspris (Preem/Cirkle K) via öppen feed
+            const preemDataRaw = await fetchWithRetry("https://henrikgit.github.io/drivmedelspriser/priser.json");
+            const globalPrices = JSON.parse(preemDataRaw);
+            const refPrice = globalPrices.find(s => s.station === "Preem" || s.station === "Circle K")?.diesel || "17,89";
+            document.getElementById('price-preem').innerHTML = `${refPrice}<span>kr/l</span>`;
+            
         } catch(e) {
-            // Fallback om API:et ligger nere
-            const fallback = 17.89;
-            document.getElementById('price-preem').innerHTML = `${fallback}<span>kr/l</span>`;
-            document.getElementById('price-costco').innerHTML = `${(fallback - 1.30).toFixed(2)}<span>kr/l</span>`;
+            console.error("Fuel update failed", e);
         }
     }
 
@@ -286,7 +280,7 @@
         setInterval(updateSlideshow, 60000);
         setInterval(displayNextHeadline, 15000);
         setInterval(updateNews, 1800000);
-        setInterval(updateFuel, 14400000); // Uppdatera bränsle var 4:e timme
+        setInterval(updateFuel, 7200000); 
         lucide.createIcons();
     });
 </script>
