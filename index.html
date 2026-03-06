@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v90</title>
+    <title>Staffanstorp Wall Dashboard v91</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
@@ -96,8 +96,9 @@
             display: flex;
             flex-direction: column;
         }
-        .video-container { flex: 1; background: #000; position: relative; }
-        .video-container iframe { position: absolute; width: 100%; height: 100%; border: none; }
+        /* JUSTERING 1: Klippet i topp utan mellanrum */
+        .video-container { flex: 1; background: #000; position: relative; margin-top: 0; }
+        .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
 
         /* COUNTDOWN FOOTER */
         .countdown-bar {
@@ -105,14 +106,29 @@
             background: #0a0a0a;
             display: flex;
             align-items: center;
-            justify-content: space-around;
+            justify-content: space-between;
             padding: 0 60px;
             border-top: 1px solid var(--border);
         }
+        
+        /* JUSTERING 3: Vertikal text */
+        .countdown-wrapper { display: flex; align-items: center; gap: 30px; }
+        .vertical-label { 
+            writing-mode: vertical-rl; 
+            transform: rotate(180deg); 
+            font-size: 0.9rem; 
+            font-weight: 900; 
+            letter-spacing: 2px; 
+            opacity: 0.4;
+            color: #fff;
+        }
+
         .count-item { text-align: center; }
         .count-num { font-size: 6.5rem; font-weight: 900; line-height: 1; }
         .count-lab { font-size: 1.3rem; font-weight: 900; letter-spacing: 5px; opacity: 0.4; margin-top: 10px; }
-        #clock { font-size: 7.5rem; font-weight: 900; font-variant-numeric: tabular-nums; letter-spacing: -5px; }
+        
+        /* JUSTERING 2: Klockan längst till höger och 30% mindre */
+        #clock { font-size: 5.25rem; font-weight: 900; font-variant-numeric: tabular-nums; letter-spacing: -3px; }
     </style>
 </head>
 <body>
@@ -145,16 +161,21 @@
         </div>
 
         <div class="countdown-bar">
+            <div class="countdown-wrapper">
+                <div class="vertical-label">DAGAR KVAR TILL:</div>
+                <div style="display: flex; gap: 60px;">
+                    <div class="count-item">
+                        <div id="count-easter" class="count-num" style="color: var(--easter);">--</div>
+                        <div class="count-lab">PÅSKLOV</div>
+                    </div>
+                    <div class="count-item">
+                        <div id="count-summer" class="count-num" style="color: var(--summer);">--</div>
+                        <div class="count-lab">SOMMARLOV</div>
+                    </div>
+                </div>
+            </div>
             <div class="count-item">
                 <div id="clock">00:00</div>
-            </div>
-            <div class="count-item">
-                <div id="count-easter" class="count-num" style="color: var(--easter);">--</div>
-                <div class="count-lab">PÅSKLOV</div>
-            </div>
-            <div class="count-item">
-                <div id="count-summer" class="count-num" style="color: var(--summer);">--</div>
-                <div class="count-lab">SOMMARLOV</div>
             </div>
         </div>
     </div>
