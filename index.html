@@ -246,23 +246,23 @@
 
     async function updateFuel() {
         try {
-            // Hämtar Costcos hemsida för Burlöv via proxy
-            const costcoHtml = await fetchWithRetry("https://www.costco.se/varuhus/burlov");
+            // Hämtar från StoreFinder Malmö som innehåller bensinstationspriserna
+            const costcoHtml = await fetchWithRetry("https://www.costco.se/store-finder/Malmo");
             const parser = new DOMParser();
             const doc = parser.parseFromString(costcoHtml, 'text/html');
             const bodyText = doc.body.innerText;
             
-            // Regex för att hitta "Diesel" följt av siffror (hanterar både punkt och komma)
-            const dieselMatch = bodyText.match(/Diesel\s*(\d+[,.]\d+)/i);
+            // Regex för att hitta "Premium Diesel" följt av priset
+            const dieselMatch = bodyText.match(/Premium Diesel\.\s*(\d+[,.]\d+)\s*SEK/i);
             
             if (dieselMatch) {
-                document.getElementById('price-costco').innerHTML = `${dieselMatch[1].replace('.', ',')}<span>kr/l</span>`;
+                document.getElementById('price-costco').innerHTML = `${dieselMatch[1]}<span>kr/l</span>`;
             }
 
-            // Hämtar dagsaktuellt referenspris (Preem/Cirkle K) via öppen feed
+            // Referenspris Preem/Circle K
             const preemDataRaw = await fetchWithRetry("https://henrikgit.github.io/drivmedelspriser/priser.json");
             const globalPrices = JSON.parse(preemDataRaw);
-            const refPrice = globalPrices.find(s => s.station === "Preem" || s.station === "Circle K")?.diesel || "17,89";
+            const refPrice = globalPrices.find(s => s.station === "Preem" || s.station === "Circle K")?.diesel || "--,--";
             document.getElementById('price-preem').innerHTML = `${refPrice}<span>kr/l</span>`;
             
         } catch(e) {
