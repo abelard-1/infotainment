@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v104</title>
+    <title>Staffanstorp Wall Dashboard v105</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
@@ -137,11 +137,21 @@
             margin: 0 auto; 
         }
         .weather-temp { font-size: 3.8rem; font-weight: 900; margin-top: 5px; }
-        .weather-hour { font-size: 1.4rem; opacity: 0.6; font-weight: 900; }
+        .weather-hour { font-size: 1.4rem; opacity: 0.6; font-weight: 900; text-transform: uppercase; }
 
         .media-panel { flex: 1; display: flex; flex-direction: column; position: relative; z-index: 20; }
-        .video-container { flex: 1; background: #000; position: relative; }
-        .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+        
+        /* INZOOMAD OCH BESKUREN VIDEO FÖR ATT DÖLJA SVARTA KANTER */
+        .video-container { flex: 1; background: #000; position: relative; overflow: hidden; }
+        .video-container iframe { 
+            position: absolute; 
+            top: -15%; 
+            left: 0; 
+            width: 100%; 
+            height: 130%; 
+            border: none; 
+            pointer-events: none;
+        }
 
         .countdown-bar {
             height: 200px;
@@ -165,7 +175,23 @@
 
         #clock { font-size: 4.5rem; font-weight: 900; font-variant-numeric: tabular-nums; }
 
-        #news-text { transition: opacity 0.5s; }
+        /* NYHETSPANEL PÅ HÖGERSIDAN */
+        .news-bar {
+            background: #0a0a0a;
+            padding: 25px 60px;
+            border-top: 1px solid var(--border);
+            min-height: 110px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        #news-text { 
+            font-size: 1.5rem; 
+            opacity: 0.8; 
+            line-height: 1.4; 
+            font-weight: 300; 
+            transition: opacity 0.5s; 
+        }
         
         .particle {
             position: absolute;
@@ -194,11 +220,6 @@
             <div class="section-label">Väder i Staffanstorp</div>
             <div id="weather-list" class="weather-row"></div>
         </section>
-        
-        <div style="margin-top: auto; border-top: 1px solid var(--border); padding-top: 20px;">
-            <div class="section-label">Senaste Nytt (Al Jazeera)</div>
-            <div id="news-text" style="font-size: 1.4rem; opacity: 0.8; line-height: 1.4; font-weight: 300; min-height: 4em;">Laddar nyheter...</div>
-        </div>
     </div>
 
     <div class="media-panel">
@@ -221,6 +242,11 @@
                 </div>
             </div>
             <div id="clock">00:00</div>
+        </div>
+        
+        <div class="news-bar">
+            <div class="section-label" style="margin-bottom: 5px;">Senaste Nytt (Al Jazeera)</div>
+            <div id="news-text">Laddar nyheter...</div>
         </div>
     </div>
 
@@ -273,7 +299,7 @@
 
             const getIcon = (c) => (c >= 71 ? 'snowflake' : c >= 51 ? 'cloud-rain' : c >= 3 ? 'cloud' : 'sun');
             document.getElementById('weather-list').innerHTML = `
-                <div class="weather-box"><div class="weather-hour">${nowH}:00</div><div class="weather-icon-wrapper"><i data-lucide="${getIcon(code)}"></i></div><div class="weather-temp">${Math.round(d.hourly.temperature_2m[nowH])}°</div></div>
+                <div class="weather-box"><div class="weather-hour">NU</div><div class="weather-icon-wrapper"><i data-lucide="${getIcon(code)}"></i></div><div class="weather-temp">${Math.round(d.hourly.temperature_2m[nowH])}°</div></div>
                 <div class="weather-box"><div class="weather-hour">${(nowH+3)%24}:00</div><div class="weather-icon-wrapper"><i data-lucide="${getIcon(d.hourly.weathercode[nowH+3])}"></i></div><div class="weather-temp">${Math.round(d.hourly.temperature_2m[nowH+3])}°</div></div>
                 <div class="weather-box"><div class="weather-hour">MAX IMORGON</div><div class="weather-icon-wrapper"><i data-lucide="${getIcon(d.hourly.weathercode[36])}"></i></div><div class="weather-temp">${Math.round(Math.max(...d.hourly.temperature_2m.slice(24, 48)))}°</div></div>
             `;
