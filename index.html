@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v91</title>
+    <title>Staffanstorp Wall Dashboard v92</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
@@ -96,7 +96,6 @@
             display: flex;
             flex-direction: column;
         }
-        /* JUSTERING 1: Klippet i topp utan mellanrum */
         .video-container { flex: 1; background: #000; position: relative; margin-top: 0; }
         .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
 
@@ -111,7 +110,6 @@
             border-top: 1px solid var(--border);
         }
         
-        /* JUSTERING 3: Vertikal text */
         .countdown-wrapper { display: flex; align-items: center; gap: 30px; }
         .vertical-label { 
             writing-mode: vertical-rl; 
@@ -127,7 +125,6 @@
         .count-num { font-size: 6.5rem; font-weight: 900; line-height: 1; }
         .count-lab { font-size: 1.3rem; font-weight: 900; letter-spacing: 5px; opacity: 0.4; margin-top: 10px; }
         
-        /* JUSTERING 2: Klockan längst till höger och 30% mindre */
         #clock { font-size: 5.25rem; font-weight: 900; font-variant-numeric: tabular-nums; letter-spacing: -3px; }
     </style>
 </head>
@@ -135,7 +132,7 @@
 
     <div class="info-panel">
         <header>
-            <div id="greeting">God dag!</div>
+            <div id="greeting">Hej!</div>
             <div id="date-sub">Laddar...</div>
         </header>
 
@@ -186,6 +183,16 @@
 
     function update() {
         const now = new Date();
+        const hour = now.getHours();
+        
+        // Logik för hälsningsfras
+        let greetingText = "Hej!";
+        if (hour >= 6 && hour < 10) greetingText = "God morgon!";
+        else if (hour >= 10 && hour < 18) greetingText = "God dag!";
+        else if (hour >= 18 && hour < 23) greetingText = "God kväll!";
+        else greetingText = "God natt!";
+        
+        document.getElementById('greeting').innerText = greetingText;
         document.getElementById('clock').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
         document.getElementById('date-sub').innerText = now.toLocaleDateString('sv-SE', { weekday: 'long', day: 'numeric', month: 'long' });
         
