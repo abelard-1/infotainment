@@ -72,7 +72,7 @@
         .slide.active { opacity: 1; }
 
         .footer-left { grid-column: 1/2; grid-row: 3/4; padding: 40px; display: flex; align-items: center; }
-        #news-text { font-size: 2.2rem; font-weight: 700; text-transform: uppercase; color: var(--summer-cyan); transition: opacity 0.5s ease; width: 100%; }
+        #news-text { font-size: 2.2rem; font-weight: 700; text-transform: uppercase; color: var(--summer-cyan); transition: opacity 0.5s ease; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
         .footer-right { grid-column: 2/3; grid-row: 3/4; display: grid; grid-template-columns: 1fr 350px; gap: 25px; }
         .lov-display { display: flex; align-items: center; gap: 60px; padding: 0 40px; }
@@ -154,17 +154,19 @@
         setTimeout(() => { activeEl.classList.remove('active'); nextEl.classList.add('active'); currentSlide = nextSlide; }, 1000); 
     }
 
-    // NYHETER
+    // NYHETER (FIXAD)
     let headlines = []; let newsIdx = 0;
     async function updateNews() {
         try {
+            // Vi använder BBC World RSS
             const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent('https://feeds.bbci.co.uk/news/world/rss.xml')}`);
             const data = await res.json();
             const parser = new DOMParser();
             const xml = parser.parseFromString(data.contents, "text/xml");
             const items = xml.querySelectorAll("item");
-            headlines = Array.from(items).map(i => i.querySelector("title").textContent);
-            displayNextHeadline();
+            // Rensar titlarna från skräp
+            headlines = Array.from(items).map(i => i.querySelector("title").textContent.trim());
+            if (headlines.length > 0) displayNextHeadline();
         } catch(e) { document.getElementById('news-text').innerText = "VÄRLDSHÄNDELSER UPPDATERAS..."; }
     }
 
@@ -195,22 +197,35 @@
         return data.contents; 
     }
 
+    // LUNCHMENY (FIXAD)
     async function updateLunch() {
         const lunchMain = document.getElementById('lunch-main');
+        const lunchVeg = document.getElementById('lunch-veg');
         try {
             const now = new Date(); let checkDate = new Date();
+            // Om klockan är efter 14, visa morgondagens mat
             if (now.getHours() >= 14) checkDate.setDate(now.getDate() + 1);
+            
             const menuID = "762f275e-8686-4f40-8f96-a45e00949f2b";
             const dateStr = checkDate.toISOString().split('T')[0];
             const mashieUrl = `https://mpi.mashie.com/api/v1/pubmenus/${menuID}/weeks?fromDate=${dateStr}&toDate=${dateStr}`;
+            
             const raw = await fetchWithRetry(mashieUrl);
             const weeks = JSON.parse(raw);
-            if (weeks && weeks[0] && weeks[0].Days[0]) {
+            
+            if (weeks && weeks.length > 0 && weeks[0].Days && weeks[0].Days.length > 0) {
+                const day = weeks[0].Days[0];
                 document.getElementById('lunch-day-title').innerText = now.getHours() >= 14 ? "LUNCH IMORGON" : "LUNCH IDAG";
-                lunchMain.innerText = weeks[0].Days[0].Meals[0].Name;
-                document.getElementById('lunch-veg').innerText = weeks[0].Days[0].Meals[1]?.Name || "";
+                lunchMain.innerText = day.Meals[0] ? day.Meals[0].Name : "Ingen meny tillgänglig";
+                lunchVeg.innerText = day.Meals[1] ? day.Meals[1].Name : "";
+            } else {
+                lunchMain.innerText = "Ingen lunch serveras idag.";
+                lunchVeg.innerText = "";
             }
-        } catch(e) { lunchMain.innerText = "LUNCH: ANSLUTNINGSFEL"; }
+        } catch(e) { 
+            lunchMain.innerText = "LUNCH: ANSLUTNINGSFEL"; 
+            console.error("Lunch error:", e);
+        }
     }
 
     async function updateWeather() {
@@ -246,35 +261,23 @@
 
     async function updateFuel() {
         try {
-            // Hämta hela listan för Skåne län från bensinpriser.nu
             const html = await fetchWithRetry("https://bensinpriser.nu/stationer/diesel/skane-lan/");
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, "text/html");
-            
-            // Hitta alla tabellrader
             const rows = Array.from(doc.querySelectorAll("tr"));
             
-            // 1. Leta efter Costco
             const costcoRow = rows.find(r => r.innerText.includes("Costco"));
             if (costcoRow) {
                 const priceMatch = costcoRow.innerText.match(/(\d+[,.]\d+)kr/);
-                if (priceMatch) {
-                    document.getElementById('price-costco').innerHTML = `${priceMatch[1]}<span>kr/l</span>`;
-                }
+                if (priceMatch) document.getElementById('price-costco').innerHTML = `${priceMatch[1]}<span>kr/l</span>`;
             }
 
-            // 2. Leta efter Preem eller Ingo i Malmö/Arlöv som referens
-            const preemRow = rows.find(r => r.innerText.includes("Preem") || r.innerText.includes("Ingo") || r.innerText.includes("din-X"));
+            const preemRow = rows.find(r => r.innerText.includes("Preem") || r.innerText.includes("Ingo"));
             if (preemRow) {
                 const priceMatch = preemRow.innerText.match(/(\d+[,.]\d+)kr/);
-                if (priceMatch) {
-                    document.getElementById('price-preem').innerHTML = `${priceMatch[1]}<span>kr/l</span>`;
-                }
+                if (priceMatch) document.getElementById('price-preem').innerHTML = `${priceMatch[1]}<span>kr/l</span>`;
             }
-            
-        } catch(e) {
-            console.error("Kunde inte hämta priser från bensinpriser.nu", e);
-        }
+        } catch(e) {}
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -287,7 +290,7 @@
         setInterval(updateSlideshow, 60000);
         setInterval(displayNextHeadline, 15000);
         setInterval(updateNews, 1800000);
-        setInterval(updateFuel, 3600000); // Uppdatera varje timme
+        setInterval(updateFuel, 3600000);
         lucide.createIcons();
     });
 </script>
