@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v92</title>
+    <title>Staffanstorp Wall Dashboard v93</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
@@ -185,7 +185,6 @@
         const now = new Date();
         const hour = now.getHours();
         
-        // Logik för hälsningsfras
         let greetingText = "Hej!";
         if (hour >= 6 && hour < 10) greetingText = "God morgon!";
         else if (hour >= 10 && hour < 18) greetingText = "God dag!";
@@ -194,7 +193,10 @@
         
         document.getElementById('greeting').innerText = greetingText;
         document.getElementById('clock').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
-        document.getElementById('date-sub').innerText = now.toLocaleDateString('sv-SE', { weekday: 'long', day: 'numeric', month: 'long' });
+        
+        // Uppdaterad rad för headern
+        const dateStr = now.toLocaleDateString('sv-SE', { weekday: 'long', day: 'numeric', month: 'long' });
+        document.getElementById('date-sub').innerText = "Idag är det " + dateStr;
         
         const easter = new Date('2026-03-30');
         const summer = new Date('2026-06-12');
