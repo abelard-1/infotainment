@@ -12,7 +12,6 @@
             --glass-border: rgba(255, 255, 255, 0.15);
             --accent: #5e92f3;
             --summer-cyan: #44ffff;
-            --danger: #ff4444;
             --fuel-gold: #fbc02d;
             --today-glow: rgba(94, 146, 243, 0.4);
         }
@@ -58,8 +57,8 @@
 
         .lunch-box { padding: 40px; display: flex; flex-direction: column; justify-content: center; height: 100%; overflow: hidden; }
         #lunch-day-title { font-size: 1.4rem; font-weight: 900; color: var(--accent); margin-bottom: 10px; text-transform: uppercase; }
-        #lunch-main { font-size: 2.3rem; font-weight: 900; line-height: 1.1; margin-bottom: 8px; color: #fff; }
-        #lunch-veg { font-size: 1.5rem; opacity: 0.7; color: #ccc; font-style: italic; }
+        #lunch-main { font-size: 2.1rem; font-weight: 900; line-height: 1.1; margin-bottom: 8px; color: #fff; }
+        #lunch-veg { font-size: 1.4rem; opacity: 0.7; color: #ccc; font-style: italic; }
 
         .fuel-box { padding: 40px; display: flex; flex-direction: column; justify-content: space-around; }
         .fuel-row { display: flex; justify-content: space-between; align-items: center; }
@@ -98,7 +97,7 @@
     
     <section class="glass-panel lunch-box">
         <div id="lunch-day-title">SÖKER LUNCH...</div>
-        <div id="lunch-main">Hämtar matsedel...</div>
+        <div id="lunch-main">Hämtar från Matilda...</div>
         <div id="lunch-veg"></div>
     </section>
 
@@ -108,7 +107,7 @@
             <div id="price-costco" class="stn-price">--<span>kr/l</span></div>
         </div>
         <div class="fuel-row" style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
-            <div class="stn-name">PREEM ALLÉVÄGEN</div>
+            <div class="stn-name">PREEM STAFFANSTORP</div>
             <div id="price-preem" class="stn-price">--<span>kr/l</span></div>
         </div>
     </section>
@@ -195,23 +194,32 @@
         return data.contents; 
     }
 
-    // LUNCHMENY
+    // LUNCHMENY (MATILDA FIX)
     async function updateLunch() {
         const lunchMain = document.getElementById('lunch-main');
         const lunchVeg = document.getElementById('lunch-veg');
         try {
             const now = new Date(); let checkDate = new Date();
             if (now.getHours() >= 14) checkDate.setDate(now.getDate() + 1);
-            const menuID = "762f275e-8686-4f40-8f96-a45e00949f2b";
-            const dateStr = checkDate.toISOString().split('T')[0];
-            const mashieUrl = `https://mpi.mashie.com/api/v1/pubmenus/${menuID}/weeks?fromDate=${dateStr}&toDate=${dateStr}`;
-            const raw = await fetchWithRetry(mashieUrl);
-            const weeks = JSON.parse(raw);
-            if (weeks && weeks.length > 0 && weeks[0].Days && weeks[0].Days.length > 0) {
-                const day = weeks[0].Days[0];
+            
+            // Matilda Staffanstorp URL
+            const matildaUrl = "https://webmenu.foodit.se/menu/3067f920-80d0-4054-9988-662768560020";
+            const html = await fetchWithRetry(matildaUrl);
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, "text/html");
+            
+            // Hitta dagens sektion
+            const days = Array.from(doc.querySelectorAll('.day-container'));
+            const todayIdx = checkDate.getDay() === 0 ? 6 : checkDate.getDay() - 1; // 0=Mån, 6=Sön
+            
+            const dayData = days[todayIdx];
+            if (dayData) {
                 document.getElementById('lunch-day-title').innerText = now.getHours() >= 14 ? "LUNCH IMORGON" : "LUNCH IDAG";
-                lunchMain.innerText = day.Meals[0] ? day.Meals[0].Name : "Ingen meny";
-                lunchVeg.innerText = day.Meals[1] ? day.Meals[1].Name : "";
+                const meals = Array.from(dayData.querySelectorAll('.meal-name')).map(m => m.innerText.trim());
+                lunchMain.innerText = meals[0] || "Ingen lunch angiven";
+                lunchVeg.innerText = meals[1] || "";
+            } else {
+                lunchMain.innerText = "Ingen meny hittades för dagen.";
             }
         } catch(e) { lunchMain.innerText = "LUNCH: ANSLUTNINGSFEL"; }
     }
@@ -247,7 +255,7 @@
         } catch(e) {}
     }
 
-    // DIESELPRISER (FIXAD)
+    // DIESELPRISER (BENSINPRISER.NU FIX)
     async function updateFuel() {
         try {
             const html = await fetchWithRetry("https://bensinpriser.nu/stationer/diesel/skane-lan/");
@@ -255,25 +263,20 @@
             const doc = parser.parseFromString(html, "text/html");
             const rows = Array.from(doc.querySelectorAll("tr"));
             
-            // Leta efter Costco Malmö
+            // 1. Costco Malmö Burlöv
             const costcoRow = rows.find(r => r.innerText.includes("Costco") && r.innerText.includes("Malmö"));
             if (costcoRow) {
-                const priceMatch = costcoRow.innerText.match(/(\d+[,.]\d+)kr/);
+                const priceMatch = costcoRow.innerText.match(/(\d+[,.]\d+)/);
                 if (priceMatch) document.getElementById('price-costco').innerHTML = `${priceMatch[1]}<span>kr/l</span>`;
             }
 
-            // Leta efter Preem Staffanstorp (Önsvala Allé 2 dyker ofta upp som "Staffanstorp")
+            // 2. Preem Staffanstorp (Önsvala Allé)
             const preemRow = rows.find(r => r.innerText.includes("Preem") && (r.innerText.includes("Staffanstorp") || r.innerText.includes("Önsvala")));
             if (preemRow) {
-                const priceMatch = preemRow.innerText.match(/(\d+[,.]\d+)kr/);
-                if (priceMatch) document.getElementById('price-preem').innerHTML = `${priceMatch[1]}<span>kr/l</span>`;
-            } else {
-                // Fallback: Ta första bästa Preem-pris i Skåne om Staffanstorp inte syns på första sidan
-                const fallbackRow = rows.find(r => r.innerText.includes("Preem"));
-                const priceMatch = fallbackRow.innerText.match(/(\d+[,.]\d+)kr/);
+                const priceMatch = preemRow.innerText.match(/(\d+[,.]\d+)/);
                 if (priceMatch) document.getElementById('price-preem').innerHTML = `${priceMatch[1]}<span>kr/l</span>`;
             }
-        } catch(e) { console.error("Fuel error:", e); }
+        } catch(e) {}
     }
 
     document.addEventListener('DOMContentLoaded', () => {
