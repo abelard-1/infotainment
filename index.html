@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Command v64 - School Lunch Edition</title>
+    <title>Staffanstorp Command v62 - Balanced Layout</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel='stylesheet' type='text/css' href='https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.23.0/maps/maps.css'>
     <script src="https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.23.0/maps/maps-web.min.js"></script>
@@ -53,40 +53,43 @@
             height: 80%; margin: 0 30px; 
         }
 
-        .weather-node div:first-child { font-size: 1.05rem !important; opacity: 0.8 !important; font-weight: 800 !important; margin-bottom: 2px; }
-        .weather-node i { width: 44px !important; height: 44px !important; margin: 5px 0; }
+        .weather-node i { width: 48px !important; height: 48px !important; margin: 10px 0; }
         .weather-node div:last-child { font-size: 1.6rem !important; font-weight: 900; }
 
-        /* SIDEBAR */
-        .sidebar-container { grid-column: 1/2; grid-row: 2/3; display: grid; grid-template-rows: 1fr 280px 140px; gap: 15px; min-height: 0; }
+        /* SIDEBAR & TRAFFIC */
+        .sidebar-container { grid-column: 1/2; grid-row: 2/3; display: grid; grid-template-rows: 1fr 340px; gap: 15px; min-height: 0; }
+        
+        /* Kalenderinnehåll 20% större */
         #custom-calendar-list { font-size: 1.2em; }
         .event-item { display: flex; align-items: center; gap: 25px; padding: 22px 25px; border-radius: 22px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 15px; }
         .event-item.is-today { background: rgba(94, 146, 243, 0.15); border-color: var(--accent); }
 
-        /* TRAFFIC */
-        .traffic-box { position: relative; width: 100%; height: 100%; border-radius: 20px; overflow: hidden; display: grid; grid-template-rows: 1fr 100px; }
+        .traffic-box { position: relative; width: 100%; height: 100%; border-radius: 20px; overflow: hidden; display: grid; grid-template-rows: 1fr 140px; }
         #map { width: 100%; height: 100%; border-radius: 20px 20px 0 0; }
-        .traffic-dest-list { background: rgba(0,0,0,0.5); display: flex; flex-direction: column; justify-content: center; padding: 5px 25px; border-top: 1px solid var(--glass-border); gap: 5px; }
+        .traffic-dest-list { background: rgba(0,0,0,0.5); display: flex; flex-direction: column; justify-content: center; padding: 10px 25px; border-top: 1px solid var(--glass-border); gap: 10px; }
         .traffic-row { display: flex; justify-content: space-between; align-items: center; }
-        .traffic-label { font-size: 0.65rem; font-weight: 900; color: var(--accent); text-transform: uppercase; }
-        .traffic-val { font-size: 1.5rem; font-weight: 900; line-height: 1; }
-        .traffic-status-text { font-size: 0.7rem; font-weight: 800; }
-
-        /* SCHOOL LUNCH BOX */
-        .lunch-box { padding: 15px 25px; display: flex; flex-direction: column; justify-content: center; gap: 5px; }
-        .lunch-header { font-size: 0.75rem; font-weight: 900; color: var(--summer-cyan); text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 8px; }
-        .lunch-title { font-size: 1.1rem; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .lunch-alt { font-size: 0.85rem; font-weight: 400; opacity: 0.7; border-top: 1px solid rgba(255,255,255,0.1); pt: 5px; }
+        .traffic-label { font-size: 0.7rem; font-weight: 900; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; }
+        .traffic-val { font-size: 1.8rem; font-weight: 900; line-height: 1; }
+        .traffic-status-text { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; }
 
         /* FOOTER LOV-SECTION */
         .lov-container { display: flex; align-items: center; gap: 20px; height: 100%; }
         .lov-box { display: flex; flex-direction: column; justify-content: center; align-items: center; min-width: 130px; }
         .lov-title { font-size: 1.1rem; font-weight: 900; margin-bottom: -5px; letter-spacing: 1px; }
         .lov-days { font-size: 4rem; font-weight: 900; line-height: 1; }
-        .vertical-text-main { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 1.1rem; font-weight: 900; opacity: 0.7; border-right: 1px solid rgba(255,255,255,0.2); padding-right: 15px; height: 80%; display: flex; align-items: center; color: var(--accent); letter-spacing: 2px; }
+        
+        /* Dagar kvar - Nu till vänster, större och endast en gång */
+        .vertical-text-main { 
+            writing-mode: vertical-rl; transform: rotate(180deg); 
+            font-size: 1.1rem; font-weight: 900; opacity: 0.7; 
+            border-right: 1px solid rgba(255,255,255,0.2); padding-right: 15px;
+            height: 80%; display: flex; align-items: center; color: var(--accent);
+            letter-spacing: 2px;
+        }
 
-        .footer-clock-box { display: flex; align-items: center; justify-content: center; min-width: 180px; }
-        #footer-time { font-size: 3rem; font-weight: 900; line-height: 1; letter-spacing: -1px; opacity: 0.85; }
+        /* CLOCK 30% MINRE */
+        .footer-clock-box { display: flex; align-items: center; justify-content: flex-end; padding-right: 40px; min-width: 180px; }
+        #footer-time { font-size: 3.8rem; font-weight: 900; line-height: 1; letter-spacing: -1px; opacity: 0.9; }
 
         .news-wrapper { display: flex; align-items: center; gap: 20px; width: 100%; }
         .news-tag { background: var(--accent); color: #000; padding: 6px 15px; border-radius: 10px; font-weight: 900; font-size: 0.9rem; }
@@ -123,26 +126,20 @@
             <div class="traffic-dest-list">
                 <div class="traffic-row">
                     <div>
-                        <div class="traffic-label">Lomma</div>
+                        <div class="traffic-label">Lomma (Vinstorpsv.)</div>
                         <div id="traffic-time-lomma" class="traffic-val">-- min</div>
                     </div>
                     <div style="text-align: right;"><div id="status-lomma" class="traffic-status-text">Normalt</div></div>
                 </div>
-                <div class="traffic-row" style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 2px;">
+                <div class="traffic-row" style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 5px;">
                     <div>
-                        <div class="traffic-label">Malmö</div>
+                        <div class="traffic-label">Malmö (Hemsögatan)</div>
                         <div id="traffic-time-malmo" class="traffic-val">-- min</div>
                     </div>
                     <div style="text-align: right;"><div id="status-malmo" class="traffic-status-text">Normalt</div></div>
                 </div>
             </div>
         </div>
-    </section>
-
-    <section class="glass-panel lunch-box">
-        <div class="lunch-header"><i data-lucide="utensils"></i> <span id="lunch-day-label">Skolmat</span></div>
-        <div id="lunch-main" class="lunch-title">Hämtar meny...</div>
-        <div id="lunch-veg" class="lunch-alt"></div>
     </section>
 </div>
 
@@ -183,6 +180,7 @@
     const API_KEY_CAL = 'AIzaSyAC3QiGhqOM2F2ZrnFq3xWUu6_1bAwOvSw';
     const CAL_ID = 'rezgarhayder@gmail.com';
     let weatherMode = 'clear';
+    let isBirthday = false;
 
     function initMap() {
         if(typeof tt === 'undefined') return;
@@ -201,47 +199,13 @@
         const now = new Date();
         const hrs = now.getHours();
         document.getElementById('footer-time').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
-        document.getElementById('greeting').innerText = (hrs >= 5 && hrs < 10) ? "God morgon!" : (hrs >= 18 && hrs < 23) ? "God kväll!" : (hrs >= 23 || hrs < 5) ? "God natt!" : "God dag!";
+        
+        let greet = (hrs >= 5 && hrs < 10) ? "God morgon!" : (hrs >= 18 && hrs < 23) ? "God kväll!" : (hrs >= 23 || hrs < 5) ? "God natt!" : "God dag!";
+        document.getElementById('greeting').innerText = greet;
         document.getElementById('sub-greeting').innerText = `Idag är det ${now.toLocaleDateString('sv-SE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}`;
+
         document.getElementById('count-easter').innerText = Math.ceil((new Date('2026-03-30') - now) / 86400000);
         document.getElementById('count-summer').innerText = Math.ceil((new Date('2026-06-12') - now) / 86400000);
-    }
-
-    function updateLunch() {
-        const now = new Date();
-        const hrs = now.getHours();
-        const displayDate = new Date();
-        // Om klockan är efter 13:30, visa morgondagens mat
-        if (hrs >= 14) displayDate.setDate(now.getDate() + 1);
-        
-        const day = displayDate.getDay();
-        const dateStr = displayDate.toISOString().split('T')[0];
-        const label = hrs >= 14 ? "Imorgon" : "Idag";
-        document.getElementById('lunch-day-label').innerText = `Lunch ${label}`;
-
-        let main = "Ingen skolmat idag";
-        let veg = "";
-
-        // Helg
-        if (day === 0 || day === 6) {
-            main = "Trevlig helg!";
-        } 
-        // Specifik logik för de datum vi pratade om
-        else if (dateStr === '2026-03-02') {
-            main = "Korvstroganoff & ris";
-            veg = "Vegetarisk stroganoff";
-        } else if (dateStr === '2026-03-03') {
-            main = "UTVECKLINGSDAG";
-            veg = "Fritids öppet - enklare lunch";
-        } else if (dateStr === '2026-03-04') {
-            main = "Fiskfilé & kokt potatis";
-            veg = "Vegetarisk schnitzel";
-        } else {
-            main = "Se matsedeln i appen";
-        }
-
-        document.getElementById('lunch-main').innerText = main;
-        document.getElementById('lunch-veg').innerText = veg ? "Veg: " + veg : "";
     }
 
     function updateTraffic() {
@@ -249,8 +213,10 @@
         const hrs = now.getHours();
         const isRush = (now.getDay() >= 1 && now.getDay() <= 5) && ((hrs >= 7 && hrs <= 9) || (hrs >= 15 && hrs <= 17));
         document.getElementById('traffic-time-lomma').innerText = (isRush ? 18 : 12) + " min";
+        document.getElementById('status-lomma').innerText = isRush ? "KÖVARNING" : "GRÖNT";
         document.getElementById('status-lomma').style.color = isRush ? "var(--danger)" : "var(--summer-cyan)";
         document.getElementById('traffic-time-malmo').innerText = (isRush ? 26 : 17) + " min";
+        document.getElementById('status-malmo').innerText = isRush ? "TRÖGT" : "GRÖNT";
         document.getElementById('status-malmo').style.color = isRush ? "var(--danger)" : "var(--summer-cyan)";
     }
 
@@ -266,7 +232,7 @@
             for(let i=1; i<=6; i++) {
                 const idx = nowHour + i;
                 const icon = d.hourly.weathercode[idx] <= 2 ? (d.hourly.weathercode[idx] === 0 ? 'sun' : 'cloud-sun') : (d.hourly.weathercode[idx] === 3 ? 'cloud' : 'cloud-rain');
-                hHtml += `<div class="weather-node" style="text-align:center"><div>${new Date(d.hourly.time[idx]).getHours()}:00</div><i data-lucide="${icon}"></i><div>${Math.round(d.hourly.temperature_2m[idx])}°</div></div>`;
+                hHtml += `<div class="weather-node" style="text-align:center"><div style="font-size:0.8rem; opacity:0.6; font-weight:700">${new Date(d.hourly.time[idx]).getHours()}:00</div><i data-lucide="${icon}"></i><div>${Math.round(d.hourly.temperature_2m[idx])}°</div></div>`;
             }
             document.getElementById('header-hourly').innerHTML = hHtml; lucide.createIcons();
         } catch(e) {}
@@ -296,9 +262,18 @@
                 document.getElementById('custom-calendar-list').innerHTML = d.items.slice(0, 4).map(event => {
                     const start = new Date(event.start.dateTime || event.start.date);
                     const isToday = start.toDateString() === new Date().toDateString();
+                    // Lägger till veckodag här
                     const weekday = start.toLocaleDateString('sv-SE', { weekday: 'short' }).toUpperCase();
                     const dateNum = start.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' });
-                    return `<div class="event-item ${isToday ? 'is-today' : ''}"><div style="min-width: 100px; text-align:center; border-right: 1px solid rgba(255,255,255,0.1); padding-right:15px;"><div style="font-size:0.75rem;color:var(--accent);font-weight:900">${isToday ? 'IDAG' : weekday + ' ' + dateNum}</div><div style="font-size:1.6rem;font-weight:900">${event.start.dateTime ? start.toLocaleTimeString('sv-SE',{hour:'2-digit',minute:'2-digit'}) : 'HELDAG'}</div></div><div style="font-size:1.3rem;font-weight:300;padding-left:10px">${event.summary}</div></div>`;
+                    
+                    return `
+                    <div class="event-item ${isToday ? 'is-today' : ''}">
+                        <div style="min-width: 100px; text-align:center; border-right: 1px solid rgba(255,255,255,0.1); padding-right:15px;">
+                            <div style="font-size:0.75rem;color:var(--accent);font-weight:900">${isToday ? 'IDAG' : weekday + ' ' + dateNum}</div>
+                            <div style="font-size:1.6rem;font-weight:900">${event.start.dateTime ? start.toLocaleTimeString('sv-SE',{hour:'2-digit',minute:'2-digit'}) : 'HELDAG'}</div>
+                        </div>
+                        <div style="font-size:1.3rem;font-weight:300;padding-left:10px">${event.summary}</div>
+                    </div>`;
                 }).join('');
             }
         } catch(e) {}
@@ -321,9 +296,8 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-        updateTime(); updateWeather(); updateCalendar(); updateNews(); updateHistory(); updateTraffic(); updateLunch(); animate(); initMap();
-        setInterval(updateTime, 1000); setInterval(updateWeather, 1800000); setInterval(updateCalendar, 600000); setInterval(updateTraffic, 300000); setInterval(updateLunch, 3600000);
-        lucide.createIcons();
+        updateTime(); updateWeather(); updateCalendar(); updateNews(); updateHistory(); updateTraffic(); animate(); initMap();
+        setInterval(updateTime, 1000); setInterval(updateWeather, 1800000); setInterval(updateCalendar, 600000); setInterval(updateTraffic, 300000);
     });
 </script>
 </body>
