@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v94</title>
+    <title>Staffanstorp Wall Dashboard v95</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
@@ -37,7 +37,6 @@
             background: linear-gradient(135deg, #0a0a0a 0%, #151515 100%);
         }
 
-        /* JUSTERAD HÄLSNING: Maximalt stor, en rad, rätt skiftläge */
         #greeting { 
             font-size: 7rem; 
             font-weight: 900; 
@@ -50,7 +49,28 @@
         }
         #greeting::first-letter { text-transform: uppercase; }
 
-        #date-sub { font-size: 2.8rem; font-weight: 300; color: var(--accent); margin-bottom: 20px; text-transform: capitalize; }
+        /* WIGGLE ANIMERING FÖR UTROPSTECKNET */
+        .wiggle-mark {
+            display: inline-block;
+            animation: mark-wiggle 4s infinite ease-in-out;
+            transform-origin: bottom center;
+        }
+        @keyframes mark-wiggle {
+            0%, 80%, 100% { transform: rotate(0deg); }
+            85% { transform: rotate(15deg); }
+            90% { transform: rotate(-15deg); }
+            95% { transform: rotate(10deg); }
+        }
+
+        /* FIXAT SKIFTLÄGE PÅ DATUMRADEN */
+        #date-sub { 
+            font-size: 2.8rem; 
+            font-weight: 300; 
+            color: var(--accent); 
+            margin-bottom: 20px; 
+            text-transform: lowercase; 
+        }
+        #date-sub::first-letter { text-transform: uppercase; }
 
         .section-label { font-size: 1.3rem; font-weight: 900; text-transform: uppercase; letter-spacing: 4px; color: rgba(255,255,255,0.3); margin-bottom: 20px; }
 
@@ -85,10 +105,9 @@
         .ev-day-name { font-size: 1.1rem; font-weight: 900; color: var(--accent); text-transform: uppercase; }
         .ev-date-num { font-size: 2.8rem; font-weight: 900; line-height: 1.1; }
         .ev-time { font-size: 1.4rem; opacity: 0.7; font-weight: 700; margin-top: 5px; }
-
         .event-title { font-size: 2.5rem; font-weight: 400; flex: 1; line-height: 1.2; }
 
-        /* VÄDER */
+        /* VÄDER MED MJUKA RÖRELSER */
         .weather-row { display: flex; gap: 20px; }
         .weather-box { 
             background: rgba(255,255,255,0.03); 
@@ -98,16 +117,23 @@
             text-align: center;
             border: 1px solid var(--border);
         }
-        .weather-box i { width: 60px; height: 60px; color: var(--accent); margin: 15px 0; }
+        .weather-box i { 
+            width: 60px; 
+            height: 60px; 
+            color: var(--accent); 
+            margin: 15px 0;
+            display: inline-block;
+            animation: float-icon 5s infinite ease-in-out;
+        }
+        @keyframes float-icon {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(5deg); }
+        }
         .weather-temp { font-size: 3.2rem; font-weight: 900; }
         .weather-hour { font-size: 1.4rem; opacity: 0.6; font-weight: 900; text-transform: uppercase; }
 
         /* HÖGER SIDA - MEDIA */
-        .media-panel {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
+        .media-panel { flex: 1; display: flex; flex-direction: column; }
         .video-container { flex: 1; background: #000; position: relative; margin-top: 0; }
         .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
 
@@ -121,7 +147,6 @@
             padding: 0 60px;
             border-top: 1px solid var(--border);
         }
-        
         .countdown-wrapper { display: flex; align-items: center; gap: 30px; }
         .vertical-label { 
             writing-mode: vertical-rl; 
@@ -132,11 +157,9 @@
             opacity: 0.4;
             color: #fff;
         }
-
         .count-item { text-align: center; }
         .count-num { font-size: 6.5rem; font-weight: 900; line-height: 1; }
         .count-lab { font-size: 1.3rem; font-weight: 900; letter-spacing: 5px; opacity: 0.4; margin-top: 10px; }
-        
         #clock { font-size: 5.25rem; font-weight: 900; font-variant-numeric: tabular-nums; letter-spacing: -3px; }
     </style>
 </head>
@@ -197,13 +220,14 @@
         const now = new Date();
         const hour = now.getHours();
         
-        let greetingText = "Hej!";
-        if (hour >= 6 && hour < 10) greetingText = "God morgon!";
-        else if (hour >= 10 && hour < 18) greetingText = "God dag!";
-        else if (hour >= 18 && hour < 23) greetingText = "God kväll!";
-        else greetingText = "God natt!";
+        let greetingBase = "Hej";
+        if (hour >= 6 && hour < 10) greetingBase = "God morgon";
+        else if (hour >= 10 && hour < 18) greetingBase = "God dag";
+        else if (hour >= 18 && hour < 23) greetingBase = "God kväll";
+        else greetingBase = "God natt";
         
-        document.getElementById('greeting').innerText = greetingText;
+        // Applicera basen och wiggle på utropstecknet separat
+        document.getElementById('greeting').innerHTML = `${greetingBase}<span class="wiggle-mark">!</span>`;
         document.getElementById('clock').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
         
         const dateStr = now.toLocaleDateString('sv-SE', { weekday: 'long', day: 'numeric', month: 'long' });
