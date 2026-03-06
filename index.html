@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="sv">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Command v84</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Staffanstorp Wall Command v85</title>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet" />
     <style>
         :root {
             --glass-bg: rgba(10, 10, 10, 0.95);
@@ -19,17 +19,37 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            font-family: 'Inter', sans-serif; background-color: #000;
-            height: 100vh; width: 100vw; color: #fff;
-            display: grid; 
+            font-family: 'Inter', sans-serif;
+            background-color: #000;
+            height: 100vh;
+            width: 100vw;
+            color: #fff;
+            display: grid;
             grid-template-columns: 750px 1fr;
             grid-template-rows: 180px 1fr 200px;
-            gap: 25px; padding: 25px; overflow: hidden;
+            gap: 25px;
+            padding: 25px;
+            overflow: hidden;
         }
 
-        .glass-panel { background: var(--glass-bg); backdrop-filter: blur(40px); border: 2px solid var(--glass-border); border-radius: 45px; position: relative; overflow: hidden; z-index: 10; }
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(40px);
+            border: 2px solid var(--glass-border);
+            border-radius: 45px;
+            position: relative;
+            overflow: hidden;
+            z-index: 10;
+        }
 
-        .top-bar { grid-column: 1/3; display: grid; grid-template-columns: 1.2fr 2fr 1fr; align-items: center; padding: 0 50px; }
+        .top-bar {
+            grid-column: 1/3;
+            display: grid;
+            grid-template-columns: 1.2fr 2fr 1fr;
+            align-items: center;
+            padding: 0 50px;
+        }
+
         #greeting { font-size: 5rem; font-weight: 900; letter-spacing: -2px; }
         #sub-greeting { font-size: 2.2rem; font-weight: 700; color: var(--accent); text-transform: uppercase; }
 
@@ -41,30 +61,73 @@
 
         #tom-temp { font-size: 8rem; font-weight: 900; line-height: 1; text-align: right; color: var(--summer-cyan); }
 
-        .sidebar { grid-column: 1/2; grid-row: 2/3; display: grid; grid-template-rows: 1.2fr 1fr 1fr; gap: 25px; min-height: 0; }
+        .sidebar {
+            grid-column: 1/2;
+            grid-row: 2/3;
+            display: grid;
+            grid-template-rows: 1.2fr 1fr 1fr;
+            gap: 25px;
+            min-height: 0;
+        }
 
-        .event-item { display: flex; align-items: center; gap: 30px; padding: 30px; border-bottom: 1px solid rgba(255,255,255,0.1); transition: all 0.5s ease; }
-        .event-item.is-today { 
-            background: rgba(94, 146, 243, 0.1); 
+        .event-item {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            padding: 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.5s ease;
+        }
+
+        .event-item.is-today {
+            background: rgba(94, 146, 243, 0.1);
             border: 3px solid var(--accent);
             box-shadow: inset 0 0 20px var(--today-glow);
             border-radius: 25px;
             margin: 5px;
         }
+
         .event-date { min-width: 140px; text-align: center; border-right: 4px solid var(--accent); padding-right: 20px; }
         .event-date div:first-child { font-size: 1.4rem; font-weight: 900; color: var(--accent); }
         .event-date div:last-child { font-size: 3rem; font-weight: 900; }
         .event-summary { font-size: 2.5rem; font-weight: 400; padding-left: 10px; }
 
-        .lunch-box { padding: 40px; display: flex; flex-direction: column; justify-content: center; height: 100%; overflow: hidden; }
-        #lunch-day-title { font-size: 1.4rem; font-weight: 900; color: var(--accent); margin-bottom: 10px; text-transform: uppercase; }
-        #lunch-main { font-size: 2.3rem; font-weight: 900; line-height: 1.1; margin-bottom: 8px; color: #fff; }
-        #lunch-veg { font-size: 1.5rem; opacity: 0.7; color: #ccc; font-style: italic; }
+        .lunch-box {
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        #lunch-day-title {
+            font-size: 1.4rem;
+            font-weight: 900;
+            color: var(--accent);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        #lunch-main {
+            font-size: 2.2rem;
+            font-weight: 900;
+            line-height: 1.12;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+
+        #lunch-veg {
+            font-size: 1.4rem;
+            opacity: 0.75;
+            color: #ccc;
+            font-style: italic;
+        }
 
         .fuel-box { padding: 40px; display: flex; flex-direction: column; justify-content: space-around; }
-        .fuel-row { display: flex; justify-content: space-between; align-items: center; }
-        .stn-name { font-size: 2.4rem; font-weight: 900; }
-        .stn-price { font-size: 4rem; font-weight: 900; color: var(--fuel-gold); }
+        .fuel-row { display: flex; justify-content: space-between; align-items: center; gap: 25px; }
+        .stn-name { font-size: 2.1rem; font-weight: 900; }
+        .stn-price { font-size: 4rem; font-weight: 900; color: var(--fuel-gold); white-space: nowrap; }
         .stn-price span { font-size: 1.5rem; margin-left: 10px; opacity: 0.5; }
 
         .main-content { grid-column: 2/3; grid-row: 2/3; background: #000; position: relative; }
@@ -79,7 +142,22 @@
         .lov-item { text-align: center; }
         .lov-val { font-size: 6rem; font-weight: 900; line-height: 1; }
         .lov-lab { font-size: 1.3rem; font-weight: 900; letter-spacing: 2px; }
-        #footer-time { font-size: 7rem; font-weight: 900; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.05); }
+        #history-fact {
+            font-size: 1.5rem;
+            margin-left: 40px;
+            opacity: 0.8;
+            border-left: 2px solid #333;
+            padding-left: 30px;
+            line-height: 1.3;
+        }
+        #footer-time {
+            font-size: 7rem;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.05);
+        }
     </style>
 </head>
 <body>
@@ -95,7 +173,7 @@
 
 <div class="sidebar">
     <section class="glass-panel" id="calendar-list"></section>
-    
+
     <section class="glass-panel lunch-box">
         <div id="lunch-day-title">SÖKER LUNCH...</div>
         <div id="lunch-main">Hämtar matsedel...</div>
@@ -108,7 +186,7 @@
             <div id="price-costco" class="stn-price">--<span>kr/l</span></div>
         </div>
         <div class="fuel-row" style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
-            <div class="stn-name">PREEM ALLÉVÄGEN</div>
+            <div class="stn-name">DIN-X MALMÖ</div>
             <div id="price-preem" class="stn-price">--<span>kr/l</span></div>
         </div>
     </section>
@@ -133,161 +211,441 @@
             <div id="count-summer" class="lov-val" style="color: var(--summer-cyan);">--</div>
             <div class="lov-lab">SOMMARLOV</div>
         </div>
-        <div id="history-fact" style="font-size: 1.5rem; margin-left: 40px; opacity: 0.8; border-left: 2px solid #333; padding-left: 30px;">...</div>
+        <div id="history-fact">...</div>
     </div>
     <div class="glass-panel" id="footer-time">00:00</div>
 </div>
 
 <script>
-    const API_KEY_CAL = 'AIzaSyAC3QiGhqOM2F2ZrnFq3xWUu6_1bAwOvSw';
+    const API_KEY_CAL = 'DIN_GOOGLE_CALENDAR_API_KEY';
     const CAL_ID = 'rezgarhayder@gmail.com';
 
-    // BILDSPEL
-    const slideshowImages = ["https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=1200&q=80"];
+    // Staffanstorp grundskola på Matilda
+    const MATILDA_MENU_URL = 'https://menu.matildaplatform.com/meals/week/67ebb44bea58e3e60ce63da0_matsedel-grundskola';
+
+    const slideshowImages = [
+        "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=1200&q=80"
+    ];
+
     let currentSlide = 1;
-    function updateSlideshow() {
-        const nextSlide = currentSlide === 1 ? 2 : 1;
-        const activeEl = document.getElementById(`slide${currentSlide}`);
-        const nextEl = document.getElementById(`slide${nextSlide}`);
-        const newImgUrl = `https://images.unsplash.com/photo-${Math.random() < 0.5 ? '1470071459604-3b5ec3a7fe05' : '1441974231531-c6227db76b6e'}?auto=format&fit=crop&w=1600&q=80&sig=${Math.random()}`;
-        nextEl.style.backgroundImage = `url('${newImgUrl}')`;
-        setTimeout(() => { activeEl.classList.remove('active'); nextEl.classList.add('active'); currentSlide = nextSlide; }, 1000); 
+    let headlines = [];
+    let newsIdx = 0;
+
+    const historyFacts = [
+        "Idag i historien: 1521 valdes Gustav Vasa till svensk riksföreståndare.",
+        "Idag i historien: 1899 patenterades aspirin av Bayer.",
+        "Idag i historien: 1987 förliste passagerarfartyget Herald of Free Enterprise.",
+        "Idag i historien: 1836 föll Alamo efter belägringen i Texas.",
+        "Idag i historien: 1475 föddes Michelangelo."
+    ];
+
+    function setHistoryFact() {
+        const dayOfYear = Math.floor(
+            (Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000
+        );
+        document.getElementById('history-fact').textContent =
+            historyFacts[dayOfYear % historyFacts.length];
     }
 
-    // NYHETER
-    let headlines = []; let newsIdx = 0;
-    async function updateNews() {
-        try {
-            const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent('https://feeds.bbci.co.uk/news/world/rss.xml')}`);
-            const data = await res.json();
-            const parser = new DOMParser();
-            const xml = parser.parseFromString(data.contents, "text/xml");
-            const items = xml.querySelectorAll("item");
-            headlines = Array.from(items).map(i => i.querySelector("title").textContent);
-            displayNextHeadline();
-        } catch(e) { document.getElementById('news-text').innerText = "VÄRLDSHÄNDELSER UPPDATERAS..."; }
+    function normalizeText(str = '') {
+        return str
+            .replace(/\u00A0/g, ' ')
+            .replace(/\s+/g, ' ')
+            .replace(/[ \t]+\n/g, '\n')
+            .trim();
     }
 
-    function displayNextHeadline() {
-        if (headlines.length === 0) return;
-        const el = document.getElementById('news-text');
-        el.style.opacity = 0;
-        setTimeout(() => {
-            el.innerText = headlines[newsIdx];
-            el.style.opacity = 1;
-            newsIdx = (newsIdx + 1) % headlines.length;
-        }, 500);
+    async function fetchTextWithFallback(url) {
+        const proxies = [
+            `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+            `https://api.allorigins.win/get?url=${encodeURIComponent(url)}&_=${Date.now()}`
+        ];
+
+        let lastError = null;
+
+        for (const proxyUrl of proxies) {
+            try {
+                const res = await fetch(proxyUrl, { cache: 'no-store' });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+                if (proxyUrl.includes('/get?')) {
+                    const data = await res.json();
+                    if (!data.contents) throw new Error('Tomt proxysvar');
+                    return data.contents;
+                }
+
+                return await res.text();
+            } catch (err) {
+                lastError = err;
+            }
+        }
+
+        throw lastError || new Error('Kunde inte hämta data');
     }
 
-    function update() {
-        const now = new Date();
-        document.getElementById('footer-time').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
-        document.getElementById('sub-greeting').innerText = now.toLocaleDateString('sv-SE', { weekday: 'long', day: 'numeric', month: 'long' });
-        const easter = new Date('2026-03-30'); const summer = new Date('2026-06-12');
-        document.getElementById('count-easter').innerText = Math.max(0, Math.ceil((easter - now) / 86400000));
-        document.getElementById('count-summer').innerText = Math.max(0, Math.ceil((summer - now) / 86400000));
+    function startOfWeekMonday(date) {
+        const d = new Date(date);
+        const day = d.getDay(); // 0=sön
+        const diff = day === 0 ? -6 : 1 - day;
+        d.setDate(d.getDate() + diff);
+        d.setHours(0, 0, 0, 0);
+        return d;
     }
 
-    async function fetchWithRetry(url) {
-        const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}&_=${new Date().getTime()}`);
-        if (!res.ok) throw new Error("Proxy fail");
-        const data = await res.json();
-        return data.contents; 
+    function toISODate(date) {
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    }
+
+    function weekdayShortSv(date) {
+        return ['sön', 'mån', 'tis', 'ons', 'tor', 'fre', 'lör'][date.getDay()];
+    }
+
+    function monthNameSv(date) {
+        return [
+            'januari', 'februari', 'mars', 'april', 'maj', 'juni',
+            'juli', 'augusti', 'september', 'oktober', 'november', 'december'
+        ][date.getMonth()];
+    }
+
+    function extractLunchFromMatildaText(pageText, targetDate) {
+        const text = normalizeText(pageText)
+            .replace(/Veckans matsedel/gi, '\nVeckans matsedel\n')
+            .replace(/Måndag|Tisdag|Onsdag|Torsdag|Fredag|Lördag|Söndag/gi, match => `\n${match}\n`)
+            .replace(/mån|tis|ons|tor|fre|lör|sön/gi, match => `\n${match}`)
+            .replace(/\s{2,}/g, ' ');
+
+        const lines = text
+            .split('\n')
+            .map(s => s.trim())
+            .filter(Boolean);
+
+        const dayPattern1 = new RegExp(`^${weekdayShortSv(targetDate)}\\s+${targetDate.getDate()}\\s+${monthNameSv(targetDate)}$`, 'i');
+        const dayPattern2 = new RegExp(`^${weekdayShortSv(targetDate)}\\s+${targetDate.getDate()}\\b`, 'i');
+        const nextDayPattern = /^(mån|tis|ons|tor|fre|lör|sön)\s+\d+\b/i;
+
+        let idx = lines.findIndex(line => dayPattern1.test(line) || dayPattern2.test(line));
+
+        if (idx === -1) {
+            // fallback på heltext
+            const blockRegex = new RegExp(
+                `${weekdayShortSv(targetDate)}\\s+${targetDate.getDate()}\\s+${monthNameSv(targetDate)}([\\s\\S]{0,450}?)(?=(mån|tis|ons|tor|fre|lör|sön)\\s+\\d+|Veckans matsedel|Dagens matsedel|Bädda in|$)`,
+                'i'
+            );
+            const m = text.match(blockRegex);
+            if (m && m[1]) {
+                const chunk = m[1]
+                    .replace(/Mer information/gi, '')
+                    .replace(/Till lunchen.*$/gi, '')
+                    .trim();
+
+                const parts = chunk
+                    .split(/(?<=\.)\s+| \d+\.\s+/)
+                    .map(s => s.trim())
+                    .filter(Boolean)
+                    .filter(s => s.length > 4);
+
+                if (parts.length) {
+                    return {
+                        main: parts[0],
+                        extra: parts.slice(1, 3).join(' • ')
+                    };
+                }
+            }
+            return null;
+        }
+
+        const collected = [];
+        for (let i = idx + 1; i < lines.length; i++) {
+            const line = lines[i];
+            if (nextDayPattern.test(line)) break;
+            if (/^(Veckans matsedel|Dagens matsedel|Bädda in|English|Suomi|Norsk|Svenska|Dansk)$/i.test(line)) continue;
+            if (/^Till lunchen/i.test(line)) break;
+            if (/^Mer information$/i.test(line)) continue;
+            if (line.length < 3) continue;
+            collected.push(line);
+        }
+
+        if (!collected.length) return null;
+
+        const filtered = collected.filter(line =>
+            !/^Staffanstorp$/i.test(line) &&
+            !/^Vecka\s+\d+/i.test(line)
+        );
+
+        if (!filtered.length) return null;
+
+        return {
+            main: filtered[0],
+            extra: filtered.slice(1, 3).join(' • ')
+        };
     }
 
     async function updateLunch() {
+        const lunchDayTitle = document.getElementById('lunch-day-title');
         const lunchMain = document.getElementById('lunch-main');
+        const lunchVeg = document.getElementById('lunch-veg');
+
         try {
-            const now = new Date(); let checkDate = new Date();
-            if (now.getHours() >= 14) checkDate.setDate(now.getDate() + 1);
-            const menuID = "762f275e-8686-4f40-8f96-a45e00949f2b";
-            const dateStr = checkDate.toISOString().split('T')[0];
-            const mashieUrl = `https://mpi.mashie.com/api/v1/pubmenus/${menuID}/weeks?fromDate=${dateStr}&toDate=${dateStr}`;
-            const raw = await fetchWithRetry(mashieUrl);
-            const weeks = JSON.parse(raw);
-            if (weeks && weeks[0] && weeks[0].Days[0]) {
-                document.getElementById('lunch-day-title').innerText = now.getHours() >= 14 ? "LUNCH IMORGON" : "LUNCH IDAG";
-                lunchMain.innerText = weeks[0].Days[0].Meals[0].Name;
-                document.getElementById('lunch-veg').innerText = weeks[0].Days[0].Meals[1]?.Name || "";
+            const now = new Date();
+            const target = new Date(now);
+
+            // Efter 14:00 visar vi nästa skoldag
+            if (now.getHours() >= 14) {
+                target.setDate(target.getDate() + 1);
             }
-        } catch(e) { lunchMain.innerText = "LUNCH: ANSLUTNINGSFEL"; }
+
+            // Hoppa över helg
+            while (target.getDay() === 0 || target.getDay() === 6) {
+                target.setDate(target.getDate() + 1);
+            }
+
+            const weekStart = startOfWeekMonday(target);
+            const url = `${MATILDA_MENU_URL}?startDate=${toISODate(weekStart)}`;
+
+            const html = await fetchTextWithFallback(url);
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const bodyText = doc.body ? doc.body.textContent : html;
+
+            const lunch = extractLunchFromMatildaText(bodyText, target);
+
+            lunchDayTitle.textContent =
+                now.getHours() >= 14 ? 'LUNCH NÄSTA SKOLDAG' : 'LUNCH IDAG';
+
+            if (lunch) {
+                lunchMain.textContent = lunch.main || 'Ingen rätt hittades';
+                lunchVeg.textContent = lunch.extra || '';
+            } else {
+                lunchMain.textContent = 'Ingen matsedel hittades';
+                lunchVeg.textContent = '';
+            }
+        } catch (e) {
+            console.error('Lunchfel:', e);
+            lunchMain.textContent = 'LUNCH: ANSLUTNINGSFEL';
+            lunchVeg.textContent = '';
+        }
+    }
+
+    function parseFuelPrices(text) {
+        const normalized = normalizeText(text);
+
+        const costcoMatch =
+            normalized.match(/Costco \(medlemskap krävs\)\s+Malmö\s+Arlöv:\s+Vassvägen 27\s+(\d+[,.]\d+)kr/i) ||
+            normalized.match(/Costco.*?Arlöv:\s*Vassvägen 27\s+(\d+[,.]\d+)kr/i);
+
+        const dinxMatch =
+            normalized.match(/din-X Malmö\s+Nya agnesfridsvägen 178\s+(\d+[,.]\d+)kr/i) ||
+            normalized.match(/din-X Malmö.*?(\d+[,.]\d+)kr/i);
+
+        return {
+            costco: costcoMatch ? costcoMatch[1].replace(',', '.') : null,
+            dinx: dinxMatch ? dinxMatch[1].replace(',', '.') : null
+        };
+    }
+
+    async function updateFuel() {
+        try {
+            const malmoUrl = "https://bensinpriser.nu/stationer/diesel/skane-lan/malmo";
+            const html = await fetchTextWithFallback(malmoUrl);
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, "text/html");
+            const sourceText = doc.body ? doc.body.textContent : html;
+
+            const prices = parseFuelPrices(sourceText);
+
+            if (prices.costco) {
+                document.getElementById('price-costco').innerHTML = `${prices.costco}<span>kr/l</span>`;
+            } else {
+                document.getElementById('price-costco').innerHTML = `--<span>kr/l</span>`;
+            }
+
+            if (prices.dinx) {
+                document.getElementById('price-preem').innerHTML = `${prices.dinx}<span>kr/l</span>`;
+            } else {
+                document.getElementById('price-preem').innerHTML = `--<span>kr/l</span>`;
+            }
+        } catch (e) {
+            console.error("Kunde inte hämta dieselpriser", e);
+        }
+    }
+
+    function weatherCodeToIcon(code) {
+        if (code === 0) return 'sun';
+        if ([1, 2].includes(code)) return 'cloud-sun';
+        if (code === 3) return 'cloud';
+        if ([45, 48].includes(code)) return 'cloud-fog';
+        if ([51, 53, 55, 56, 57].includes(code)) return 'cloud-drizzle';
+        if ([61, 63, 65, 66, 67, 80, 81, 82].includes(code)) return 'cloud-rain';
+        if ([71, 73, 75, 77, 85, 86].includes(code)) return 'cloud-snow';
+        if ([95, 96, 99].includes(code)) return 'cloud-lightning';
+        return 'cloud';
     }
 
     async function updateWeather() {
         try {
-            const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=55.64&longitude=13.21&hourly=temperature_2m,weathercode&daily=temperature_2m_max&timezone=auto');
+            const res = await fetch(
+                'https://api.open-meteo.com/v1/forecast?latitude=55.64&longitude=13.21&hourly=temperature_2m,weathercode&daily=temperature_2m_max&timezone=Europe%2FStockholm',
+                { cache: 'no-store' }
+            );
             const d = await res.json();
-            const nowH = new Date().getHours();
-            document.getElementById('tom-temp').innerText = Math.round(d.daily.temperature_2m_max[1]) + '°';
+
+            document.getElementById('tom-temp').innerText =
+                Math.round(d.daily.temperature_2m_max[1]) + '°';
+
+            const now = new Date();
+            const hourTimes = d.hourly.time.map(t => new Date(t));
+            let startIdx = hourTimes.findIndex(t => t >= now);
+            if (startIdx < 0) startIdx = 0;
+
             let h = '';
-            for(let i=2; i<=8; i+=2) {
-                const idx = nowH + i;
-                const icon = d.hourly.weathercode[idx] <= 2 ? (d.hourly.weathercode[idx] === 0 ? 'sun' : 'cloud-sun') : 'cloud-rain';
-                h += `<div class="weather-node"><div>${new Date(d.hourly.time[idx]).getHours()}:00</div><i data-lucide="${icon}"></i><div>${Math.round(d.hourly.temperature_2m[idx])}°</div></div>`;
+            const desiredIndexes = [startIdx + 1, startIdx + 3, startIdx + 5, startIdx + 7]
+                .filter(idx => idx < d.hourly.time.length);
+
+            for (const idx of desiredIndexes) {
+                const icon = weatherCodeToIcon(d.hourly.weathercode[idx]);
+                h += `
+                    <div class="weather-node">
+                        <div>${hourTimes[idx].toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' })}</div>
+                        <i data-lucide="${icon}"></i>
+                        <div>${Math.round(d.hourly.temperature_2m[idx])}°</div>
+                    </div>
+                `;
             }
-            document.getElementById('header-hourly').innerHTML = h; lucide.createIcons();
-        } catch(e) {}
+
+            document.getElementById('header-hourly').innerHTML = h;
+            lucide.createIcons();
+        } catch (e) {
+            console.error('Väderfel:', e);
+        }
     }
 
     async function updateCalendar() {
         try {
-            const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CAL_ID)}/events?key=${API_KEY_CAL}&timeMin=${new Date().toISOString()}&singleEvents=true&orderBy=startTime`);
+            const res = await fetch(
+                `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CAL_ID)}/events?key=${API_KEY_CAL}&timeMin=${new Date().toISOString()}&singleEvents=true&orderBy=startTime`
+            );
+
+            if (!res.ok) throw new Error(`Calendar HTTP ${res.status}`);
             const d = await res.json();
+
             if (d.items) {
                 const todayStr = new Date().toDateString();
                 document.getElementById('calendar-list').innerHTML = d.items.slice(0, 3).map(e => {
                     const s = new Date(e.start.dateTime || e.start.date);
                     const isToday = s.toDateString() === todayStr;
-                    return `<div class="event-item ${isToday ? 'is-today' : ''}"><div class="event-date"><div>${s.toLocaleDateString('sv-SE',{weekday:'short'}).toUpperCase()}</div><div>${e.start.dateTime ? s.toLocaleTimeString('sv-SE',{hour:'2-digit',minute:'2-digit'}) : 'HELDAG'}</div></div><div class="event-summary">${e.summary}</div></div>`;
+
+                    return `
+                        <div class="event-item ${isToday ? 'is-today' : ''}">
+                            <div class="event-date">
+                                <div>${s.toLocaleDateString('sv-SE', { weekday: 'short' }).toUpperCase()}</div>
+                                <div>${e.start.dateTime ? s.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' }) : 'HELDAG'}</div>
+                            </div>
+                            <div class="event-summary">${e.summary || '(utan titel)'}</div>
+                        </div>
+                    `;
                 }).join('');
             }
-        } catch(e) {}
-    }
-
-    async function updateFuel() {
-        try {
-            // Hämta hela listan för Skåne län från bensinpriser.nu
-            const html = await fetchWithRetry("https://bensinpriser.nu/stationer/diesel/skane-lan/");
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, "text/html");
-            
-            // Hitta alla tabellrader
-            const rows = Array.from(doc.querySelectorAll("tr"));
-            
-            // 1. Leta efter Costco
-            const costcoRow = rows.find(r => r.innerText.includes("Costco"));
-            if (costcoRow) {
-                const priceMatch = costcoRow.innerText.match(/(\d+[,.]\d+)kr/);
-                if (priceMatch) {
-                    document.getElementById('price-costco').innerHTML = `${priceMatch[1]}<span>kr/l</span>`;
-                }
-            }
-
-            // 2. Leta efter Preem eller Ingo i Malmö/Arlöv som referens
-            const preemRow = rows.find(r => r.innerText.includes("Preem") || r.innerText.includes("Ingo") || r.innerText.includes("din-X"));
-            if (preemRow) {
-                const priceMatch = preemRow.innerText.match(/(\d+[,.]\d+)kr/);
-                if (priceMatch) {
-                    document.getElementById('price-preem').innerHTML = `${priceMatch[1]}<span>kr/l</span>`;
-                }
-            }
-            
-        } catch(e) {
-            console.error("Kunde inte hämta priser från bensinpriser.nu", e);
+        } catch (e) {
+            console.error('Kalenderfel:', e);
+            document.getElementById('calendar-list').innerHTML =
+                `<div class="event-item"><div class="event-summary">Kunde inte läsa kalendern</div></div>`;
         }
     }
 
+    async function updateNews() {
+        try {
+            const rssUrl = 'https://feeds.bbci.co.uk/news/world/rss.xml';
+            const raw = await fetchTextWithFallback(rssUrl);
+
+            const parser = new DOMParser();
+            const xml = parser.parseFromString(raw, "text/xml");
+            const items = xml.querySelectorAll("item");
+
+            headlines = Array.from(items)
+                .map(i => i.querySelector("title")?.textContent?.trim())
+                .filter(Boolean)
+                .slice(0, 15);
+
+            displayNextHeadline();
+        } catch (e) {
+            console.error('Nyhetsfel:', e);
+            document.getElementById('news-text').innerText = "VÄRLDSHÄNDELSER UPPDATERAS...";
+        }
+    }
+
+    function displayNextHeadline() {
+        if (headlines.length === 0) return;
+
+        const el = document.getElementById('news-text');
+        el.style.opacity = 0;
+
+        setTimeout(() => {
+            el.innerText = headlines[newsIdx];
+            el.style.opacity = 1;
+            newsIdx = (newsIdx + 1) % headlines.length;
+        }, 400);
+    }
+
+    function updateSlideshow() {
+        const nextSlide = currentSlide === 1 ? 2 : 1;
+        const activeEl = document.getElementById(`slide${currentSlide}`);
+        const nextEl = document.getElementById(`slide${nextSlide}`);
+
+        const newImgUrl = `https://images.unsplash.com/photo-${
+            Math.random() < 0.5 ? '1470071459604-3b5ec3a7fe05' : '1441974231531-c6227db76b6e'
+        }?auto=format&fit=crop&w=1600&q=80&sig=${Math.random()}`;
+
+        nextEl.style.backgroundImage = `url('${newImgUrl}')`;
+
+        setTimeout(() => {
+            activeEl.classList.remove('active');
+            nextEl.classList.add('active');
+            currentSlide = nextSlide;
+        }, 1000);
+    }
+
+    function updateClockAndCounters() {
+        const now = new Date();
+
+        document.getElementById('footer-time').innerText =
+            now.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' });
+
+        document.getElementById('sub-greeting').innerText =
+            now.toLocaleDateString('sv-SE', { weekday: 'long', day: 'numeric', month: 'long' });
+
+        const easter = new Date('2026-03-30T00:00:00');
+        const summer = new Date('2026-06-12T00:00:00');
+
+        document.getElementById('count-easter').innerText =
+            Math.max(0, Math.ceil((easter - now) / 86400000));
+
+        document.getElementById('count-summer').innerText =
+            Math.max(0, Math.ceil((summer - now) / 86400000));
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
-        update(); updateWeather(); updateCalendar(); updateLunch(); updateFuel(); updateNews();
         document.getElementById('slide1').style.backgroundImage = `url('${slideshowImages[0]}')`;
-        setInterval(update, 1000);
-        setInterval(updateWeather, 1800000);
-        setInterval(updateCalendar, 600000);
-        setInterval(updateLunch, 3600000);
-        setInterval(updateSlideshow, 60000);
-        setInterval(displayNextHeadline, 15000);
-        setInterval(updateNews, 1800000);
-        setInterval(updateFuel, 3600000); // Uppdatera varje timme
+
+        updateClockAndCounters();
+        setHistoryFact();
+        updateWeather();
+        updateCalendar();
+        updateLunch();
+        updateFuel();
+        updateNews();
+
+        setInterval(updateClockAndCounters, 1000);
+        setInterval(updateWeather, 30 * 60 * 1000);
+        setInterval(updateCalendar, 10 * 60 * 1000);
+        setInterval(updateLunch, 60 * 60 * 1000);
+        setInterval(updateFuel, 60 * 60 * 1000);
+        setInterval(updateSlideshow, 60 * 1000);
+        setInterval(displayNextHeadline, 15 * 1000);
+        setInterval(updateNews, 30 * 60 * 1000);
+
         lucide.createIcons();
     });
 </script>
