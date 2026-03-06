@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v95</title>
+    <title>Staffanstorp Wall Dashboard v96</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
@@ -37,6 +37,7 @@
             background: linear-gradient(135deg, #0a0a0a 0%, #151515 100%);
         }
 
+        /* FIX: Tvingar allt på en rad oavsett innehåll */
         #greeting { 
             font-size: 7rem; 
             font-weight: 900; 
@@ -44,12 +45,13 @@
             letter-spacing: -4px; 
             margin-bottom: 5px; 
             white-space: nowrap; 
-            overflow: hidden; 
+            display: block;
+            overflow: hidden;
+            text-overflow: clip;
             text-transform: lowercase; 
         }
         #greeting::first-letter { text-transform: uppercase; }
 
-        /* WIGGLE ANIMERING FÖR UTROPSTECKNET */
         .wiggle-mark {
             display: inline-block;
             animation: mark-wiggle 4s infinite ease-in-out;
@@ -62,13 +64,13 @@
             95% { transform: rotate(10deg); }
         }
 
-        /* FIXAT SKIFTLÄGE PÅ DATUMRADEN */
         #date-sub { 
             font-size: 2.8rem; 
             font-weight: 300; 
             color: var(--accent); 
             margin-bottom: 20px; 
             text-transform: lowercase; 
+            white-space: nowrap;
         }
         #date-sub::first-letter { text-transform: uppercase; }
 
@@ -107,7 +109,7 @@
         .ev-time { font-size: 1.4rem; opacity: 0.7; font-weight: 700; margin-top: 5px; }
         .event-title { font-size: 2.5rem; font-weight: 400; flex: 1; line-height: 1.2; }
 
-        /* VÄDER MED MJUKA RÖRELSER */
+        /* VÄDER */
         .weather-row { display: flex; gap: 20px; }
         .weather-box { 
             background: rgba(255,255,255,0.03); 
@@ -132,12 +134,12 @@
         .weather-temp { font-size: 3.2rem; font-weight: 900; }
         .weather-hour { font-size: 1.4rem; opacity: 0.6; font-weight: 900; text-transform: uppercase; }
 
-        /* HÖGER SIDA - MEDIA */
+        /* MEDIA PANEL */
         .media-panel { flex: 1; display: flex; flex-direction: column; }
-        .video-container { flex: 1; background: #000; position: relative; margin-top: 0; }
+        .video-container { flex: 1; background: #000; position: relative; }
         .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
 
-        /* COUNTDOWN FOOTER */
+        /* FOOTER */
         .countdown-bar {
             height: 220px;
             background: #0a0a0a;
@@ -213,7 +215,7 @@
     </div>
 
 <script>
-    const API_KEY_CAL = 'AIzaSyAC3QiGhqOM2F2ZrnFq3xWUu6_1bAwOvSw';
+    const API_KEY_CAL = 'AIzaSyAC3QiGhqOM2F2ZrnFq3xWU_1bAwOvSw'; // Kontrollera API-nyckel vid behov
     const CAL_ID = 'rezgarhayder@gmail.com';
 
     function update() {
@@ -226,7 +228,6 @@
         else if (hour >= 18 && hour < 23) greetingBase = "God kväll";
         else greetingBase = "God natt";
         
-        // Applicera basen och wiggle på utropstecknet separat
         document.getElementById('greeting').innerHTML = `${greetingBase}<span class="wiggle-mark">!</span>`;
         document.getElementById('clock').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
         
@@ -252,15 +253,14 @@
                 const dateNum = start.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' });
                 const timeStr = e.start.dateTime ? start.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'}) : 'HELDAG';
 
-                return `
-                    <div class="event-card ${isToday ? 'today' : ''}">
-                        <div class="event-date-box">
-                            <div class="ev-day-name">${isToday ? 'IDAG' : dayName}</div>
-                            <div class="ev-date-num">${dateNum}</div>
-                            <div class="ev-time">${timeStr}</div>
-                        </div>
-                        <div class="event-title">${e.summary}</div>
-                    </div>`;
+                return `<div class="event-card ${isToday ? 'today' : ''}">
+                    <div class="event-date-box">
+                        <div class="ev-day-name">${isToday ? 'IDAG' : dayName}</div>
+                        <div class="ev-date-num">${dateNum}</div>
+                        <div class="ev-time">${timeStr}</div>
+                    </div>
+                    <div class="event-title">${e.summary}</div>
+                </div>`;
             }).join('');
         } catch(e) {}
     }
