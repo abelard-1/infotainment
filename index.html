@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v106</title>
+    <title>Staffanstorp Wall Dashboard v107</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
@@ -108,9 +108,10 @@
             padding-right: 20px;
         }
         
+        /* JUSTERAD STORLEK PÅ DATUM OCH TID FÖR BÄTTRE BALANS */
         .ev-day-name { font-size: 1.3rem; font-weight: 900; color: var(--accent); text-transform: uppercase; }
-        .ev-date-num { font-size: 2.8rem; font-weight: 900; line-height: 1.1; }
-        .ev-time { font-size: 1.5rem; opacity: 0.8; font-weight: 700; margin-top: 8px; } /* KLOCKSLAG TILLBAKA */
+        .ev-date-num { font-size: 2.5rem; font-weight: 900; line-height: 1.1; } /* Minskad från 2.8rem */
+        .ev-time { font-size: 1.7rem; opacity: 0.8; font-weight: 700; margin-top: 8px; } /* Ökad från 1.5rem */
         .event-title { font-size: 2.6rem; font-weight: 400; flex: 1; line-height: 1.2; }
 
         .weather-row { display: flex; gap: 15px; }
@@ -299,10 +300,23 @@
             updateWeatherOverlay(code);
 
             const getIcon = (c) => (c >= 71 ? 'snowflake' : c >= 51 ? 'cloud-rain' : c >= 3 ? 'cloud' : 'sun');
+            
+            // Logik för MAX IDAG (dygnets 24 första timmar från midnatt)
+            const todayData = d.hourly.temperature_2m.slice(0, 24);
+            const todayMax = Math.round(Math.max(...todayData));
+            const todayMaxIndex = todayData.indexOf(Math.max(...todayData));
+            const todayMaxCode = d.hourly.weathercode[todayMaxIndex];
+
+            // Logik för MAX IMORGON (nästkommande 24 timmar)
+            const tomorrowData = d.hourly.temperature_2m.slice(24, 48);
+            const tomorrowMax = Math.round(Math.max(...tomorrowData));
+            const tomorrowMaxIndex = 24 + tomorrowData.indexOf(Math.max(...tomorrowData));
+            const tomorrowMaxCode = d.hourly.weathercode[tomorrowMaxIndex];
+
             document.getElementById('weather-list').innerHTML = `
                 <div class="weather-box"><div class="weather-hour">NU</div><div class="weather-icon-wrapper"><i data-lucide="${getIcon(code)}"></i></div><div class="weather-temp">${Math.round(d.hourly.temperature_2m[nowH])}°</div></div>
-                <div class="weather-box"><div class="weather-hour">${(nowH+3)%24}:00</div><div class="weather-icon-wrapper"><i data-lucide="${getIcon(d.hourly.weathercode[nowH+3])}"></i></div><div class="weather-temp">${Math.round(d.hourly.temperature_2m[nowH+3])}°</div></div>
-                <div class="weather-box"><div class="weather-hour">MAX IMORGON</div><div class="weather-icon-wrapper"><i data-lucide="${getIcon(d.hourly.weathercode[36])}"></i></div><div class="weather-temp">${Math.round(Math.max(...d.hourly.temperature_2m.slice(24, 48)))}°</div></div>
+                <div class="weather-box"><div class="weather-hour">MAX IDAG</div><div class="weather-icon-wrapper"><i data-lucide="${getIcon(todayMaxCode)}"></i></div><div class="weather-temp">${todayMax}°</div></div>
+                <div class="weather-box"><div class="weather-hour">MAX IMORGON</div><div class="weather-icon-wrapper"><i data-lucide="${getIcon(tomorrowMaxCode)}"></i></div><div class="weather-temp">${tomorrowMax}°</div></div>
             `;
             lucide.createIcons();
         } catch(e) {}
