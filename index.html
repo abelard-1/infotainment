@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v110</title>
+    <title>Staffanstorp Wall Dashboard v111</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
@@ -76,7 +76,6 @@
             100% { transform: translate(0,0) rotate(0deg); }
         }
 
-        /* NYTT: Mån-ikonens stil */
         .moon-icon {
             display: inline-block;
             margin-left: 10px;
@@ -206,7 +205,7 @@
         .vertical-label { 
             writing-mode: vertical-rl; 
             transform: rotate(180deg); 
-            font-size: 0.8rem; 
+            font-size: 1.2rem; /* Ändrad från 0.8rem (50% större) */
             font-weight: 900; 
             letter-spacing: 2px; 
             opacity: 0.4;
@@ -271,11 +270,11 @@
                 <div style="display: flex; gap: 50px;">
                     <div style="text-align: center;">
                         <div id="count-easter" style="font-size: 5.5rem; font-weight: 900; color: var(--easter);">--</div>
-                        <div style="font-size: 0.9rem; letter-spacing: 3px; opacity: 0.4; font-weight: 900;">PÅSKLOV</div>
+                        <div style="font-size: 1.35rem; letter-spacing: 3px; opacity: 0.4; font-weight: 900; line-height: 1.1;">PÅSK-<br>LOV</div>
                     </div>
                     <div style="text-align: center;">
                         <div id="count-summer" style="font-size: 5.5rem; font-weight: 900; color: var(--summer);">--</div>
-                        <div style="font-size: 0.9rem; letter-spacing: 3px; opacity: 0.4; font-weight: 900;">SOMMARLOV</div>
+                        <div style="font-size: 1.35rem; letter-spacing: 3px; opacity: 0.4; font-weight: 900; line-height: 1.1;">SOMMAR-<br>LOV</div>
                     </div>
                 </div>
             </div>
@@ -303,10 +302,8 @@
         
         const greetingEl = document.getElementById('greeting');
         
-        // Logik för God natt: ta bort utropstecken och lägg till halvmåne
         if(greetingBase === "God natt") {
             greetingEl.classList.add('god-natt');
-            // Använder en inline SVG-måne för att säkerställa att den ritas upp direkt
             greetingEl.innerHTML = `God natt<span class="moon-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></span>`;
         } else {
             greetingEl.classList.remove('god-natt');
