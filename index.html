@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v107</title>
+    <title>Staffanstorp Wall Dashboard v108</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
@@ -108,10 +108,9 @@
             padding-right: 20px;
         }
         
-        /* JUSTERAD STORLEK PÅ DATUM OCH TID FÖR BÄTTRE BALANS */
         .ev-day-name { font-size: 1.3rem; font-weight: 900; color: var(--accent); text-transform: uppercase; }
-        .ev-date-num { font-size: 2.5rem; font-weight: 900; line-height: 1.1; } /* Minskad från 2.8rem */
-        .ev-time { font-size: 1.7rem; opacity: 0.8; font-weight: 700; margin-top: 8px; } /* Ökad från 1.5rem */
+        .ev-date-num { font-size: 2.5rem; font-weight: 900; line-height: 1.1; } 
+        .ev-time { font-size: 1.7rem; opacity: 0.8; font-weight: 700; margin-top: 8px; } 
         .event-title { font-size: 2.6rem; font-weight: 400; flex: 1; line-height: 1.2; }
 
         .weather-row { display: flex; gap: 15px; }
@@ -137,6 +136,13 @@
             display: block; 
             margin: 0 auto; 
         }
+
+        /* GÖR BARA SOL-IKONEN GULORANGE */
+        .weather-box i[data-lucide="sun"], 
+        .weather-box svg.lucide-sun {
+            color: #ffb703 !important;
+        }
+
         .weather-temp { font-size: 3.8rem; font-weight: 900; margin-top: 5px; }
         .weather-hour { font-size: 1.4rem; opacity: 0.6; font-weight: 900; text-transform: uppercase; }
 
