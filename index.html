@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v113</title>
+    <title>Staffanstorp Wall Dashboard v115</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
@@ -180,7 +180,7 @@
 
         .media-panel { flex: 1; display: flex; flex-direction: column; position: relative; z-index: 20; }
         
-        /* NYHETS-HERO (Ersätter videon) */
+        /* NYHETS-HERO */
         .news-hero-container { 
             flex: 1; 
             background: #050505; 
@@ -198,7 +198,6 @@
             transition: opacity 1.5s ease;
             transform: scale(1);
         }
-        /* Ken Burns effekt när aktiv */
         .news-hero-img.active {
             opacity: 1;
             transform: scale(1.05);
@@ -207,8 +206,8 @@
         .news-hero-overlay {
             position: absolute;
             bottom: 0; left: 0; 
-            width: 100%; height: 75%;
-            background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.6) 40%, transparent 100%);
+            width: 100%; height: 85%;
+            background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.5) 50%, transparent 100%);
             z-index: 1;
         }
         .news-hero-content {
@@ -313,8 +312,8 @@
             <img id="news-hero-img" class="news-hero-img" src="" alt="News Background">
             <div class="news-hero-overlay"></div>
             <div class="news-hero-content">
-                <div class="news-hero-tag">Världen</div>
-                <div id="news-hero-title">Hämtar de senaste nyheterna...</div>
+                <div class="news-hero-tag">Al Jazeera</div>
+                <div id="news-hero-title">Ansluter till nyhetsflödet...</div>
             </div>
         </div>
 
@@ -459,7 +458,6 @@
         }
     }
 
-    // Textnyheter för bottenraden (Al Jazeera)
     async function fetchTextNews() {
         try {
             const res = await fetch('https://api.codetabs.com/v1/proxy?quest=https://www.aljazeera.com/xml/rss/all.xml');
@@ -484,28 +482,43 @@
         }, 500);
     }
 
-    // Visuella nyheter för Hero-rutan (New York Times World)
     async function fetchVisualNews() {
         try {
-            const res = await fetch('https://api.codetabs.com/v1/proxy?quest=https://rss.nytimes.com/services/xml/rss/nyt/World.xml');
+            // Hämtar från Al Jazeera för bilderna
+            const res = await fetch('https://api.codetabs.com/v1/proxy?quest=https://www.aljazeera.com/xml/rss/all.xml');
             const text = await res.text();
             const parser = new DOMParser();
             const xmlDoc = parser.parseFromString(text, "text/xml");
             const items = xmlDoc.querySelectorAll("item");
             
             let parsedNews = [];
+            
             items.forEach(item => {
                 const title = item.querySelector("title")?.textContent;
-                // Leta upp den största bilden som bifogas i RSS-flödet
-                const mediaNodes = item.querySelectorAll('[url]');
                 let imgUrl = null;
-                for (let i = 0; i < mediaNodes.length; i++) {
-                    const url = mediaNodes[i].getAttribute('url');
-                    if (url && (url.includes('.jpg') || url.includes('.png') || url.includes('images'))) {
-                        imgUrl = url;
-                        break;
+
+                // 1. Leta efter standard <enclosure>
+                const enclosure = item.querySelector("enclosure");
+                if (enclosure) {
+                    imgUrl = enclosure.getAttribute("url");
+                }
+                
+                // 2. Leta efter <media:content> eller <media:thumbnail>
+                if (!imgUrl) {
+                    let media = item.getElementsByTagNameNS("*", "content");
+                    if(media.length === 0) media = item.getElementsByTagNameNS("*", "thumbnail");
+                    if (media.length > 0) imgUrl = media[0].getAttribute("url");
+                }
+
+                // 3. Fallback: Finns det en bild-tagg inbakad i beskrivningen?
+                if (!imgUrl) {
+                    const desc = item.querySelector("description")?.textContent;
+                    if (desc) {
+                        const match = desc.match(/<img[^>]+src="([^">]+)"/);
+                        if (match) imgUrl = match[1];
                     }
                 }
+
                 if (title && imgUrl) {
                     parsedNews.push({ title, imgUrl });
                 }
@@ -513,12 +526,18 @@
             
             if (parsedNews.length > 0) {
                 visualNewsItems = parsedNews;
-                // Om det är första laddningen, starta direkt
-                if (visualNewsIndex === 0 && !document.getElementById('news-hero-img').classList.contains('active')) {
+                const titleEl = document.getElementById('news-hero-title');
+                if (titleEl.style.opacity == 0 || titleEl.innerText.includes("Ansluter")) {
                     rotateVisualNews();
                 }
+            } else {
+                throw new Error("Inga bilder hittades i Al Jazeeras flöde.");
             }
-        } catch(e) { console.error("Kunde inte hämta bildnyheter", e); }
+        } catch(e) { 
+            console.error("Kunde inte hämta bildnyheter", e);
+            document.getElementById('news-hero-title').innerText = "Väntar på nyhetsuppdatering...";
+            document.getElementById('news-hero-title').style.opacity = 1;
+        }
     }
 
     function rotateVisualNews() {
@@ -528,43 +547,45 @@
         const imgEl = document.getElementById('news-hero-img');
         const titleEl = document.getElementById('news-hero-title');
         
-        // Steg 1: Fada ut gammalt innehåll
+        // 1. Fada ut det gamla
         imgEl.classList.remove('active');
         titleEl.style.opacity = 0;
         
-        // Steg 2: Byt innehåll efter att det fadat ut
+        // 2. Ladda in det nya när skärmen är mörk
         setTimeout(() => {
             imgEl.src = item.imgUrl;
             titleEl.innerText = item.title;
             
-            // Steg 3: Fada in nytt innehåll och starta Ken Burns-effekten
+            // 3. Fada in mjukt och starta zoomen
             setTimeout(() => {
                 imgEl.classList.add('active');
                 titleEl.style.opacity = 1;
-            }, 100); // Liten fördröjning så att webbläsaren hinner ladda bilden
+            }, 100); 
             
             visualNewsIndex = (visualNewsIndex + 1) % visualNewsItems.length;
-        }, 1500); // Måste matcha CSS-transition för opaciteten
+        }, 1500); // 1.5s matchar CSS-fade
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+        // Kör igång allt direkt vid start
         update(); 
         updateCalendar(); 
         updateWeather(); 
         fetchTextNews();
         fetchVisualNews();
 
+        // Intervaller för att hålla grejerna vid liv
         setInterval(update, 1000); 
         setInterval(updateCalendar, 600000); 
         setInterval(updateWeather, 1800000); 
         
-        // Rotera bottennyheter var 30:e sekund
+        // Al Jazeera text byts var 30:e sekund
         setInterval(rotateTextNews, 30000);
         setInterval(fetchTextNews, 3600000);
 
-        // Rotera bildnyheter var 60:e sekund
+        // Al Jazeera bildnyheter byts var 60:e sekund
         setInterval(rotateVisualNews, 60000);
-        setInterval(fetchVisualNews, 3600000); // Hämta ny fräsch data en gång i timmen
+        setInterval(fetchVisualNews, 3600000); 
     });
 </script>
 </body>
