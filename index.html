@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v111</title>
+    <title>Staffanstorp Wall Dashboard v112</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
@@ -181,12 +181,14 @@
         .media-panel { flex: 1; display: flex; flex-direction: column; position: relative; z-index: 20; }
         
         .video-container { flex: 1; background: #000; position: relative; overflow: hidden; }
+        
+        /* Uppdaterad placering för att klippa bort mer i över- och underkant */
         .video-container iframe { 
             position: absolute; 
-            top: -15%; 
+            top: -25%; 
             left: 0; 
             width: 100%; 
-            height: 130%; 
+            height: 150%; 
             border: none; 
             pointer-events: none;
         }
@@ -205,7 +207,7 @@
         .vertical-label { 
             writing-mode: vertical-rl; 
             transform: rotate(180deg); 
-            font-size: 1.2rem; /* Ändrad från 0.8rem (50% större) */
+            font-size: 1.2rem;
             font-weight: 900; 
             letter-spacing: 2px; 
             opacity: 0.4;
