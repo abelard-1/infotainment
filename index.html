@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v116</title>
+    <title>Staffanstorp Wall Dashboard v117</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
@@ -458,45 +458,65 @@
         }
     }
 
-    // NYHETSMOTOR - Kombinerad fetch för att undvika blockering
+    // NYHETSMOTOR - Med Plan B och Plan C
     async function fetchAlJazeeraNews() {
         try {
-            const res = await fetch('https://api.codetabs.com/v1/proxy?quest=https://www.aljazeera.com/xml/rss/all.xml');
-            if (!res.ok) throw new Error("HTTP error " + res.status);
-            const text = await res.text();
-            
+            let xmlText = "";
+            let usingGoogleFallback = false;
+
+            // FÖRSÖK 1: Hämta direkt från Al Jazeera via en ny proxy (AllOrigins)
+            try {
+                const url = 'https://www.aljazeera.com/xml/rss/all.xml';
+                const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`);
+                const data = await res.json();
+                
+                // Kollar så att det faktiskt är ett RSS-flöde och inte en Cloudflare-blockeringssida
+                if (data.contents && data.contents.includes("<rss")) {
+                    xmlText = data.contents;
+                } else {
+                    throw new Error("Blockerad av Cloudflare");
+                }
+            } catch (e) {
+                console.log("Al Jazeera blockerade förfrågan, byter till Plan B (Google News Fallback)...");
+                usingGoogleFallback = true;
+                
+                // FÖRSÖK 2: Vi använder Google News egna nyhetsinhämtning för Al Jazeera! (Oblockerbart)
+                const fallbackUrl = 'https://news.google.com/rss/search?q=site:aljazeera.com+when:1d&hl=en-US&gl=US&ceid=US:en';
+                const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(fallbackUrl)}`);
+                const data = await res.json();
+                xmlText = data.contents;
+            }
+
             const parser = new DOMParser();
-            const xmlDoc = parser.parseFromString(text, "text/xml");
+            const xmlDoc = parser.parseFromString(xmlText, "text/xml");
             const items = xmlDoc.querySelectorAll("item");
             
             let parsedVisual = [];
             let parsedText = [];
             
             items.forEach(item => {
-                const title = item.querySelector("title")?.textContent;
+                let title = item.querySelector("title")?.textContent;
                 if (!title) return;
                 
-                parsedText.push(title); // Alla nyheter går till textremsan
+                // Om vi använder Google News, städa bort " - Al Jazeera" från slutet av varje titel
+                if (usingGoogleFallback) {
+                    title = title.replace(/ - Al Jazeera.*/, "");
+                }
+
+                parsedText.push(title);
 
                 let imgUrl = null;
 
-                // Test 1: Standard RSS Enclosure
+                // Leta efter standardbilder
                 const enclosure = item.querySelector("enclosure");
                 if (enclosure) imgUrl = enclosure.getAttribute("url");
                 
-                // Test 2: media:content eller media:thumbnail
                 if (!imgUrl) {
                     const media = item.getElementsByTagName("media:content")[0] || item.getElementsByTagName("media:thumbnail")[0];
                     if (media) imgUrl = media.getAttribute("url");
                 }
-                
-                // Test 3: Med namespace
-                if (!imgUrl) {
-                    const mediaNS = item.getElementsByTagNameNS("*", "content")[0] || item.getElementsByTagNameNS("*", "thumbnail")[0];
-                    if (mediaNS) imgUrl = mediaNS.getAttribute("url");
-                }
 
-                // Test 4: Gömd <img> tag inuti description
+                // För Google News ligger ibland bilden som HTML inuti beskrivningen
                 if (!imgUrl) {
                     const desc = item.querySelector("description")?.textContent || "";
                     const match = desc.match(/<img[^>]+src=["']([^"']+)["']/i);
@@ -507,6 +527,16 @@
                     parsedVisual.push({ title, imgUrl });
                 }
             });
+
+            // FÖRSÖK 3: Om inga bilder alls kom med, använd en snygg mörk backup-bild så skärmen inte fryser
+            if (parsedVisual.length === 0 && parsedText.length > 0) {
+                parsedText.forEach(t => {
+                    parsedVisual.push({ 
+                        title: t, 
+                        imgUrl: "https://images.unsplash.com/photo-1495020689067-958852a7765e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80" 
+                    });
+                });
+            }
 
             // Uppdatera textremsan
             if (parsedText.length > 0) {
@@ -523,12 +553,12 @@
                     rotateVisualNews();
                 }
             } else {
-                throw new Error("Inga bilder hittades, trots filter.");
+                throw new Error("Kunde inte hämta nyhetsdata.");
             }
             
         } catch(e) { 
             console.error("Nyhetsfel:", e);
-            document.getElementById('news-hero-title').innerText = "Väntar på nyhetsuppdatering...";
+            document.getElementById('news-hero-title').innerText = "Väntar på att Al Jazeeras servrar ska svara...";
             document.getElementById('news-hero-title').style.opacity = 1;
         }
     }
@@ -571,19 +601,14 @@
         update(); 
         updateCalendar(); 
         updateWeather(); 
-        
-        // Nu hämtar vi nyheterna via ETT enda anrop
         fetchAlJazeeraNews();
 
         setInterval(update, 1000); 
         setInterval(updateCalendar, 600000); 
         setInterval(updateWeather, 1800000); 
         
-        // Animationer roterar som vanligt
         setInterval(rotateTextNews, 30000);
         setInterval(rotateVisualNews, 60000);
-        
-        // Nyheterna hämtas på nytt varje timme
         setInterval(fetchAlJazeeraNews, 3600000); 
     });
 </script>
