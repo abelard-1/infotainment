@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v117</title>
+    <title>Staffanstorp Wall Dashboard v119</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
@@ -180,62 +180,22 @@
 
         .media-panel { flex: 1; display: flex; flex-direction: column; position: relative; z-index: 20; }
         
-        /* NYHETS-HERO */
-        .news-hero-container { 
+        /* YOUTUBE-VIDEO IGEN */
+        .video-container { 
             flex: 1; 
-            background: #050505; 
+            background: #000; 
             position: relative; 
             overflow: hidden; 
-            display: flex;
-            align-items: flex-end;
         }
-        .news-hero-img {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            object-fit: cover;
-            opacity: 0;
-            transition: opacity 1.5s ease;
-            transform: scale(1);
-        }
-        .news-hero-img.active {
-            opacity: 1;
-            transform: scale(1.05);
-            transition: opacity 1.5s ease, transform 60s linear;
-        }
-        .news-hero-overlay {
-            position: absolute;
-            bottom: 0; left: 0; 
-            width: 100%; height: 85%;
-            background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.5) 50%, transparent 100%);
-            z-index: 1;
-        }
-        .news-hero-content {
-            position: relative;
-            z-index: 2;
-            padding: 50px 60px;
-            width: 100%;
-        }
-        .news-hero-tag {
-            display: inline-block;
-            background: var(--accent);
-            color: #000;
-            font-size: 0.9rem;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            padding: 6px 14px;
-            border-radius: 6px;
-            margin-bottom: 15px;
-        }
-        #news-hero-title {
-            font-size: 2.8rem;
-            font-weight: 700;
-            line-height: 1.2;
-            text-shadow: 0 4px 15px rgba(0,0,0,0.8);
-            max-width: 95%;
-            opacity: 0;
-            transition: opacity 1.5s ease;
+        
+        .video-container iframe { 
+            position: absolute; 
+            top: -25%; 
+            left: 0; 
+            width: 100%; 
+            height: 150%; 
+            border: none; 
+            pointer-events: none;
         }
 
         .countdown-bar {
@@ -308,13 +268,8 @@
 
     <div class="media-panel">
         
-        <div class="news-hero-container">
-            <img id="news-hero-img" class="news-hero-img" src="" alt="News Background">
-            <div class="news-hero-overlay"></div>
-            <div class="news-hero-content">
-                <div class="news-hero-tag">Al Jazeera</div>
-                <div id="news-hero-title">Ansluter till nyhetsflödet...</div>
-            </div>
+        <div class="video-container">
+            <iframe src="https://www.youtube.com/embed/gCNeDWCI0vo?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&loop=1&playlist=gCNeDWCI0vo" allow="autoplay"></iframe>
         </div>
 
         <div class="countdown-bar">
@@ -348,8 +303,6 @@
     
     let textNewsItems = [];
     let textNewsIndex = 0;
-    let visualNewsItems = [];
-    let visualNewsIndex = 0;
 
     function update() {
         const now = new Date();
@@ -458,29 +411,24 @@
         }
     }
 
-    // NYHETSMOTOR - Med Plan B och Plan C
-    async function fetchAlJazeeraNews() {
+    // NYHETSMOTOR - Endast textremsa
+    async function fetchAlJazeeraTextNews() {
         try {
             let xmlText = "";
             let usingGoogleFallback = false;
 
-            // FÖRSÖK 1: Hämta direkt från Al Jazeera via en ny proxy (AllOrigins)
             try {
                 const url = 'https://www.aljazeera.com/xml/rss/all.xml';
                 const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`);
                 const data = await res.json();
                 
-                // Kollar så att det faktiskt är ett RSS-flöde och inte en Cloudflare-blockeringssida
                 if (data.contents && data.contents.includes("<rss")) {
                     xmlText = data.contents;
                 } else {
                     throw new Error("Blockerad av Cloudflare");
                 }
             } catch (e) {
-                console.log("Al Jazeera blockerade förfrågan, byter till Plan B (Google News Fallback)...");
                 usingGoogleFallback = true;
-                
-                // FÖRSÖK 2: Vi använder Google News egna nyhetsinhämtning för Al Jazeera! (Oblockerbart)
                 const fallbackUrl = 'https://news.google.com/rss/search?q=site:aljazeera.com+when:1d&hl=en-US&gl=US&ceid=US:en';
                 const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(fallbackUrl)}`);
                 const data = await res.json();
@@ -491,75 +439,26 @@
             const xmlDoc = parser.parseFromString(xmlText, "text/xml");
             const items = xmlDoc.querySelectorAll("item");
             
-            let parsedVisual = [];
             let parsedText = [];
             
             items.forEach(item => {
                 let title = item.querySelector("title")?.textContent;
                 if (!title) return;
                 
-                // Om vi använder Google News, städa bort " - Al Jazeera" från slutet av varje titel
                 if (usingGoogleFallback) {
                     title = title.replace(/ - Al Jazeera.*/, "");
                 }
 
                 parsedText.push(title);
-
-                let imgUrl = null;
-
-                // Leta efter standardbilder
-                const enclosure = item.querySelector("enclosure");
-                if (enclosure) imgUrl = enclosure.getAttribute("url");
-                
-                if (!imgUrl) {
-                    const media = item.getElementsByTagName("media:content")[0] || item.getElementsByTagName("media:thumbnail")[0];
-                    if (media) imgUrl = media.getAttribute("url");
-                }
-
-                // För Google News ligger ibland bilden som HTML inuti beskrivningen
-                if (!imgUrl) {
-                    const desc = item.querySelector("description")?.textContent || "";
-                    const match = desc.match(/<img[^>]+src=["']([^"']+)["']/i);
-                    if (match) imgUrl = match[1];
-                }
-
-                if (imgUrl) {
-                    parsedVisual.push({ title, imgUrl });
-                }
             });
 
-            // FÖRSÖK 3: Om inga bilder alls kom med, använd en snygg mörk backup-bild så skärmen inte fryser
-            if (parsedVisual.length === 0 && parsedText.length > 0) {
-                parsedText.forEach(t => {
-                    parsedVisual.push({ 
-                        title: t, 
-                        imgUrl: "https://images.unsplash.com/photo-1495020689067-958852a7765e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80" 
-                    });
-                });
-            }
-
-            // Uppdatera textremsan
             if (parsedText.length > 0) {
                 textNewsItems = parsedText.slice(0, 15);
                 const textEl = document.getElementById('news-text');
                 if (textEl.innerText.includes("Laddar")) rotateTextNews();
             }
-
-            // Uppdatera bildrutan
-            if (parsedVisual.length > 0) {
-                visualNewsItems = parsedVisual;
-                const titleEl = document.getElementById('news-hero-title');
-                if (titleEl.style.opacity == 0 || titleEl.innerText.includes("Ansluter") || titleEl.innerText.includes("Väntar")) {
-                    rotateVisualNews();
-                }
-            } else {
-                throw new Error("Kunde inte hämta nyhetsdata.");
-            }
-            
         } catch(e) { 
-            console.error("Nyhetsfel:", e);
-            document.getElementById('news-hero-title').innerText = "Väntar på att Al Jazeeras servrar ska svara...";
-            document.getElementById('news-hero-title').style.opacity = 1;
+            console.error("Nyhetsfel (text):", e);
         }
     }
 
@@ -574,42 +473,18 @@
         }, 500);
     }
 
-    function rotateVisualNews() {
-        if (visualNewsItems.length === 0) return;
-        
-        const item = visualNewsItems[visualNewsIndex];
-        const imgEl = document.getElementById('news-hero-img');
-        const titleEl = document.getElementById('news-hero-title');
-        
-        imgEl.classList.remove('active');
-        titleEl.style.opacity = 0;
-        
-        setTimeout(() => {
-            imgEl.src = item.imgUrl;
-            titleEl.innerText = item.title;
-            
-            setTimeout(() => {
-                imgEl.classList.add('active');
-                titleEl.style.opacity = 1;
-            }, 100); 
-            
-            visualNewsIndex = (visualNewsIndex + 1) % visualNewsItems.length;
-        }, 1500); 
-    }
-
     document.addEventListener('DOMContentLoaded', () => {
         update(); 
         updateCalendar(); 
         updateWeather(); 
-        fetchAlJazeeraNews();
+        fetchAlJazeeraTextNews();
 
         setInterval(update, 1000); 
         setInterval(updateCalendar, 600000); 
         setInterval(updateWeather, 1800000); 
         
         setInterval(rotateTextNews, 30000);
-        setInterval(rotateVisualNews, 60000);
-        setInterval(fetchAlJazeeraNews, 3600000); 
+        setInterval(fetchAlJazeeraTextNews, 3600000); 
     });
 </script>
 </body>
