@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v135</title>
+    <title>Staffanstorp Wall Dashboard v136</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
@@ -325,12 +325,11 @@
             opacity: 0.6;
         }
 
-        #test-bday-btn {
+        /* Test-knappar */
+        .test-btn {
             position: fixed;
-            bottom: 20px;
             left: 20px; 
             z-index: 9999;
-            background: var(--easter);
             color: #000;
             border: none;
             padding: 10px 20px;
@@ -338,7 +337,17 @@
             font-weight: 900;
             cursor: pointer;
             box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-            transition: background 0.3s ease;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+        
+        #test-weather-btn {
+            bottom: 70px;
+            background: var(--summer);
+        }
+
+        #test-bday-btn {
+            bottom: 20px;
+            background: var(--easter);
         }
     </style>
 </head>
@@ -357,7 +366,8 @@
 
     <div id="weather-overlay"></div>
 
-    <button id="test-bday-btn" onclick="testBirthdayToggle()">Testa Födelsedag 🎉</button>
+    <button id="test-weather-btn" class="test-btn" onclick="testWeatherToggle()">Testa Väder 🌧️</button>
+    <button id="test-bday-btn" class="test-btn" onclick="testBirthdayToggle()">Testa Födelsedag 🎉</button>
 
     <div class="info-panel">
         <header>
@@ -414,6 +424,7 @@
     const API_KEY_CAL = 'AIzaSyAC3QiGhqOM2F2ZrnFq3xWUu6_1bAwOvSw'; 
     const CAL_ID = 'rezgarhayder@gmail.com';
     
+    // Nyhetsvariabler
     let textNewsItems = [];
     let textNewsIndex = 0;
 
@@ -434,11 +445,15 @@
     let currentLangIndex = 0;
     
     let currentRenderedGreeting = "";
+    
+    // Test-variabler
     let forceTestBirthday = false;
+    let weatherTestState = 0; // 0: Off, 1: Rain, 2: Snow
+    let lastRealWeatherCode = 0;
     
     let celebrationActive = false;
     let birthdayInterval = null; 
-    let continuousInterval = null; // Nytt, Chromecast-vänligt intervall
+    let continuousInterval = null; 
     
     let currentTempStr = "--°";
     let currentIconHtml = "";
@@ -450,12 +465,12 @@
 
     function fireworkExplosion() {
         confetti({
-            particleCount: randomInRange(50, 75), // Halverat antal
+            particleCount: randomInRange(50, 75), 
             spread: randomInRange(150, 360), 
             startVelocity: randomInRange(20, 40), 
             ticks: 150, 
             gravity: 0.8, 
-            scalar: randomInRange(2, 3), // Dubblerad storlek
+            scalar: randomInRange(2, 3), 
             origin: { x: randomInRange(0.1, 0.9), y: randomInRange(0.2, 0.6) },
             colors: [randomColor(), randomColor()], 
             zIndex: 10001
@@ -469,7 +484,6 @@
         if (birthdayInterval) clearInterval(birthdayInterval);
         if (continuousInterval) clearInterval(continuousInterval);
 
-        // Skjuter ett par stora partiklar var 100:e millisekund istället för att stressa skärmen varje frame
         continuousInterval = setInterval(function() {
             if (!celebrationActive) return; 
 
@@ -480,19 +494,20 @@
                 origin: { x: Math.random(), y: -0.1 },
                 colors: [randomColor()],
                 gravity: randomInRange(0.4, 0.6), 
-                scalar: randomInRange(1.6, 2.4), // Stora bitar
+                scalar: randomInRange(1.6, 2.4), 
                 drift: randomInRange(-0.5, 0.5),
                 zIndex: 10000 
             });
         }, 100);
 
+        // Fyrverkerier dubbelt så ofta: 5000 ms istället för 10000 ms
         birthdayInterval = setInterval(function() {
             if (!celebrationActive) {
                 clearInterval(birthdayInterval);
                 return;
             }
             fireworkExplosion();
-        }, 10000); 
+        }, 5000); 
     }
 
     function stopCelebration() {
@@ -520,11 +535,35 @@
         if (forceTestBirthday) {
             btn.innerText = "Stäng av Test 🛑";
             btn.style.background = "#ff6666";
+            btn.style.color = "#fff";
         } else {
             btn.innerText = "Testa Födelsedag 🎉";
             btn.style.background = "var(--easter)";
+            btn.style.color = "#000";
         }
         update(); 
+    }
+
+    function testWeatherToggle() {
+        weatherTestState = (weatherTestState + 1) % 3;
+        const btn = document.getElementById('test-weather-btn');
+        
+        if (weatherTestState === 1) {
+            btn.innerText = "Testar Regn 🌧️";
+            btn.style.background = "var(--accent)";
+            btn.style.color = "#fff";
+            updateWeatherOverlay(51); // Standard regn-kod
+        } else if (weatherTestState === 2) {
+            btn.innerText = "Testar Snö ❄️";
+            btn.style.background = "#fff";
+            btn.style.color = "#000";
+            updateWeatherOverlay(71); // Standard snö-kod
+        } else {
+            btn.innerText = "Testa Väder 🌧️";
+            btn.style.background = "var(--summer)";
+            btn.style.color = "#000";
+            updateWeatherOverlay(lastRealWeatherCode); // Återgå till faktiskt väder
+        }
     }
 
     function update() {
@@ -613,6 +652,33 @@
         document.getElementById('count-summer').innerText = Math.max(0, Math.ceil((summer - now) / 86400000));
     }
 
+    // -- NYHETS-FUNKTIONER --
+    async function updateNews() {
+        try {
+            const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.aljazeera.com/xml/rss/all.xml');
+            const data = await res.json();
+            if (data.status === 'ok' && data.items && data.items.length > 0) {
+                textNewsItems = data.items.map(item => item.title);
+                textNewsIndex = 0;
+                displayNextNews();
+            }
+        } catch (e) {
+            console.error("News fetch failed", e);
+        }
+    }
+
+    function displayNextNews() {
+        if (textNewsItems.length === 0) return;
+        const newsTextEl = document.getElementById('news-text');
+        newsTextEl.style.opacity = 0; // Tona ut
+        setTimeout(() => {
+            newsTextEl.innerText = textNewsItems[textNewsIndex];
+            newsTextEl.style.opacity = 1; // Tona in
+            textNewsIndex = (textNewsIndex + 1) % textNewsItems.length;
+        }, 500); // Vänta på att ut-toningen ska bli klar
+    }
+    // -----------------------
+
     async function updateCalendar() {
         try {
             const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CAL_ID)}/events?key=${API_KEY_CAL}&timeMin=${new Date().toISOString()}&singleEvents=true&orderBy=startTime`);
@@ -641,7 +707,10 @@
             const nowH = new Date().getHours();
             const code = d.hourly.weathercode[nowH];
             
-            updateWeatherOverlay(code);
+            lastRealWeatherCode = code; // Spara det faktiska vädret
+            if (weatherTestState === 0) {
+                updateWeatherOverlay(code); // Rita bara om vi inte testkör just nu
+            }
 
             const getIcon = (c) => (c >= 71 ? 'snowflake' : c >= 51 ? 'cloud-rain' : c >= 3 ? 'cloud' : 'sun');
             
@@ -701,10 +770,16 @@
         update(); 
         updateCalendar(); 
         updateWeather(); 
+        updateNews(); // Kör igång nyhets-hämtningen direkt
 
         setInterval(update, 1000); 
         setInterval(updateCalendar, 600000); 
         setInterval(updateWeather, 1800000); 
+        
+        // Uppdatera nyhetsflödet från Al Jazeera en gång i timmen
+        setInterval(updateNews, 3600000); 
+        // Byt till nästa nyhetsrubrik var 15:e sekund
+        setInterval(displayNextNews, 15000);
         
         setInterval(() => {
             if (celebrationActive) return; 
