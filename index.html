@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v125</title>
+    <title>Staffanstorp Wall Dashboard v126</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
@@ -49,6 +49,12 @@
 
         header {
             max-width: 100%;
+            min-height: 180px; /* Låser höjden för att förhindra att innehållet hoppar */
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end; /* Trycker ner texten mot botten av containern */
+            perspective: 1000px; /* Krävs för 3D-flippen */
+            padding-bottom: 10px;
         }
 
         #greeting { 
@@ -58,9 +64,17 @@
             letter-spacing: -4px; 
             white-space: nowrap; 
             text-transform: lowercase; 
-            transition: color 2s ease, font-size 0.4s ease;
+            /* Lagt till transform och opacity för mjuka flipp-övergångar */
+            transition: transform 0.4s ease-in-out, opacity 0.4s ease-in-out, color 2s ease, font-size 0.4s ease;
+            transform-origin: center center; 
         }
         #greeting::first-letter { text-transform: uppercase; }
+
+        /* Klass som triggas via JS för att flippa ut texten */
+        #greeting.flipping {
+            transform: rotateX(90deg);
+            opacity: 0;
+        }
 
         #greeting.god-natt { color: #666; }
         #greeting.god-natt .wiggle-mark { color: #666; }
@@ -665,10 +679,21 @@
         setInterval(rotateTextNews, 30000);
         setInterval(fetchAlJazeeraTextNews, 3600000); 
         
-        // Rotera språket var 10:e sekund
+        // Rotera språket var 10:e sekund med en snygg flippeffekt
         setInterval(() => {
-            currentLangIndex = (currentLangIndex + 1) % greetingsTranslations.length;
-            update(); // Tvingar fram en omedelbar uppdatering av texten
+            const todayStrForBday = String(new Date().getMonth() + 1).padStart(2, '0') + '-' + String(new Date().getDate()).padStart(2, '0');
+            // Kör inte flipp-effekten om det pågår ett födelsedagsfirande
+            if (birthdays[todayStrForBday] || forceTestBirthday) return; 
+
+            const greetingEl = document.getElementById('greeting');
+            greetingEl.classList.add('flipping'); // Fäll texten bakåt (försvinner)
+            
+            setTimeout(() => {
+                currentLangIndex = (currentLangIndex + 1) % greetingsTranslations.length;
+                update(); // Byt språk medan den är osynlig
+                greetingEl.classList.remove('flipping'); // Fäll tillbaka framåt
+            }, 400); // 400ms matchar övergångstiden i CSS
+            
         }, 10000);
     });
 </script>
