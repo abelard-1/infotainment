@@ -329,4 +329,294 @@
     </div>
 
 <script>
-    const API_KEY_CAL = 'AIzaSyAC3QiGhqOM2F2ZrnFq3xWUu6_1bAwOv
+    const API_KEY_CAL = 'AIzaSyAC3QiGhqOM2F2ZrnFq3xWUu6_1bAwOvSw'; 
+    const CAL_ID = 'rezgarhayder@gmail.com';
+    
+    let textNewsItems = [];
+    let textNewsIndex = 0;
+
+    // FÖDELSEDAGSDATA (Månad-Dag)
+    const birthdays = {
+        "03-23": "Jakob",
+        "04-08": "Rezgar",
+        "05-27": "Julia",
+        "07-15": "Olivia",
+        "07-29": "Jakob",
+        "01-02": "Asia"
+    };
+
+    let lastCelebratedDate = null;
+    let forceTestBirthday = false;
+
+    // HARMONISKT FALLANDE KONFETTI (Snowfall effect)
+    function triggerCelebration() {
+        var duration = 15 * 1000; // Kör i 15 sekunder
+        var animationEnd = Date.now() + duration;
+        var skew = 1;
+
+        function randomColor() {
+            var colors = ['#5e92f3', '#44ffff', '#ffaa33', '#ffffff', '#ff6666'];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+
+        (function frame() {
+            var timeLeft = animationEnd - Date.now();
+            var ticks = Math.max(200, 500 * (timeLeft / duration));
+            skew = Math.max(0.8, skew - 0.001);
+
+            confetti({
+                particleCount: 2, 
+                startVelocity: 0, 
+                ticks: ticks,
+                origin: { x: Math.random(), y: -0.1 },
+                colors: [randomColor()],
+                shapes: ['circle', 'square'], 
+                gravity: randomInRange(0.4, 0.6), 
+                scalar: randomInRange(0.8, 1.2), 
+                drift: randomInRange(-0.5, 0.5) 
+            });
+
+            if (timeLeft > 0) {
+                requestAnimationFrame(frame);
+            }
+        }());
+    }
+
+    function randomInRange(min, max) {
+        return Math.random() * (max - min) + min;
+    }
+
+    // TEST-FUNKTION FÖR KNAPPEN
+    function testBirthday() {
+        forceTestBirthday = true;
+        triggerCelebration();
+        update(); 
+        
+        setTimeout(() => {
+            forceTestBirthday = false;
+            update();
+        }, 10000);
+    }
+
+    function update() {
+        const now = new Date();
+        const hour = now.getHours();
+        const greetingEl = document.getElementById('greeting');
+        
+        const todayStrForBday = String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+        let isBirthday = false;
+        let bdayName = "";
+
+        if (birthdays[todayStrForBday]) {
+            isBirthday = true;
+            bdayName = birthdays[todayStrForBday];
+        }
+
+        // Testnamnet görs lite längre för att illustrera att autoskalningen funkar
+        if (forceTestBirthday) {
+            isBirthday = true;
+            bdayName = "Test Christoffer";
+        }
+
+        if (isBirthday) {
+            greetingEl.classList.remove('god-natt');
+            greetingEl.classList.add('birthday');
+            greetingEl.innerHTML = `Grattis ${bdayName}<span class="wiggle-mark">!</span>`;
+            
+            if (lastCelebratedDate !== todayStrForBday && !forceTestBirthday) {
+                lastCelebratedDate = todayStrForBday;
+                triggerCelebration();
+            }
+        } else {
+            greetingEl.classList.remove('birthday');
+            let greetingBase = (hour >= 6 && hour < 10) ? "God morgon" : (hour >= 10 && hour < 18) ? "God dag" : (hour >= 18 && hour < 23) ? "God kväll" : "God natt";
+            
+            if(greetingBase === "God natt") {
+                greetingEl.classList.add('god-natt');
+                greetingEl.innerHTML = `God natt<span class="moon-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></span>`;
+            } else {
+                greetingEl.classList.remove('god-natt');
+                greetingEl.innerHTML = `${greetingBase}<span class="wiggle-mark">!</span>`;
+            }
+        }
+
+        // AUTOSKALA TEXTSTORLEKEN
+        // Räkna antal tecken (t.ex. "God morgon!" är 11 tecken). 
+        // Är strängen längre än 11 tecken räknas font-storleken ut och krymper dynamiskt.
+        const textLen = greetingEl.textContent.length;
+        if (textLen > 11) {
+            const newSize = Math.max(3, 77 / textLen);
+            greetingEl.style.fontSize = `${newSize}rem`;
+        } else {
+            greetingEl.style.fontSize = '7rem';
+        }
+
+        document.getElementById('clock').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
+        const dateStr = now.toLocaleDateString('sv-SE', { weekday: 'long', day: 'numeric', month: 'long' });
+        document.getElementById('date-sub').innerText = "Idag är det " + dateStr;
+        const easter = new Date('2026-03-30'), summer = new Date('2026-06-12');
+        document.getElementById('count-easter').innerText = Math.max(0, Math.ceil((easter - now) / 86400000));
+        document.getElementById('count-summer').innerText = Math.max(0, Math.ceil((summer - now) / 86400000));
+    }
+
+    async function updateCalendar() {
+        try {
+            const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CAL_ID)}/events?key=${API_KEY_CAL}&timeMin=${new Date().toISOString()}&singleEvents=true&orderBy=startTime`);
+            const d = await res.json();
+            const todayStr = new Date().toDateString();
+            document.getElementById('calendar-list').innerHTML = (d.items || []).slice(0, 2).map(e => {
+                const start = new Date(e.start.dateTime || e.start.date);
+                const dayFull = start.toLocaleDateString('sv-SE', {weekday:'long'}).toUpperCase();
+                const timeStr = e.start.dateTime ? start.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'}) : 'HELDAG';
+                
+                return `<div class="event-card ${start.toDateString() === todayStr ? 'today' : ''}">
+                    <div class="event-date-box">
+                        <div class="ev-day-name">${dayFull}</div>
+                        <div class="ev-date-num">${start.getDate()} ${start.toLocaleDateString('sv-SE', {month:'short'})}</div>
+                        <div class="ev-time">${timeStr}</div>
+                    </div>
+                    <div class="event-title">${e.summary}</div>
+                </div>`;
+            }).join('');
+        } catch(e) {}
+    }
+
+    async function updateWeather() {
+        try {
+            const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=55.64&longitude=13.21&hourly=temperature_2m,weathercode&timezone=auto');
+            const d = await res.json();
+            const nowH = new Date().getHours();
+            const code = d.hourly.weathercode[nowH];
+            
+            updateWeatherOverlay(code);
+
+            const getIcon = (c) => (c >= 71 ? 'snowflake' : c >= 51 ? 'cloud-rain' : c >= 3 ? 'cloud' : 'sun');
+            
+            const todayData = d.hourly.temperature_2m.slice(0, 24);
+            const todayMax = Math.round(Math.max(...todayData));
+            const todayMaxIndex = todayData.indexOf(Math.max(...todayData));
+            const todayMaxCode = d.hourly.weathercode[todayMaxIndex];
+
+            const tomorrowData = d.hourly.temperature_2m.slice(24, 48);
+            const tomorrowMax = Math.round(Math.max(...tomorrowData));
+            const tomorrowMaxIndex = 24 + tomorrowData.indexOf(Math.max(...tomorrowData));
+            const tomorrowMaxCode = d.hourly.weathercode[tomorrowMaxIndex];
+
+            document.getElementById('weather-list').innerHTML = `
+                <div class="weather-box"><div class="weather-hour">NU</div><div class="weather-icon-wrapper"><i data-lucide="${getIcon(code)}"></i></div><div class="weather-temp">${Math.round(d.hourly.temperature_2m[nowH])}°</div></div>
+                <div class="weather-box"><div class="weather-hour">MAX IDAG</div><div class="weather-icon-wrapper"><i data-lucide="${getIcon(todayMaxCode)}"></i></div><div class="weather-temp">${todayMax}°</div></div>
+                <div class="weather-box"><div class="weather-hour">MAX IMORGON</div><div class="weather-icon-wrapper"><i data-lucide="${getIcon(tomorrowMaxCode)}"></i></div><div class="weather-temp">${tomorrowMax}°</div></div>
+            `;
+            lucide.createIcons();
+        } catch(e) {}
+    }
+
+    function updateWeatherOverlay(code) {
+        const container = document.getElementById('weather-overlay');
+        container.innerHTML = '';
+        let type = '';
+        if (code >= 71) type = 'snow';
+        else if (code >= 51) type = 'rain';
+        else if (code >= 3) type = 'cloud';
+        
+        if (!type) return;
+
+        for (let i = 0; i < (type === 'cloud' ? 5 : 50); i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            if (type === 'rain') {
+                p.style.width = '2px'; p.style.height = '15px'; p.style.background = 'rgba(100,150,255,0.4)';
+            } else if (type === 'snow') {
+                p.style.width = '8px'; p.style.height = '8px'; p.style.borderRadius = '50%'; p.style.filter = 'blur(1px)';
+            } else {
+                p.style.width = '300px'; p.style.height = '200px'; p.style.background = 'rgba(255,255,255,0.03)'; p.style.borderRadius = '50%';
+            }
+            p.style.left = Math.random() * 100 + 'vw';
+            p.style.top = Math.random() * 100 + 'vh';
+            
+            const duration = 2 + Math.random() * 3;
+            p.animate([
+                { transform: `translateY(-100px) ${type === 'snow' ? 'translateX(0)' : ''}` },
+                { transform: `translateY(110vh) ${type === 'snow' ? 'translateX(50px)' : ''}` }
+            ], { duration: duration * 1000, iterations: Infinity, delay: -Math.random() * 5000 });
+            container.appendChild(p);
+        }
+    }
+
+    async function fetchAlJazeeraTextNews() {
+        try {
+            let xmlText = "";
+            let usingGoogleFallback = false;
+
+            try {
+                const url = 'https://www.aljazeera.com/xml/rss/all.xml';
+                const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`);
+                const data = await res.json();
+                
+                if (data.contents && data.contents.includes("<rss")) {
+                    xmlText = data.contents;
+                } else {
+                    throw new Error("Blockerad av Cloudflare");
+                }
+            } catch (e) {
+                usingGoogleFallback = true;
+                const fallbackUrl = 'https://news.google.com/rss/search?q=site:aljazeera.com+when:1d&hl=en-US&gl=US&ceid=US:en';
+                const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(fallbackUrl)}`);
+                const data = await res.json();
+                xmlText = data.contents;
+            }
+
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+            const items = xmlDoc.querySelectorAll("item");
+            
+            let parsedText = [];
+            
+            items.forEach(item => {
+                let title = item.querySelector("title")?.textContent;
+                if (!title) return;
+                
+                if (usingGoogleFallback) {
+                    title = title.replace(/ - Al Jazeera.*/, "");
+                }
+
+                parsedText.push(title);
+            });
+
+            if (parsedText.length > 0) {
+                textNewsItems = parsedText.slice(0, 15);
+                const textEl = document.getElementById('news-text');
+                if (textEl.innerText.includes("Laddar")) rotateTextNews();
+            }
+        } catch(e) { 
+            console.error("Nyhetsfel (text):", e);
+        }
+    }
+
+    function rotateTextNews() {
+        if (textNewsItems.length === 0) return;
+        const el = document.getElementById('news-text');
+        el.style.opacity = 0;
+        setTimeout(() => {
+            el.innerText = textNewsItems[textNewsIndex];
+            el.style.opacity = 0.8;
+            textNewsIndex = (textNewsIndex + 1) % textNewsItems.length;
+        }, 500);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        update(); 
+        updateCalendar(); 
+        updateWeather(); 
+        fetchAlJazeeraTextNews();
+
+        setInterval(update, 1000); 
+        setInterval(updateCalendar, 600000); 
+        setInterval(updateWeather, 1800000); 
+        
+        setInterval(rotateTextNews, 30000);
+        setInterval(fetchAlJazeeraTextNews, 3600000); 
+    });
+</script>
+</body>
+</html>
