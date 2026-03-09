@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v126</title>
+    <title>Staffanstorp Wall Dashboard v127</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
@@ -49,11 +49,12 @@
 
         header {
             max-width: 100%;
-            min-height: 180px; /* Låser höjden för att förhindra att innehållet hoppar */
+            min-height: 180px;
             display: flex;
             flex-direction: column;
-            justify-content: flex-end; /* Trycker ner texten mot botten av containern */
-            perspective: 1000px; /* Krävs för 3D-flippen */
+            justify-content: flex-end;
+            /* Ökad perspective för en mer dramatisk 3D-flipp av enskilda tecken */
+            perspective: 2000px; 
             padding-bottom: 10px;
         }
 
@@ -64,17 +65,43 @@
             letter-spacing: -4px; 
             white-space: nowrap; 
             text-transform: lowercase; 
-            /* Lagt till transform och opacity för mjuka flipp-övergångar */
-            transition: transform 0.4s ease-in-out, opacity 0.4s ease-in-out, color 2s ease, font-size 0.4s ease;
-            transform-origin: center center; 
+            /* Mjuk autoskalning och färgbyten (flippsköts av animationer nu) */
+            transition: color 2s ease, font-size 0.4s ease;
         }
         #greeting::first-letter { text-transform: uppercase; }
 
-        /* Klass som triggas via JS för att flippa ut texten */
-        #greeting.flipping {
-            transform: rotateX(90deg);
-            opacity: 0;
+        /* --- CSS FÖR BOKSTAVS-FLIPP --- */
+        
+        /* Standardstil för ett tecken när det är "inne" i vyn */
+        .char-span {
+            display: inline-block;
+            transform-origin: center center;
+            opacity: 1;
+            /* In-animation: faller mjukt framåt (från -90deg till 0deg) */
+            animation: charFlipIn 0.8s ease forwards;
+            /* Säkerställer att ingen oönskad clipping sker vid 3D-rotationer */
+            transform-style: preserve-3d;
+            z-index: 1;
         }
+
+        @keyframes charFlipIn {
+            0% { transform: rotateX(-90deg); opacity: 0; }
+            50% { opacity: 0.1; }
+            100% { transform: rotateX(0deg); opacity: 1; }
+        }
+
+        /* Klass som triggas via JS precis innan språkbyte */
+        .char-span.out {
+            /* Out-animation: fälls intensivt bakåt (från 0deg till 90deg) */
+            animation: charFlipOut 0.5s ease-in forwards;
+        }
+
+        @keyframes charFlipOut {
+            0% { transform: rotateX(0deg); opacity: 1; }
+            100% { transform: rotateX(90deg); opacity: 0; }
+        }
+
+        /* ------------------------------- */
 
         #greeting.god-natt { color: #666; }
         #greeting.god-natt .wiggle-mark { color: #666; }
@@ -459,6 +486,15 @@
         }, 15000); 
     }
 
+    // Verktygsfunktion för att dela upp text i enskilda <span>taggar för bokstavsflipp
+    function wrapTextInSpans(text) {
+        // Splittar texten till en array av bokstäver
+        return text.split('').map(char => {
+            // Om det är ett blanksteg, lägg till en osynlig blanktecken så layouten inte går sönder
+            return `<span class="char-span">${char === ' ' ? '&nbsp;' : char}</span>`;
+        }).join('');
+    }
+
     function update() {
         const now = new Date();
         const hour = now.getHours();
@@ -484,6 +520,7 @@
         if (isBirthday) {
             greetingEl.classList.remove('god-natt');
             greetingEl.classList.add('birthday');
+            // För födelsedagar kör vi ingen bokstavsflipp just nu, vi behåller animationerna som de är
             greetingEl.innerHTML = `Grattis ${bdayName}<span class="wiggle-mark">!</span>`;
             
             if (lastCelebratedDate !== todayStrForBday && !forceTestBirthday) {
@@ -495,12 +532,17 @@
             greetingEl.classList.remove('birthday');
             let greetingBase = greetingsTranslations[currentLangIndex][phase];
             
+            // Dela upp texten i enskilda <span> för att kunna flippa bokstäverna seriemässigt
+            const wrappedText = wrapTextInSpans(greetingBase);
+            
             if(phase === "n") {
                 greetingEl.classList.add('god-natt');
-                greetingEl.innerHTML = `${greetingBase}<span class="moon-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></span>`;
+                // Lägg till bokstäverna OCH månikonen (som inte flippas)
+                greetingEl.innerHTML = `${wrappedText}<span class="moon-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></span>`;
             } else {
                 greetingEl.classList.remove('god-natt');
-                greetingEl.innerHTML = `${greetingBase}<span class="wiggle-mark">!</span>`;
+                // Lägg till bokstäverna OCH utropstecknet (som wigglar men inte flippas)
+                greetingEl.innerHTML = `${wrappedText}<span class="wiggle-mark">!</span>`;
             }
         }
 
@@ -612,7 +654,7 @@
 
             try {
                 const url = 'https://www.aljazeera.com/xml/rss/all.xml';
-                const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`);
+                const res = await fetch(`https://api.allorigins.win&url=${encodeURIComponent(url)}`);
                 const data = await res.json();
                 
                 if (data.contents && data.contents.includes("<rss")) {
@@ -623,7 +665,7 @@
             } catch (e) {
                 usingGoogleFallback = true;
                 const fallbackUrl = 'https://news.google.com/rss/search?q=site:aljazeera.com+when:1d&hl=en-US&gl=US&ceid=US:en';
-                const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(fallbackUrl)}`);
+                const res = await fetch(`https://api.allorigins.win&url=${encodeURIComponent(fallbackUrl)}`);
                 const data = await res.json();
                 xmlText = data.contents;
             }
@@ -679,20 +721,39 @@
         setInterval(rotateTextNews, 30000);
         setInterval(fetchAlJazeeraTextNews, 3600000); 
         
-        // Rotera språket var 10:e sekund med en snygg flippeffekt
+        // Rotera språket var 10:e sekund med den nya häftiga seriemässiga bokstavsflippen
         setInterval(() => {
             const todayStrForBday = String(new Date().getMonth() + 1).padStart(2, '0') + '-' + String(new Date().getDate()).padStart(2, '0');
             // Kör inte flipp-effekten om det pågår ett födelsedagsfirande
             if (birthdays[todayStrForBday] || forceTestBirthday) return; 
 
             const greetingEl = document.getElementById('greeting');
-            greetingEl.classList.add('flipping'); // Fäll texten bakåt (försvinner)
-            
+            // Hämta alla enskilda bokstavs-spans
+            const spans = greetingEl.querySelectorAll('.char-span');
+
+            // 1. Trigga seriemässig out-animation
+            // Vi ger varje bokstav en ökande fördröjning
+            spans.forEach((span, index) => {
+                // Skapa en liten seriemässig fördröjning (60ms per bokstav)
+                span.style.animationDelay = `${index * 60}ms`;
+                // Lägg till klassen som triggar 'charFlipOut' i CSS
+                span.classList.add('out'); 
+            });
+
+            // 2. Räkna ut när sista bokstaven har fällts bort och är osynlig
+            const delayPerLetter = 60; // Samma som ovan
+            const animationDuration = 500; // Från CSS 'out' animation
+            // Beräkna total tid = (antal bokstäver * fördröjning) + animationstid
+            // Vi lägger till en liten marginal (0.8) för att byta precis innan den är helt osynlig
+            const totalFlipOutTime = (spans.length * delayPerLetter) + (animationDuration * 0.8);
+
+            // 3. När sista bokstaven är borta: byt språk och uppdatera texten (vilket triggar 'charFlipIn')
             setTimeout(() => {
                 currentLangIndex = (currentLangIndex + 1) % greetingsTranslations.length;
-                update(); // Byt språk medan den är osynlig
-                greetingEl.classList.remove('flipping'); // Fäll tillbaka framåt
-            }, 400); // 400ms matchar övergångstiden i CSS
+                update(); 
+                // update() kommer att rita upp nya bokstavs-spans, och eftersom de inte har 'out'-klassen
+                // kommer de automatiskt köra 'charFlipIn' när de läggs till i DOMen.
+            }, totalFlipOutTime);
             
         }, 10000);
     });
