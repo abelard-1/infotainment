@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v123</title>
+    <title>Staffanstorp Wall Dashboard v124</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
@@ -48,7 +48,7 @@
         }
 
         header {
-            max-width: 100%; /* Säkerställer att boxen håller sig inom panelen */
+            max-width: 100%;
         }
 
         #greeting { 
@@ -58,7 +58,6 @@
             letter-spacing: -4px; 
             white-space: nowrap; 
             text-transform: lowercase; 
-            /* Mjuk animering av både färg och storlek när texten skalas */
             transition: color 2s ease, font-size 0.4s ease;
         }
         #greeting::first-letter { text-transform: uppercase; }
@@ -347,39 +346,77 @@
 
     let lastCelebratedDate = null;
     let forceTestBirthday = false;
+    let birthdayInterval = null; // För att kunna stoppa fyrverkerierna
 
-    // HARMONISKT FALLANDE KONFETTI (Snowfall effect)
+    // Funktion för att slumpa färger till fyrverkerier
+    function randomColor() {
+        var colors = ['#5e92f3', '#44ffff', '#ffaa33', '#ffffff', '#ff6666', '#ff00ff'];
+        return colors[Math.floor(Math.random() * colors.length)];
+    }
+
+    // Funktion för en enskild fyrverkeri-explosion
+    function fireworkExplosion() {
+        // En fyrverkeri-pjäs är en intensiv explosion av partiklar från en punkt
+        confetti({
+            particleCount: randomInRange(100, 150), // Intensiv explosion
+            spread: randomInRange(150, 360), // Sprid ut i en stor cirkel
+            startVelocity: randomInRange(20, 40), // Startfart utåt
+            ticks: 150, // Hur länge explosionen syns
+            gravity: 0.8, // Faller sakta neråt
+            scalar: randomInRange(1, 1.5), // Varierande storlek
+            origin: {
+                x: randomInRange(0.1, 0.9), // Slumpad startposition horisontellt
+                y: randomInRange(0.2, 0.6)  // Explosionen sker på övre halvan av skärmen
+            },
+            colors: [randomColor(), randomColor()], // Mixa två färger i varje explosion
+            zIndex: 10001
+        });
+    }
+
+    // HUVUDFUNKTION FÖR FIRANDE
     function triggerCelebration() {
-        var duration = 15 * 1000; // Kör i 15 sekunder
+        // Om det redan pågår ett firande, rensa intervallen (för testknappen)
+        if (birthdayInterval) clearInterval(birthdayInterval);
+
+        var duration = 15 * 1000; // Kör i 15 sekunder totalt
         var animationEnd = Date.now() + duration;
-        var skew = 1;
 
-        function randomColor() {
-            var colors = ['#5e92f3', '#44ffff', '#ffaa33', '#ffffff', '#ff6666'];
-            return colors[Math.floor(Math.random() * colors.length)];
-        }
-
+        // 1. Starta det harmoniskt fallande konfettit (körs varje frame)
         (function frame() {
             var timeLeft = animationEnd - Date.now();
             var ticks = Math.max(200, 500 * (timeLeft / duration));
-            skew = Math.max(0.8, skew - 0.001);
 
+            // Skjut konfetti från toppen med låg hastighet så det faller harmoniskt
             confetti({
-                particleCount: 2, 
+                particleCount: 1, // Mycket få partiklar åt gången för harmoni
                 startVelocity: 0, 
                 ticks: ticks,
                 origin: { x: Math.random(), y: -0.1 },
                 colors: [randomColor()],
-                shapes: ['circle', 'square'], 
                 gravity: randomInRange(0.4, 0.6), 
                 scalar: randomInRange(0.8, 1.2), 
-                drift: randomInRange(-0.5, 0.5) 
+                drift: randomInRange(-0.5, 0.5),
+                zIndex: 10000 // Ligger bakom fyrverkerierna
             });
 
             if (timeLeft > 0) {
                 requestAnimationFrame(frame);
             }
         }());
+
+        // 2. Starta fyrverkeri-motorn: Skjut en pjäs var 10:e sekund
+        birthdayInterval = setInterval(function() {
+            var timeLeft = animationEnd - Date.now();
+            
+            // Om tiden är slut, stoppa intervallen
+            if (timeLeft <= 0) {
+                return clearInterval(birthdayInterval);
+            }
+
+            // Skjut en explosion!
+            fireworkExplosion();
+
+        }, 10000); // 10 sekunder
     }
 
     function randomInRange(min, max) {
@@ -389,13 +426,18 @@
     // TEST-FUNKTION FÖR KNAPPEN
     function testBirthday() {
         forceTestBirthday = true;
-        triggerCelebration();
+        
+        // Vi måste se till att testen körs i minst 15 sekunder så att vi hinner se 
+        // fyrverkeriet skjutas av vid 10-sekundersstrecket.
+        triggerCelebration(); 
         update(); 
         
+        // Återställ efter 15 sekunder
         setTimeout(() => {
             forceTestBirthday = false;
+            if (birthdayInterval) clearInterval(birthdayInterval); // Stoppa intervallen
             update();
-        }, 10000);
+        }, 15000); // 15 sekunder för att se showen
     }
 
     function update() {
@@ -412,7 +454,6 @@
             bdayName = birthdays[todayStrForBday];
         }
 
-        // Testnamnet görs lite längre för att illustrera att autoskalningen funkar
         if (forceTestBirthday) {
             isBirthday = true;
             bdayName = "Test Christoffer";
@@ -425,7 +466,7 @@
             
             if (lastCelebratedDate !== todayStrForBday && !forceTestBirthday) {
                 lastCelebratedDate = todayStrForBday;
-                triggerCelebration();
+                triggerCelebration(); // Startar både konfetti och fyrverkeri-motor
             }
         } else {
             greetingEl.classList.remove('birthday');
@@ -441,8 +482,6 @@
         }
 
         // AUTOSKALA TEXTSTORLEKEN
-        // Räkna antal tecken (t.ex. "God morgon!" är 11 tecken). 
-        // Är strängen längre än 11 tecken räknas font-storleken ut och krymper dynamiskt.
         const textLen = greetingEl.textContent.length;
         if (textLen > 11) {
             const newSize = Math.max(3, 77 / textLen);
