@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v129</title>
+    <title>Staffanstorp Wall Dashboard v130</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
@@ -64,10 +64,8 @@
             line-height: 1; 
             letter-spacing: -4px; 
             white-space: nowrap; 
-            /* Fix 1: Tog bort transition på font-size för att lösa layout-hoppet */
             transition: color 2s ease;
         }
-        /* Fix 2: ::first-letter borttagen, vi hanterar stor bokstav via JS nu */
 
         /* --- CSS FÖR BOKSTAVS-FLIPP --- */
         .char-span {
@@ -107,19 +105,21 @@
         .wiggle-mark {
             display: inline-block !important;
             transform-origin: bottom center;
-            animation: intensive-wiggle 3s infinite;
+            /* Ändrat från 3s till 60s för att ske en gång i minuten */
+            animation: intensive-wiggle 60s infinite;
             color: #fff; 
             transition: color 2s ease;
         }
         
         #greeting.birthday .wiggle-mark { color: #ffaa33; }
 
+        /* Ombyggda keyframes för 60s cykel: Står still fram till 98%, darrar snabbt, och återgår vid 100% */
         @keyframes intensive-wiggle {
-            0%, 70% { transform: translate(0,0) rotate(0deg); }
-            75% { transform: translate(2px, -2px) rotate(15deg); }
-            80% { transform: translate(-2px, -2px) rotate(-15deg); }
-            85% { transform: translate(2px, 0) rotate(10deg); }
-            90% { transform: translate(-1px, 0) rotate(-5deg); }
+            0%, 98% { transform: translate(0,0) rotate(0deg); }
+            98.4% { transform: translate(2px, -2px) rotate(15deg); }
+            98.8% { transform: translate(-2px, -2px) rotate(-15deg); }
+            99.2% { transform: translate(2px, 0) rotate(10deg); }
+            99.6% { transform: translate(-1px, 0) rotate(-5deg); }
             100% { transform: translate(0,0) rotate(0deg); }
         }
 
@@ -526,7 +526,6 @@
                 greetingEl.classList.remove('birthday');
                 let greetingBase = greetingsTranslations[currentLangIndex][phase];
                 
-                // --- FIX 2: Tvinga första bokstaven att bli versal via JavaScript ---
                 greetingBase = greetingBase.charAt(0).toUpperCase() + greetingBase.slice(1);
                 
                 rawTextForSizing = greetingBase + (phase === "n" ? "" : "!");
@@ -541,7 +540,6 @@
                 }
             }
 
-            // --- FIX 1: Skalar texten direkt baserat på strängens längd INNAN vi målar upp DOM:en ---
             const textLen = rawTextForSizing.length;
             if (textLen > 11) {
                 const newSize = Math.max(3, 77 / textLen);
@@ -643,7 +641,6 @@
         }
     }
 
-    // --- FIX 3: Ny pålitlig lösning för att hämta nyheter (RSS till JSON) ---
     async function fetchAlJazeeraTextNews() {
         try {
             const url = 'https://www.aljazeera.com/xml/rss/all.xml';
@@ -659,7 +656,6 @@
             }
         } catch(e) { 
             console.error("Nyhetsfel (text):", e);
-            // Fallback till Google News
             try {
                 const fallbackUrl = 'https://news.google.com/rss/search?q=site:aljazeera.com+when:1d&hl=en-US&gl=US&ceid=US:en';
                 const res2 = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(fallbackUrl)}`);
