@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v143</title>
+    <title>Staffanstorp Wall Dashboard v144</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
             --glass: rgba(15, 15, 15, 0.85);
-            /* Ökad synlighet för konturerna (0.3 istället för 0.1) */
             --border: rgba(255, 255, 255, 0.3);
             --accent: #5e92f3;
             --summer: #44ffff;
@@ -27,6 +26,21 @@
             display: flex;
             overflow: hidden;
         }
+
+        /* --- NATT-DIMMER --- */
+        #night-dimmer {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.65); /* 65% mörkt lager */
+            pointer-events: none;
+            z-index: 9999; /* Ligger över absolut allt */
+            opacity: 0;
+            transition: opacity 4s ease; /* Mjuk 4-sekunders in/ut-toning */
+        }
+        #night-dimmer.active {
+            opacity: 1;
+        }
+        /* ------------------- */
 
         /* --- FÖDELSEDAGS-SKÄRMEN (HELSKÄRM) --- */
         #birthday-screen {
@@ -342,6 +356,8 @@
 </head>
 <body>
 
+    <div id="night-dimmer"></div>
+
     <div id="birthday-screen">
         <img class="bg-image" src="https://images.unsplash.com/photo-1530103862676-de3c9da59c8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80" alt="Födelsedagsbakgrund">
         
@@ -532,6 +548,16 @@
         const iframe = document.getElementById('bg-video');
         const bdayScreen = document.getElementById('birthday-screen');
         
+        let phase = (hour >= 6 && hour < 10) ? "m" : (hour >= 10 && hour < 18) ? "d" : (hour >= 18 && hour < 23) ? "e" : "n";
+        
+        // Uppdatera natt-dimmer
+        const nightDimmer = document.getElementById('night-dimmer');
+        if (phase === "n") {
+            nightDimmer.classList.add('active');
+        } else {
+            nightDimmer.classList.remove('active');
+        }
+
         const todayStrForBday = String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
         let isBirthday = false;
         let bdayName = "";
@@ -570,7 +596,6 @@
                 }
             }
             
-            let phase = (hour >= 6 && hour < 10) ? "m" : (hour >= 10 && hour < 18) ? "d" : (hour >= 18 && hour < 23) ? "e" : "n";
             let greetingKey = `lang-${currentLangIndex}-${phase}`;
 
             if (currentRenderedGreeting !== greetingKey) {
