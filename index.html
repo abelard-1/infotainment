@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v120</title>
+    <title>Staffanstorp Wall Dashboard v121</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
@@ -337,28 +337,47 @@
     let lastCelebratedDate = null;
     let forceTestBirthday = false;
 
-    // FYRVERKERI-FUNKTION
+    // HARMONISKT FALLANDE KONFETTI (Snowfall effect)
     function triggerCelebration() {
         var duration = 15 * 1000; // Kör i 15 sekunder
         var animationEnd = Date.now() + duration;
-        var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 10000 };
+        var skew = 1;
 
-        function randomInRange(min, max) {
-            return Math.random() * (max - min) + min;
+        // Funktion för att slumpa färger
+        function randomColor() {
+            var colors = ['#5e92f3', '#44ffff', '#ffaa33', '#ffffff', '#ff6666'];
+            return colors[Math.floor(Math.random() * colors.length)];
         }
 
-        var interval = setInterval(function() {
+        (function frame() {
             var timeLeft = animationEnd - Date.now();
+            var ticks = Math.max(200, 500 * (timeLeft / duration));
+            skew = Math.max(0.8, skew - 0.001);
 
-            if (timeLeft <= 0) {
-                return clearInterval(interval);
+            // Skjut konfetti från toppen med låg hastighet så det faller harmoniskt
+            confetti({
+                particleCount: 2, // Få partiklar åt gången för harmoni
+                startVelocity: 0, // Ingen startfart uppåt
+                ticks: ticks,
+                origin: {
+                    x: Math.random(), // Slumpad startposition horisontellt
+                    y: -0.1 // Starta precis ovanför skärmen
+                },
+                colors: [randomColor()],
+                shapes: ['circle', 'square'], // Blanda former
+                gravity: randomInRange(0.4, 0.6), // Låg gravitation så det faller sakta
+                scalar: randomInRange(0.8, 1.2), // Lite variation i storlek
+                drift: randomInRange(-0.5, 0.5) // Lite sidledsdrift
+            });
+
+            if (timeLeft > 0) {
+                requestAnimationFrame(frame);
             }
+        }());
+    }
 
-            var particleCount = 50 * (timeLeft / duration);
-            // Skjuter från två sidor
-            confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
-            confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
-        }, 250);
+    function randomInRange(min, max) {
+        return Math.random() * (max - min) + min;
     }
 
     // TEST-FUNKTION FÖR KNAPPEN
@@ -397,7 +416,8 @@
         if (isBirthday) {
             greetingEl.classList.remove('god-natt');
             greetingEl.classList.add('birthday');
-            greetingEl.innerHTML = `Grattis ${bdayName}<span class="wiggle-mark">!</span> 🎂`;
+            // Tårtan borttagen här
+            greetingEl.innerHTML = `Grattis ${bdayName}<span class="wiggle-mark">!</span>`;
             
             // Kolla om vi redan firat idag så vi inte spammar fyrverkerier varje sekund
             if (lastCelebratedDate !== todayStrForBday && !forceTestBirthday) {
