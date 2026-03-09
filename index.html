@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v138</title>
+    <title>Staffanstorp Wall Dashboard v139</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
@@ -86,7 +86,7 @@
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none;
-            z-index: 10;
+            z-index: 50; /* Flyttad till 50 så det ligger framför de andra panelerna (som är 20) */
         }
 
         /* --- STABILISERAD LAYOUT --- */
@@ -117,6 +117,9 @@
         header {
             width: 100%;
             height: 180px; 
+            min-height: 180px; /* Tvingar höjden att aldrig bli mindre */
+            max-height: 180px; /* Tvingar höjden att aldrig bli större */
+            flex: none;        /* Hindrar flexbox från att krympa elementet */
             display: flex;
             flex-direction: column;
             justify-content: flex-end;
