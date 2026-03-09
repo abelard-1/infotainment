@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v121</title>
+    <title>Staffanstorp Wall Dashboard v122</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
@@ -60,15 +60,21 @@
 
         #greeting.god-natt { color: #666; }
         #greeting.god-natt .wiggle-mark { color: #666; }
+        
+        /* Födelsedagshälsning - Orange */
         #greeting.birthday { color: #ffaa33; text-shadow: 0 0 20px rgba(255, 170, 51, 0.4); }
 
         .wiggle-mark {
             display: inline-block !important;
             transform-origin: bottom center;
             animation: intensive-wiggle 3s infinite;
-            color: #fff;
+            color: #fff; /* Standardfärg: Vit */
             transition: color 2s ease;
         }
+        
+        /* NYTT: Ser till att utropstecknet blir orange när det är födelsedag */
+        #greeting.birthday .wiggle-mark { color: #ffaa33; }
+
         @keyframes intensive-wiggle {
             0%, 70% { transform: translate(0,0) rotate(0deg); }
             75% { transform: translate(2px, -2px) rotate(15deg); }
@@ -416,7 +422,7 @@
         if (isBirthday) {
             greetingEl.classList.remove('god-natt');
             greetingEl.classList.add('birthday');
-            // Tårtan borttagen här
+            // Tårtan borttagen här, utropstecknet blir orange via CSS
             greetingEl.innerHTML = `Grattis ${bdayName}<span class="wiggle-mark">!</span>`;
             
             // Kolla om vi redan firat idag så vi inte spammar fyrverkerier varje sekund
