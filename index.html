@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v119</title>
+    <title>Staffanstorp Wall Dashboard v120</title>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -59,6 +60,7 @@
 
         #greeting.god-natt { color: #666; }
         #greeting.god-natt .wiggle-mark { color: #666; }
+        #greeting.birthday { color: #ffaa33; text-shadow: 0 0 20px rgba(255, 170, 51, 0.4); }
 
         .wiggle-mark {
             display: inline-block !important;
@@ -180,7 +182,7 @@
 
         .media-panel { flex: 1; display: flex; flex-direction: column; position: relative; z-index: 20; }
         
-        /* YOUTUBE-VIDEO IGEN */
+        /* YOUTUBE-VIDEO */
         .video-container { 
             flex: 1; 
             background: #000; 
@@ -243,11 +245,29 @@
             pointer-events: none;
             opacity: 0.6;
         }
+
+        /* TILLFÄLLIG TESTKNAPP */
+        #test-bday-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+            background: var(--easter);
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
     </style>
 </head>
 <body>
 
     <div id="weather-overlay"></div>
+
+    <button id="test-bday-btn" onclick="testBirthday()">Testa Födelsedag 🎉</button>
 
     <div class="info-panel">
         <header>
@@ -304,19 +324,98 @@
     let textNewsItems = [];
     let textNewsIndex = 0;
 
+    // FÖDELSEDAGSDATA (Månad-Dag)
+    const birthdays = {
+        "03-23": "Jakob",
+        "04-08": "Rezgar",
+        "05-27": "Julia",
+        "07-15": "Olivia",
+        "07-29": "Jakob",
+        "01-02": "Asia"
+    };
+
+    let lastCelebratedDate = null;
+    let forceTestBirthday = false;
+
+    // FYRVERKERI-FUNKTION
+    function triggerCelebration() {
+        var duration = 15 * 1000; // Kör i 15 sekunder
+        var animationEnd = Date.now() + duration;
+        var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 10000 };
+
+        function randomInRange(min, max) {
+            return Math.random() * (max - min) + min;
+        }
+
+        var interval = setInterval(function() {
+            var timeLeft = animationEnd - Date.now();
+
+            if (timeLeft <= 0) {
+                return clearInterval(interval);
+            }
+
+            var particleCount = 50 * (timeLeft / duration);
+            // Skjuter från två sidor
+            confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+            confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+        }, 250);
+    }
+
+    // TEST-FUNKTION FÖR KNAPPEN
+    function testBirthday() {
+        forceTestBirthday = true;
+        triggerCelebration();
+        update(); // Tvinga en uppdatering direkt
+        
+        // Återställ efter 10 sekunder
+        setTimeout(() => {
+            forceTestBirthday = false;
+            update();
+        }, 10000);
+    }
+
     function update() {
         const now = new Date();
         const hour = now.getHours();
-        let greetingBase = (hour >= 6 && hour < 10) ? "God morgon" : (hour >= 10 && hour < 18) ? "God dag" : (hour >= 18 && hour < 23) ? "God kväll" : "God natt";
-        
         const greetingEl = document.getElementById('greeting');
         
-        if(greetingBase === "God natt") {
-            greetingEl.classList.add('god-natt');
-            greetingEl.innerHTML = `God natt<span class="moon-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></span>`;
-        } else {
+        // Födelsedagslogik
+        const todayStrForBday = String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+        let isBirthday = false;
+        let bdayName = "";
+
+        if (birthdays[todayStrForBday]) {
+            isBirthday = true;
+            bdayName = birthdays[todayStrForBday];
+        }
+
+        if (forceTestBirthday) {
+            isBirthday = true;
+            bdayName = "Test";
+        }
+
+        if (isBirthday) {
             greetingEl.classList.remove('god-natt');
-            greetingEl.innerHTML = `${greetingBase}<span class="wiggle-mark">!</span>`;
+            greetingEl.classList.add('birthday');
+            greetingEl.innerHTML = `Grattis ${bdayName}<span class="wiggle-mark">!</span> 🎂`;
+            
+            // Kolla om vi redan firat idag så vi inte spammar fyrverkerier varje sekund
+            if (lastCelebratedDate !== todayStrForBday && !forceTestBirthday) {
+                lastCelebratedDate = todayStrForBday;
+                triggerCelebration();
+            }
+        } else {
+            // Standardhälsning
+            greetingEl.classList.remove('birthday');
+            let greetingBase = (hour >= 6 && hour < 10) ? "God morgon" : (hour >= 10 && hour < 18) ? "God dag" : (hour >= 18 && hour < 23) ? "God kväll" : "God natt";
+            
+            if(greetingBase === "God natt") {
+                greetingEl.classList.add('god-natt');
+                greetingEl.innerHTML = `God natt<span class="moon-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></span>`;
+            } else {
+                greetingEl.classList.remove('god-natt');
+                greetingEl.innerHTML = `${greetingBase}<span class="wiggle-mark">!</span>`;
+            }
         }
 
         document.getElementById('clock').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
@@ -411,7 +510,6 @@
         }
     }
 
-    // NYHETSMOTOR - Endast textremsa
     async function fetchAlJazeeraTextNews() {
         try {
             let xmlText = "";
