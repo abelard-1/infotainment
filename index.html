@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v139</title>
+    <title>Staffanstorp Wall Dashboard v140</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
@@ -86,13 +86,13 @@
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none;
-            z-index: 50; /* Flyttad till 50 så det ligger framför de andra panelerna (som är 20) */
+            z-index: 50; 
         }
 
         /* --- STABILISERAD LAYOUT --- */
         .info-panel {
-            width: 48vw;         /* STENHÅRD BREDD */
-            flex: none;          /* Tillåter inte att flexboxen ändrar storlek */
+            width: 48vw;         
+            flex: none;          
             padding: 50px 60px;
             display: flex;
             flex-direction: column;
@@ -101,12 +101,12 @@
             background: linear-gradient(135deg, #0a0a0a 0%, #151515 100%);
             position: relative;
             z-index: 20;
-            overflow: hidden;    /* Garanterar att inget pressas ut */
+            overflow: hidden;    
         }
 
         .media-panel { 
-            width: 52vw;         /* STENHÅRD BREDD */
-            flex: none;          /* Tillåter inte att flexboxen ändrar storlek */
+            width: 52vw;         
+            flex: none;          
             display: flex; 
             flex-direction: column; 
             position: relative; 
@@ -117,9 +117,9 @@
         header {
             width: 100%;
             height: 180px; 
-            min-height: 180px; /* Tvingar höjden att aldrig bli mindre */
-            max-height: 180px; /* Tvingar höjden att aldrig bli större */
-            flex: none;        /* Hindrar flexbox från att krympa elementet */
+            min-height: 180px; 
+            max-height: 180px; 
+            flex: none;        
             display: flex;
             flex-direction: column;
             justify-content: flex-end;
@@ -605,6 +605,9 @@
                 bdayScreen.style.display = 'flex';
                 document.getElementById('bday-main-text').innerHTML = `GRATTIS<br>${bdayName.toUpperCase()}!`;
                 
+                // --- NYTT: Döda väderpartiklar för att spara prestanda ---
+                document.getElementById('weather-overlay').innerHTML = '';
+                
                 if(iframe.src && iframe.src !== 'about:blank') {
                     iframe.src = 'about:blank'; 
                     iframe.style.display = 'none';
@@ -617,6 +620,11 @@
             if (celebrationActive) {
                 stopCelebration();
                 bdayScreen.style.display = 'none';
+                
+                // --- NYTT: Återställ vädret när firandet är över ---
+                let activeCode = weatherTestState === 0 ? lastRealWeatherCode : (weatherTestState === 1 ? 51 : 71);
+                updateWeatherOverlay(activeCode);
+
                 if(iframe.src === 'about:blank' || iframe.src === '') {
                     iframe.src = iframe.getAttribute('data-src'); 
                     iframe.style.display = 'block';
@@ -667,7 +675,6 @@
     // -- NYHETS-FUNKTIONER (NU MED SVT NYHETER) --
     async function updateNews() {
         try {
-            // Vi använder SVT Nyheter eftersom Al Jazeera blockerar anrop utifrån
             const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.svt.se/nyheter/rss.xml');
             const data = await res.json();
             
@@ -757,6 +764,10 @@
     function updateWeatherOverlay(code) {
         const container = document.getElementById('weather-overlay');
         container.innerHTML = '';
+        
+        // --- NYTT: Blockera uppritning av nytt väder om vi firar (sparar RAM/CPU) ---
+        if (celebrationActive || forceTestBirthday) return;
+        
         let type = '';
         if (code >= 71) type = 'snow';
         else if (code >= 51) type = 'rain';
@@ -764,7 +775,10 @@
         
         if (!type) return;
 
-        for (let i = 0; i < (type === 'cloud' ? 5 : 50); i++) {
+        // --- NYTT: Rejält mycket mer regndroppar ---
+        let pCount = type === 'cloud' ? 5 : (type === 'rain' ? 150 : 50);
+
+        for (let i = 0; i < pCount; i++) {
             const p = document.createElement('div');
             p.className = 'particle';
             if (type === 'rain') { p.style.width = '2px'; p.style.height = '15px'; p.style.background = 'rgba(100,150,255,0.4)'; } 
