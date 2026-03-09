@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v130</title>
+    <title>Staffanstorp Wall Dashboard v131</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
@@ -53,7 +53,6 @@
             display: flex;
             flex-direction: column;
             justify-content: flex-end;
-            /* Ökad perspective för en mer dramatisk 3D-flipp av enskilda tecken */
             perspective: 2000px; 
             padding-bottom: 10px;
         }
@@ -71,10 +70,8 @@
         .char-span {
             display: inline-block;
             transform-origin: center center;
-            opacity: 1;
-            /* In-animation: faller mjukt framåt (från -90deg till 0deg) */
-            animation: charFlipIn 0.8s ease forwards;
-            /* Säkerställer att ingen oönskad clipping sker vid 3D-rotationer */
+            /* Ändrat från 'forwards' till 'both' så elementet göms under delay-tiden när det ska in */
+            animation: charFlipIn 0.8s ease both;
             transform-style: preserve-3d;
             z-index: 1;
         }
@@ -86,8 +83,8 @@
         }
 
         .char-span.out {
-            /* Out-animation: fälls intensivt bakåt (från 0deg till 90deg) */
-            animation: charFlipOut 0.5s ease-in forwards;
+            /* Även här 'both' för konsekvent beteende */
+            animation: charFlipOut 0.5s ease-in both;
         }
 
         @keyframes charFlipOut {
@@ -105,7 +102,6 @@
         .wiggle-mark {
             display: inline-block !important;
             transform-origin: bottom center;
-            /* Ändrat från 3s till 60s för att ske en gång i minuten */
             animation: intensive-wiggle 60s infinite;
             color: #fff; 
             transition: color 2s ease;
@@ -113,7 +109,6 @@
         
         #greeting.birthday .wiggle-mark { color: #ffaa33; }
 
-        /* Ombyggda keyframes för 60s cykel: Står still fram till 98%, darrar snabbt, och återgår vid 100% */
         @keyframes intensive-wiggle {
             0%, 98% { transform: translate(0,0) rotate(0deg); }
             98.4% { transform: translate(2px, -2px) rotate(15deg); }
@@ -467,6 +462,14 @@
         return Math.random() * (max - min) + min;
     }
 
+    // Lägger till slumpmässig delay redan när vi bygger span-taggarna (för IN-animationen)
+    function wrapTextInSpans(text) {
+        return text.split('').map(char => {
+            const delay = Math.floor(Math.random() * 400); // 0-400ms delay
+            return `<span class="char-span" style="animation-delay: ${delay}ms">${char === ' ' ? '&nbsp;' : char}</span>`;
+        }).join('');
+    }
+
     function testBirthday() {
         forceTestBirthday = true;
         triggerCelebration(); 
@@ -477,12 +480,6 @@
             if (birthdayInterval) clearInterval(birthdayInterval); 
             update();
         }, 15000); 
-    }
-
-    function wrapTextInSpans(text) {
-        return text.split('').map(char => {
-            return `<span class="char-span">${char === ' ' ? '&nbsp;' : char}</span>`;
-        }).join('');
     }
 
     function update() {
@@ -527,16 +524,19 @@
                 let greetingBase = greetingsTranslations[currentLangIndex][phase];
                 
                 greetingBase = greetingBase.charAt(0).toUpperCase() + greetingBase.slice(1);
-                
                 rawTextForSizing = greetingBase + (phase === "n" ? "" : "!");
+                
                 const wrappedText = wrapTextInSpans(greetingBase);
+                const suffixDelay = Math.floor(Math.random() * 400); // Slumpmässig delay även för ! och 🌙
                 
                 if(phase === "n") {
                     greetingEl.classList.add('god-natt');
-                    greetingEl.innerHTML = `${wrappedText}<span class="moon-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></span>`;
+                    // Wrappar moon-icon i en char-span
+                    greetingEl.innerHTML = `${wrappedText}<span class="char-span" style="animation-delay: ${suffixDelay}ms"><span class="moon-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></span></span>`;
                 } else {
                     greetingEl.classList.remove('god-natt');
-                    greetingEl.innerHTML = `${wrappedText}<span class="wiggle-mark">!</span>`;
+                    // Wrappar wiggle-mark i en char-span
+                    greetingEl.innerHTML = `${wrappedText}<span class="char-span" style="animation-delay: ${suffixDelay}ms"><span class="wiggle-mark">!</span></span>`;
                 }
             }
 
@@ -701,15 +701,20 @@
 
             const greetingEl = document.getElementById('greeting');
             const spans = greetingEl.querySelectorAll('.char-span');
+            
+            let maxDelay = 0;
 
-            spans.forEach((span, index) => {
-                span.style.animationDelay = `${index * 60}ms`;
+            spans.forEach((span) => {
+                const randomDelay = Math.floor(Math.random() * 400); // 0-400ms delay för UT-animationen
+                if (randomDelay > maxDelay) maxDelay = randomDelay;
+                
+                span.style.animationDelay = `${randomDelay}ms`;
                 span.classList.add('out'); 
             });
 
-            const delayPerLetter = 60; 
+            // Vi byter ut texten (anropar update) när den långsammaste bokstaven är klar
             const animationDuration = 500; 
-            const totalFlipOutTime = (spans.length * delayPerLetter) + (animationDuration * 0.8);
+            const totalFlipOutTime = maxDelay + animationDuration + 50; // +50ms säkerhetsmarginal
 
             setTimeout(() => {
                 currentLangIndex = (currentLangIndex + 1) % greetingsTranslations.length;
