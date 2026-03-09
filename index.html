@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v133</title>
+    <title>Staffanstorp Wall Dashboard v134</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
@@ -32,8 +32,8 @@
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
             background: #000;
-            z-index: 8000; /* Ligger över allt annat, men under testknapp och konfetti */
-            display: none; /* Dold som standard */
+            z-index: 8000; 
+            display: none; 
             flex-direction: column;
             justify-content: center;
             align-items: center;
@@ -55,17 +55,11 @@
             font-weight: 900;
             text-align: center;
             letter-spacing: -2px;
-            /* Guld-effekt */
+            /* Guld-effekt - Nu helt statisk för Chromecast-prestanda */
             background: linear-gradient(180deg, #FFDF00 0%, #D4AF37 50%, #996515 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0px 0px 30px rgba(255, 215, 0, 0.3));
-            animation: bday-pulse 3s infinite alternate ease-in-out;
-        }
-
-        @keyframes bday-pulse {
-            0% { transform: scale(1); filter: drop-shadow(0px 0px 30px rgba(255, 215, 0, 0.2)); }
-            100% { transform: scale(1.05); filter: drop-shadow(0px 0px 50px rgba(255, 215, 0, 0.6)); }
+            filter: drop-shadow(0px 0px 40px rgba(255, 215, 0, 0.4));
         }
 
         #bday-footer {
@@ -87,7 +81,6 @@
         #bday-weather { display: flex; align-items: center; gap: 15px; font-size: 3rem; font-weight: 900; color: #D4AF37; }
         #bday-weather svg { width: 50px; height: 50px; }
         /* -------------------------------------- */
-
 
         /* VÄDER-OVERLAY */
         #weather-overlay {
@@ -332,11 +325,10 @@
             opacity: 0.6;
         }
 
-        /* TILLFÄLLIG TESTKNAPP */
         #test-bday-btn {
             position: fixed;
             bottom: 20px;
-            left: 20px; /* Flyttad till vänster så den inte krockar med den nya foten */
+            left: 20px; 
             z-index: 9999;
             background: var(--easter);
             color: #000;
@@ -362,6 +354,7 @@
             <div id="bday-clock">00:00</div>
         </div>
     </div>
+
     <div id="weather-overlay"></div>
 
     <button id="test-bday-btn" onclick="testBirthdayToggle()">Testa Födelsedag 🎉</button>
@@ -437,24 +430,21 @@
         { m: "God morgon", d: "God dag", e: "God kväll", n: "God natt" },
         { m: "Good morning", d: "Good afternoon", e: "Good evening", n: "Good night" },
         { m: "Guten Morgen", d: "Guten Tag", e: "Guten Abend", n: "Gute Nacht" }
-        // (Har kortat ner listan i kod-snippetten för läsbarhet, men den roterar som vanligt)
     ];
     let currentLangIndex = 0;
     
     let currentRenderedGreeting = "";
     let forceTestBirthday = false;
     
-    // Fest-variabler 
     let celebrationActive = false;
     let birthdayInterval = null; 
     let animationFrameId = null;
     
-    // Variabler för att spegla vädret till festläget
     let currentTempStr = "--°";
     let currentIconHtml = "";
 
     function randomColor() {
-        var colors = ['#FFDF00', '#D4AF37', '#ffffff', '#ff6666', '#ff00ff', '#44ffff']; // Uppdaterat med lite guld!
+        var colors = ['#FFDF00', '#D4AF37', '#ffffff', '#ff6666', '#ff00ff', '#44ffff'];
         return colors[Math.floor(Math.random() * colors.length)];
     }
 
@@ -514,9 +504,7 @@
         }
     }
 
-    function randomInRange(min, max) {
-        return Math.random() * (max - min) + min;
-    }
+    function randomInRange(min, max) { return Math.random() * (max - min) + min; }
 
     function wrapTextInSpans(text) {
         return text.split('').map(char => {
@@ -557,10 +545,9 @@
 
         if (forceTestBirthday) {
             isBirthday = true;
-            bdayName = "Jakob"; // Standardnamn för testknappen
+            bdayName = "Jakob"; 
         }
 
-        // --- FESTLÄGE LOGIK (Helskärm) ---
         if (isBirthday) {
             if (!celebrationActive) {
                 triggerCelebration();
@@ -572,7 +559,6 @@
                     iframe.style.display = 'none';
                 }
             }
-            // Uppdatera klocka i foten på festläget
             const timeStr = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
             document.getElementById('bday-clock').innerText = timeStr;
             
@@ -586,7 +572,6 @@
                 }
             }
             
-            // --- VANLIG HÄLSNINGS-LOGIK (Körs bara om det inte är födelsedag) ---
             let phase = (hour >= 6 && hour < 10) ? "m" : (hour >= 10 && hour < 18) ? "d" : (hour >= 18 && hour < 23) ? "e" : "n";
             let greetingKey = `lang-${currentLangIndex}-${phase}`;
 
@@ -594,7 +579,6 @@
                 currentRenderedGreeting = greetingKey;
                 greetingEl.classList.remove('birthday');
                 
-                // Fallback om arrayen är förkortad i test
                 let greetingBase = (greetingsTranslations[currentLangIndex] || greetingsTranslations[0])[phase];
                 
                 greetingBase = greetingBase.charAt(0).toUpperCase() + greetingBase.slice(1);
@@ -621,7 +605,6 @@
             }
         }
 
-        // Uppdatera vanliga klockan 
         document.getElementById('clock').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
         const dateStr = now.toLocaleDateString('sv-SE', { weekday: 'long', day: 'numeric', month: 'long' });
         document.getElementById('date-sub').innerText = "Idag är det " + dateStr;
@@ -662,7 +645,6 @@
 
             const getIcon = (c) => (c >= 71 ? 'snowflake' : c >= 51 ? 'cloud-rain' : c >= 3 ? 'cloud' : 'sun');
             
-            // Uppdatera data för spegling till festläge
             currentTempStr = Math.round(d.hourly.temperature_2m[nowH]) + "°";
             currentIconHtml = `<i data-lucide="${getIcon(code)}"></i>`;
             document.getElementById('bday-weather').innerHTML = `${currentIconHtml} <span>${currentTempStr}</span>`;
@@ -715,23 +697,17 @@
         }
     }
 
-    async function fetchAlJazeeraTextNews() {
-        // Förkortad för läsbarhet, samma logik som tidigare
-        // ... (Koden är identisk med tidigare versioner)
-    }
-
     document.addEventListener('DOMContentLoaded', () => {
         update(); 
         updateCalendar(); 
         updateWeather(); 
-        // fetchAlJazeeraTextNews();
 
         setInterval(update, 1000); 
         setInterval(updateCalendar, 600000); 
         setInterval(updateWeather, 1800000); 
         
         setInterval(() => {
-            if (celebrationActive) return; // Gör ingen språkuppdatering i bakgrunden när vi kör festläget
+            if (celebrationActive) return; 
             
             const greetingEl = document.getElementById('greeting');
             const spans = greetingEl.querySelectorAll('.char-span');
