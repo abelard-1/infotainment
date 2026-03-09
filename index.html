@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v136</title>
+    <title>Staffanstorp Wall Dashboard v137</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
@@ -55,7 +55,6 @@
             font-weight: 900;
             text-align: center;
             letter-spacing: -2px;
-            /* Guld-effekt - Helt statisk för Chromecast-prestanda */
             background: linear-gradient(180deg, #FFDF00 0%, #D4AF37 50%, #996515 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -104,7 +103,7 @@
 
         header {
             max-width: 100%;
-            min-height: 180px;
+            height: 180px; /* Fast höjd löser layout-hoppet! */
             display: flex;
             flex-direction: column;
             justify-content: flex-end;
@@ -500,7 +499,6 @@
             });
         }, 100);
 
-        // Fyrverkerier dubbelt så ofta: 5000 ms istället för 10000 ms
         birthdayInterval = setInterval(function() {
             if (!celebrationActive) {
                 clearInterval(birthdayInterval);
@@ -552,17 +550,17 @@
             btn.innerText = "Testar Regn 🌧️";
             btn.style.background = "var(--accent)";
             btn.style.color = "#fff";
-            updateWeatherOverlay(51); // Standard regn-kod
+            updateWeatherOverlay(51); 
         } else if (weatherTestState === 2) {
             btn.innerText = "Testar Snö ❄️";
             btn.style.background = "#fff";
             btn.style.color = "#000";
-            updateWeatherOverlay(71); // Standard snö-kod
+            updateWeatherOverlay(71); 
         } else {
             btn.innerText = "Testa Väder 🌧️";
             btn.style.background = "var(--summer)";
             btn.style.color = "#000";
-            updateWeatherOverlay(lastRealWeatherCode); // Återgå till faktiskt väder
+            updateWeatherOverlay(lastRealWeatherCode); 
         }
     }
 
@@ -655,27 +653,37 @@
     // -- NYHETS-FUNKTIONER --
     async function updateNews() {
         try {
-            const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.aljazeera.com/xml/rss/all.xml');
+            // Vi använder allorigins för att undvika CORS-problem och läser XML:en direkt
+            const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent('https://www.aljazeera.com/xml/rss/all.xml')}`);
             const data = await res.json();
-            if (data.status === 'ok' && data.items && data.items.length > 0) {
-                textNewsItems = data.items.map(item => item.title);
+            
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(data.contents, "text/xml");
+            const items = xmlDoc.querySelectorAll("item");
+            
+            if (items.length > 0) {
+                // Hämta de första 15 nyheterna
+                textNewsItems = Array.from(items).slice(0, 15).map(item => item.querySelector("title").textContent);
                 textNewsIndex = 0;
                 displayNextNews();
+            } else {
+                document.getElementById('news-text').innerText = "Kunde inte ladda nyheter för tillfället.";
             }
         } catch (e) {
             console.error("News fetch failed", e);
+            document.getElementById('news-text').innerText = "Problem med att hämta nyhetsflödet.";
         }
     }
 
     function displayNextNews() {
         if (textNewsItems.length === 0) return;
         const newsTextEl = document.getElementById('news-text');
-        newsTextEl.style.opacity = 0; // Tona ut
+        newsTextEl.style.opacity = 0; 
         setTimeout(() => {
             newsTextEl.innerText = textNewsItems[textNewsIndex];
-            newsTextEl.style.opacity = 1; // Tona in
+            newsTextEl.style.opacity = 1; 
             textNewsIndex = (textNewsIndex + 1) % textNewsItems.length;
-        }, 500); // Vänta på att ut-toningen ska bli klar
+        }, 500); 
     }
     // -----------------------
 
@@ -707,9 +715,9 @@
             const nowH = new Date().getHours();
             const code = d.hourly.weathercode[nowH];
             
-            lastRealWeatherCode = code; // Spara det faktiska vädret
+            lastRealWeatherCode = code; 
             if (weatherTestState === 0) {
-                updateWeatherOverlay(code); // Rita bara om vi inte testkör just nu
+                updateWeatherOverlay(code); 
             }
 
             const getIcon = (c) => (c >= 71 ? 'snowflake' : c >= 51 ? 'cloud-rain' : c >= 3 ? 'cloud' : 'sun');
@@ -770,15 +778,13 @@
         update(); 
         updateCalendar(); 
         updateWeather(); 
-        updateNews(); // Kör igång nyhets-hämtningen direkt
+        updateNews(); 
 
         setInterval(update, 1000); 
         setInterval(updateCalendar, 600000); 
         setInterval(updateWeather, 1800000); 
         
-        // Uppdatera nyhetsflödet från Al Jazeera en gång i timmen
         setInterval(updateNews, 3600000); 
-        // Byt till nästa nyhetsrubrik var 15:e sekund
         setInterval(displayNextNews, 15000);
         
         setInterval(() => {
