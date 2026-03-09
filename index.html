@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v137</title>
+    <title>Staffanstorp Wall Dashboard v138</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
@@ -89,8 +89,10 @@
             z-index: 10;
         }
 
+        /* --- STABILISERAD LAYOUT --- */
         .info-panel {
-            flex: 0 0 48%; 
+            width: 48vw;         /* STENHÅRD BREDD */
+            flex: none;          /* Tillåter inte att flexboxen ändrar storlek */
             padding: 50px 60px;
             display: flex;
             flex-direction: column;
@@ -99,11 +101,22 @@
             background: linear-gradient(135deg, #0a0a0a 0%, #151515 100%);
             position: relative;
             z-index: 20;
+            overflow: hidden;    /* Garanterar att inget pressas ut */
         }
 
+        .media-panel { 
+            width: 52vw;         /* STENHÅRD BREDD */
+            flex: none;          /* Tillåter inte att flexboxen ändrar storlek */
+            display: flex; 
+            flex-direction: column; 
+            position: relative; 
+            z-index: 20; 
+        }
+        /* --------------------------- */
+
         header {
-            max-width: 100%;
-            height: 180px; /* Fast höjd löser layout-hoppet! */
+            width: 100%;
+            height: 180px; 
             display: flex;
             flex-direction: column;
             justify-content: flex-end;
@@ -258,8 +271,6 @@
         .weather-temp { font-size: 3.8rem; font-weight: 900; margin-top: 5px; }
         .weather-hour { font-size: 1.4rem; opacity: 0.6; font-weight: 900; text-transform: uppercase; }
 
-        .media-panel { flex: 1; display: flex; flex-direction: column; position: relative; z-index: 20; }
-        
         .video-container { 
             flex: 1; 
             background: #000; 
@@ -413,7 +424,7 @@
         
         <div class="news-bar">
             <div class="section-label" style="margin-bottom: 5px;">
-                <span class="live-dot"></span> Senaste Nytt (Al Jazeera)
+                <span class="live-dot"></span> Senaste Nytt (SVT)
             </div>
             <div id="news-text">Laddar nyheter...</div>
         </div>
@@ -650,24 +661,19 @@
         document.getElementById('count-summer').innerText = Math.max(0, Math.ceil((summer - now) / 86400000));
     }
 
-    // -- NYHETS-FUNKTIONER --
+    // -- NYHETS-FUNKTIONER (NU MED SVT NYHETER) --
     async function updateNews() {
         try {
-            // Vi använder allorigins för att undvika CORS-problem och läser XML:en direkt
-            const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent('https://www.aljazeera.com/xml/rss/all.xml')}`);
+            // Vi använder SVT Nyheter eftersom Al Jazeera blockerar anrop utifrån
+            const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.svt.se/nyheter/rss.xml');
             const data = await res.json();
             
-            const parser = new DOMParser();
-            const xmlDoc = parser.parseFromString(data.contents, "text/xml");
-            const items = xmlDoc.querySelectorAll("item");
-            
-            if (items.length > 0) {
-                // Hämta de första 15 nyheterna
-                textNewsItems = Array.from(items).slice(0, 15).map(item => item.querySelector("title").textContent);
+            if (data.status === 'ok' && data.items && data.items.length > 0) {
+                textNewsItems = data.items.map(item => item.title);
                 textNewsIndex = 0;
                 displayNextNews();
             } else {
-                document.getElementById('news-text').innerText = "Kunde inte ladda nyheter för tillfället.";
+                document.getElementById('news-text').innerText = "Väntar på nyheter...";
             }
         } catch (e) {
             console.error("News fetch failed", e);
