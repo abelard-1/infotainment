@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v145</title>
+    <title>Staffanstorp Wall Dashboard v146</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
@@ -14,6 +14,7 @@
             --accent: #5e92f3;
             --summer: #44ffff;
             --easter: #ffaa33;
+            --bday-color: #D4AF37; /* Sober guldfärg för nästa födelsedag */
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -410,6 +411,10 @@
                         <div id="count-summer" style="font-size: 5.5rem; font-weight: 900; color: var(--summer);">--</div>
                         <div style="font-size: 1.35rem; letter-spacing: 3px; opacity: 0.4; font-weight: 900; line-height: 1.1;">SOMMAR-<br>LOV</div>
                     </div>
+                    <div style="text-align: center;">
+                        <div id="count-bday" style="font-size: 5.5rem; font-weight: 900; color: var(--bday-color);">--</div>
+                        <div id="label-bday" style="font-size: 1.35rem; letter-spacing: 3px; opacity: 0.4; font-weight: 900; line-height: 1.1;">NÄSTA<br>FÖDELSEDAG</div>
+                    </div>
                 </div>
             </div>
             <div id="clock">00:00</div>
@@ -441,24 +446,24 @@
     };
 
     const greetingsTranslations = [
-        { m: "God morgon", d: "God dag", e: "God kväll", n: "God natt" }, // Svenska
-        { m: "Good morning", d: "Good afternoon", e: "Good evening", n: "Good night" }, // Engelska
-        { m: "Guten Morgen", d: "Guten Tag", e: "Guten Abend", n: "Gute Nacht" }, // Tyska
-        { m: "Buenos días", d: "Buenas tardes", e: "Buenas noches", n: "Buenas noches" }, // Spanska
-        { m: "Bonjour", d: "Bonjour", e: "Bonsoir", n: "Bonne nuit" }, // Franska
-        { m: "Buongiorno", d: "Buon pomeriggio", e: "Buonasera", n: "Buonanotte" }, // Italienska
-        { m: "Bom dia", d: "Boa tarde", e: "Boa noite", n: "Boa noite" }, // Portugisiska
-        { m: "Goedemorgen", d: "Goedemiddag", e: "Goedenavond", n: "Goedenacht" }, // Holländska
-        { m: "Godmorgen", d: "Goddag", e: "Godaften", n: "Godnat" }, // Danska
-        { m: "God morgen", d: "God dag", e: "God kveld", n: "God natt" }, // Norska
-        { m: "Hyvää huomenta", d: "Hyvää päivää", e: "Hyvää iltaa", n: "Hyvää yötä" }, // Finska
-        { m: "Góðan morgun", d: "Góðan dag", e: "Gott kvöld", n: "Góða nótt" }, // Isländska
-        { m: "Dzień dobry", d: "Dzień dobry", e: "Dobry wieczór", n: "Dobranoc" }, // Polska
-        { m: "Günaydın", d: "İyi günler", e: "İyi akşamlar", n: "İyi geceler" }, // Turkiska
-        { m: "Καλημέρα", d: "Καλό μεσημέρι", e: "Καλησπέρα", n: "Καληνύχτα" }, // Grekiska
-        { m: "Ohayou", d: "Konnichiwa", e: "Konbanwa", n: "Oyasumi" }, // Japanska
-        { m: "Habari ya asubuhi", d: "Habari ya mchana", e: "Habari ya jioni", n: "Lala salama" }, // Swahili
-        { m: "Bonan matenon", d: "Bonan tagon", e: "Bonan vesperon", n: "Bonan nokton" } // Esperanto
+        { m: "God morgon", d: "God dag", e: "God kväll", n: "God natt" },
+        { m: "Good morning", d: "Good afternoon", e: "Good evening", n: "Good night" },
+        { m: "Guten Morgen", d: "Guten Tag", e: "Guten Abend", n: "Gute Nacht" },
+        { m: "Buenos días", d: "Buenas tardes", e: "Buenas noches", n: "Buenas noches" },
+        { m: "Bonjour", d: "Bonjour", e: "Bonsoir", n: "Bonne nuit" },
+        { m: "Buongiorno", d: "Buon pomeriggio", e: "Buonasera", n: "Buonanotte" },
+        { m: "Bom dia", d: "Boa tarde", e: "Boa noite", n: "Boa noite" },
+        { m: "Goedemorgen", d: "Goedemiddag", e: "Goedenavond", n: "Goedenacht" },
+        { m: "Godmorgen", d: "Goddag", e: "Godaften", n: "Godnat" },
+        { m: "God morgen", d: "God dag", e: "God kveld", n: "God natt" },
+        { m: "Hyvää huomenta", d: "Hyvää päivää", e: "Hyvää iltaa", n: "Hyvää yötä" },
+        { m: "Góðan morgun", d: "Góðan dag", e: "Gott kvöld", n: "Góða nótt" },
+        { m: "Dzień dobry", d: "Dzień dobry", e: "Dobry wieczór", n: "Dobranoc" },
+        { m: "Günaydın", d: "İyi günler", e: "İyi akşamlar", n: "İyi geceler" },
+        { m: "Καλημέρα", d: "Καλό μεσημέρι", e: "Καλησπέρα", n: "Καληνύχτα" },
+        { m: "Ohayou", d: "Konnichiwa", e: "Konbanwa", n: "Oyasumi" },
+        { m: "Habari ya asubuhi", d: "Habari ya mchana", e: "Habari ya jioni", n: "Lala salama" },
+        { m: "Bonan matenon", d: "Bonan tagon", e: "Bonan vesperon", n: "Bonan nokton" }
     ];
     let currentLangIndex = 0;
     
@@ -632,9 +637,40 @@
         document.getElementById('clock').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
         const dateStr = now.toLocaleDateString('sv-SE', { weekday: 'long', day: 'numeric', month: 'long' });
         document.getElementById('date-sub').innerText = "Idag är det " + dateStr;
+        
+        // Existerande nedräkningar (Lov)
         const easter = new Date('2026-03-30'), summer = new Date('2026-06-12');
         document.getElementById('count-easter').innerText = Math.max(0, Math.ceil((easter - now) / 86400000));
         document.getElementById('count-summer').innerText = Math.max(0, Math.ceil((summer - now) / 86400000));
+
+        // Dynamisk Födelsedagsnedräkning
+        const currentYear = now.getFullYear();
+        const todayForMath = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        let minDiff = Infinity;
+        let nextBdayName = "";
+
+        for (const [dateString, name] of Object.entries(birthdays)) {
+            const [month, day] = dateString.split('-');
+            let bdate = new Date(currentYear, parseInt(month) - 1, parseInt(day));
+            
+            // Om datumet redan varit i år, kolla nästa år istället
+            if (bdate < todayForMath) {
+                bdate.setFullYear(currentYear + 1);
+            }
+
+            const diff = bdate - todayForMath;
+            if (diff < minDiff) {
+                minDiff = diff;
+                nextBdayName = name;
+            }
+        }
+        
+        // Uppdatera DOM med dagar och namn
+        document.getElementById('count-bday').innerText = Math.ceil(minDiff / 86400000);
+        // Lägg till genitiv-s snyggt
+        const nameUppercase = nextBdayName.toUpperCase();
+        const nameS = nameUppercase.endsWith('S') ? nameUppercase : nameUppercase + "S";
+        document.getElementById('label-bday').innerHTML = `${nameS}<br>FÖDELSEDAG`;
     }
 
     async function updateNews() {
