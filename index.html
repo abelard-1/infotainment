@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v149</title>
+    <title>Staffanstorp Wall Dashboard v150</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
@@ -28,11 +28,15 @@
             overflow: hidden;
         }
 
-        /* Test-knapp för nattläge */
-        #test-night-btn {
+        /* --- TEST-KNAPPAR --- */
+        #test-buttons {
             position: fixed;
             top: 20px; right: 20px;
             z-index: 10002;
+            display: flex;
+            gap: 10px;
+        }
+        .test-btn {
             background: rgba(255,255,255,0.1);
             border: 1px solid rgba(255,255,255,0.3);
             color: #fff;
@@ -43,7 +47,7 @@
             font-weight: 700;
             transition: background 0.3s;
         }
-        #test-night-btn:hover { background: rgba(255,255,255,0.2); }
+        .test-btn:hover { background: rgba(255,255,255,0.2); }
 
         /* --- NATT-DIMMER --- */
         #night-dimmer {
@@ -90,20 +94,17 @@
             50% { opacity: var(--max-opacity); transform: scale(1); box-shadow: 0 0 4px rgba(255,255,255,0.5); }
         }
 
-        /* --- NY CSS FÖR MÅNEN v149 --- */
+        /* Den lysande halvmånen bakom texten */
         #nm-moon {
             position: absolute;
-            /* Justerad position för att hamna ovanför sista 'T' */
-            top: calc(50% - 10.5rem); /* Flyttad upp, anpassad för occlusion */
-            left: calc(50% + 19rem); /* Flyttad höger till slutet av 'GOTT' */
+            top: calc(50% - 10.5rem); 
+            left: calc(50% + 19rem); 
             width: 10rem;
             height: 10rem;
-            color: #fde16e; /* Vacker klassisk gul färg */
-            opacity: 1; /* Full opacitet för lysande effekt */
-            /* Klassiskt vackert sken (glow) */
+            color: #fde16e; 
+            opacity: 1; 
             filter: drop-shadow(0 0 20px rgba(253, 225, 110, 0.8)); 
-            z-index: 1; /* Ligger bakom texten (som är z:2) */
-            /* Behåller center-translate och justerar rotation för utseende */
+            z-index: 1; 
             transform: translate(-50%, -50%) rotate(-10deg); 
         }
 
@@ -121,7 +122,7 @@
 
         #nm-main-text {
             position: relative;
-            z-index: 2; /* Ligger framför månen */
+            z-index: 2; 
             font-size: clamp(6rem, 12vw, 15rem);
             line-height: 1;
             font-weight: 900;
@@ -288,7 +289,16 @@
         .countdown-bar { height: 200px; background: #0a0a0a; display: flex; align-items: center; justify-content: space-between; padding: 0 60px; border-top: 1px solid var(--border); }
         .countdown-wrapper { display: flex; align-items: center; gap: 30px; }
         .vertical-label { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 1.2rem; font-weight: 900; letter-spacing: 2px; opacity: 0.4; }
-        #clock { font-size: 4.5rem; font-weight: 900; font-variant-numeric: tabular-nums; }
+        
+        /* NY CSS FÖR KLOCKAN PÅ MAIN DASHBOARD */
+        #clock { 
+            font-size: 3.4rem; /* Minskat med ca 25% */
+            font-weight: 900; 
+            font-variant-numeric: tabular-nums; 
+            color: #d8d8d8; /* Lite gråare ton */
+            flex: 1; /* Låter den ta upp resterande yta... */
+            text-align: center; /* ...och centrerar den i ytan */
+        }
 
         .news-bar { background: #0a0a0a; padding: 25px 60px; border-top: 1px solid var(--border); min-height: 110px; display: flex; flex-direction: column; justify-content: center; }
         #news-text { font-size: 1.5rem; opacity: 0.8; line-height: 1.4; font-weight: 300; transition: opacity 0.5s; }
@@ -297,7 +307,11 @@
 </head>
 <body>
 
-    <button id="test-night-btn">Testa Nattläge (Av/På)</button>
+    <div id="test-buttons">
+        <button id="test-weather-btn" class="test-btn">Väder: Auto</button>
+        <button id="test-bday-btn" class="test-btn">Testa Födelsedag</button>
+        <button id="test-night-btn" class="test-btn">Testa Nattläge</button>
+    </div>
 
     <div id="night-dimmer"></div>
 
@@ -423,10 +437,31 @@
     let currentIconHtml = "";
 
     let isNightModeForced = false;
+    let isBdayModeForced = false;
+    let forcedWeatherMode = 'auto'; // 'auto', 'rain', 'snow'
 
     document.getElementById('test-night-btn').addEventListener('click', () => {
         isNightModeForced = !isNightModeForced;
         update();
+    });
+
+    document.getElementById('test-bday-btn').addEventListener('click', () => {
+        isBdayModeForced = !isBdayModeForced;
+        update();
+    });
+
+    document.getElementById('test-weather-btn').addEventListener('click', (e) => {
+        if (forcedWeatherMode === 'auto') {
+            forcedWeatherMode = 'rain';
+            e.target.innerText = 'Väder: Regn';
+        } else if (forcedWeatherMode === 'rain') {
+            forcedWeatherMode = 'snow';
+            e.target.innerText = 'Väder: Snö';
+        } else {
+            forcedWeatherMode = 'auto';
+            e.target.innerText = 'Väder: Auto';
+        }
+        updateWeatherOverlay(lastRealWeatherCode);
     });
 
     function initStars() {
@@ -514,9 +549,9 @@
         let isBirthday = false;
         let bdayName = "";
 
-        if (birthdays[todayStrForBday]) {
+        if (birthdays[todayStrForBday] || isBdayModeForced) {
             isBirthday = true;
-            bdayName = birthdays[todayStrForBday];
+            bdayName = birthdays[todayStrForBday] || "TESTNAMN";
         }
 
         // --- SKÄRM-HIERARKI ---
@@ -677,7 +712,6 @@
             currentTempStr = Math.round(d.hourly.temperature_2m[nowH]) + "°";
             currentIconHtml = `<i data-lucide="${getIcon(code)}"></i>`;
             
-            // Uppdatera födelsedagsvyn & nattvyn
             document.getElementById('bday-weather').innerHTML = `${currentIconHtml} <span>${currentTempStr}</span>`;
             document.getElementById('nm-weather').innerHTML = `${currentIconHtml} <span>${currentTempStr}</span>`;
 
@@ -698,8 +732,12 @@
         container.innerHTML = '';
         if (celebrationActive || isNightModeForced || new Date().getHours() >= 23 || new Date().getHours() < 6) return;
         
+        let effectiveCode = code;
+        if (forcedWeatherMode === 'rain') effectiveCode = 51;
+        if (forcedWeatherMode === 'snow') effectiveCode = 71;
+
         let type = '';
-        if (code >= 71) type = 'snow'; else if (code >= 51) type = 'rain'; else if (code >= 3) type = 'cloud';
+        if (effectiveCode >= 71) type = 'snow'; else if (effectiveCode >= 51) type = 'rain'; else if (effectiveCode >= 3) type = 'cloud';
         if (!type) return;
 
         let pCount = type === 'cloud' ? 5 : (type === 'rain' ? 150 : 50);
@@ -719,7 +757,7 @@
     document.addEventListener('DOMContentLoaded', () => {
         initStars();
         update(); updateCalendar(); updateWeather(); updateNews(); 
-        lucide.createIcons(); // Extra anrop för att garantera att nattmånen ritas
+        lucide.createIcons();
         setInterval(update, 1000); 
         setInterval(updateCalendar, 600000); 
         setInterval(updateWeather, 1800000); 
