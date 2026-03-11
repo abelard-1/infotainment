@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v158</title>
+    <title>Staffanstorp Wall Dashboard v159</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
@@ -171,7 +171,6 @@
         /* --- STABILISERAD LAYOUT --- */
         .info-panel {
             width: 48vw; flex: none; 
-            /* Ökade padding i toppen (från 35 till 50) för att trycka ner innehållet något */
             padding: 50px 60px 20px 60px; 
             display: flex; flex-direction: column;
             gap: 15px; 
@@ -225,16 +224,16 @@
         .moon-icon { display: inline-block; margin-left: 10px; color: #666; }
         .moon-icon svg { width: 0.8em; height: 0.8em; vertical-align: baseline; }
 
+        /* UPPDATERAD TEXT FÖR FN-DAG / DATUM */
         #date-sub { 
-            font-size: 2.8rem; 
-            font-weight: 300; 
+            font-size: 1.6rem; /* Minskad storlek för att långa namn ska få plats */
+            font-weight: 400; 
             color: #ffd7b5; 
             margin-bottom: 5px; 
-            text-transform: lowercase; 
+            letter-spacing: 1px;
             position: relative;
             top: 15px; 
         }
-        #date-sub::first-letter { text-transform: uppercase; }
 
         .section-label { 
             font-size: 1.1rem; font-weight: 900; text-transform: uppercase; letter-spacing: 4px; 
@@ -442,6 +441,63 @@
         "07-29": "Gabbe"
     };
 
+    // NYHET: Inbyggd kalender för FN-dagar
+    const unDays = {
+        "01-24": "Internationella dagen för utbildning",
+        "01-27": "Internationella minnesdagen för Förintelsens offer",
+        "02-04": "Världscancerdagen",
+        "02-06": "Int. dagen för nolltolerans mot kvinnlig könsstympning",
+        "02-11": "Int. dagen för kvinnor och flickor inom vetenskap",
+        "02-13": "Världsradiodagen",
+        "02-20": "Världsdagen för social rättvisa",
+        "02-21": "Internationella modersmålsdagen",
+        "03-03": "Världsdagen för natur- och djurliv",
+        "03-08": "Internationella kvinnodagen",
+        "03-20": "Internationella glädjedagen",
+        "03-21": "Int. dagen för avskaffande av rasdiskriminering",
+        "03-22": "Internationella vattendagen",
+        "03-23": "Världsmeteorologidagen",
+        "03-24": "Världstuberkulosdagen",
+        "04-02": "Världsautismdagen",
+        "04-07": "Världshälsodagen",
+        "04-22": "Internationella dagen för Moder Jord",
+        "04-23": "Världsbokdagen",
+        "05-03": "Internationella dagen för pressfrihet",
+        "05-15": "Internationella familjedagen",
+        "05-29": "Int. dagen för FN:s fredsbevarande personal",
+        "05-31": "Internationella dagen mot tobak",
+        "06-05": "Världsmiljödagen",
+        "06-08": "Världshavsdagen",
+        "06-12": "Internationella dagen mot barnarbete",
+        "06-20": "Internationella flyktingdagen",
+        "07-11": "Världsbefolkningsdagen",
+        "07-18": "Nelson Mandela-dagen",
+        "07-30": "Internationella dagen mot trafficking",
+        "08-09": "Int. dagen för världens ursprungsfolk",
+        "08-12": "Internationella ungdomsdagen",
+        "08-19": "Internationella dagen för humanitärt arbete",
+        "09-05": "Internationella dagen för välgörenhet",
+        "09-08": "Internationella läskunnighetsdagen",
+        "09-15": "Internationella dagen för demokrati",
+        "09-21": "Internationella fredsdagen",
+        "10-01": "Internationella äldredagen",
+        "10-02": "Internationella ickevåldsdagen",
+        "10-05": "Världslärardagen",
+        "10-10": "Världsdagen för mental hälsa",
+        "10-11": "Internationella flickdagen",
+        "10-16": "Världslivsmedelsdagen",
+        "10-17": "Int. dagen för utrotande av fattigdom",
+        "10-24": "FN-dagen",
+        "10-31": "Världsstadsdagen",
+        "11-14": "Världsdiabetesdagen",
+        "11-20": "Internationella barndagen",
+        "11-25": "Int. dagen för avskaffande av våld mot kvinnor",
+        "12-01": "Världsaidsdagen",
+        "12-03": "Internationella funktionshindersdagen",
+        "12-05": "Internationella dagen för frivilligarbete",
+        "12-10": "Mänskliga rättigheternas dag"
+    };
+
     const greetingsTranslations = [
         { m: "God morgon", d: "God dag", e: "God kväll", n: "God natt" },
         { m: "Good morning", d: "Good afternoon", e: "Good evening", n: "Good night" },
@@ -457,7 +513,7 @@
         { m: "Góðan morgun", d: "Góðan dag", e: "Gott kvöld", n: "Góða nótt" },
         { m: "Dzień dobry", d: "Dzień dobry", e: "Dobry wieczór", n: "Dobranoc" },
         { m: "Günaydın", d: "İyi günler", e: "İyi akşamlar", n: "İyi geceler" },
-        { m: "Καλημέρα", d: "Καλό μεσημέρι", e: "Καλησπέρα", n: "Καληνύχτα" },
+        { m: "Καλημέρα", d: "Καλό medσημέρι", e: "Καλησπέρα", n: "Καληνύχτα" },
         { m: "Ohayou", d: "Konnichiwa", e: "Konbanwa", n: "Oyasumi" }
     ];
     let currentLangIndex = 0;
@@ -662,7 +718,16 @@
             }
 
             document.getElementById('clock').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
-            document.getElementById('date-sub').innerText = "Idag är det " + now.toLocaleDateString('sv-SE', { weekday: 'long', day: 'numeric', month: 'long' });
+            
+            // --- NYHET: Kontrollera om det är en FN-dag och byt text! ---
+            if (unDays[todayStrForBday]) {
+                document.getElementById('date-sub').innerText = "FN-dag: " + unDays[todayStrForBday];
+            } else {
+                let fallbackText = "Idag är det " + now.toLocaleDateString('sv-SE', { weekday: 'long', day: 'numeric', month: 'long' });
+                // Enkel lösning för att göra första bokstaven stor om vi använder datumtexten
+                document.getElementById('date-sub').innerText = fallbackText.charAt(0).toUpperCase() + fallbackText.slice(1);
+            }
+            // -------------------------------------------------------------
             
             const easter = new Date('2026-03-30'), summer = new Date('2026-06-12');
             document.getElementById('count-easter').innerText = Math.max(0, Math.ceil((easter - now) / 86400000));
