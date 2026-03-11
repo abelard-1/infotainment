@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v153</title>
+    <title>Staffanstorp Wall Dashboard v154</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
@@ -283,10 +283,26 @@
         .weather-temp { font-size: 3.8rem; font-weight: 900; margin-top: 5px; }
         .weather-hour { font-size: 1.4rem; opacity: 0.6; font-weight: 900; text-transform: uppercase; }
 
-        .video-container { flex: 1; background: #000; position: relative; overflow: hidden; }
-        .video-container iframe { position: absolute; top: -40%; left: 0; width: 100%; height: 150%; border: none; pointer-events: none; z-index: 1; }
+        /* UPPDATERAD VIDEO-CONTAINER: Fixerat 16:9 format så den inte töjer ut sig */
+        .video-container { 
+            width: 100%; 
+            aspect-ratio: 16 / 9; 
+            flex: none; 
+            background: #000; 
+            position: relative; 
+            overflow: hidden; 
+        }
+        .video-container iframe { 
+            position: absolute; 
+            top: -20%; 
+            left: 0; 
+            width: 100%; 
+            height: 140%; 
+            border: none; 
+            pointer-events: none; 
+            z-index: 1; 
+        }
 
-        /* NYA LAYOUTEN FÖR NEDRÄKNING OCH NYHETER */
         .countdown-bar { 
             padding: 35px 60px; 
             background: #0a0a0a; 
@@ -312,18 +328,20 @@
             text-align: right; 
         }
 
+        /* UPPDATERAD NEWS-BAR: Nu med 'flex: 1' för att ta all plats neråt */
         .news-bar { 
             background: #0a0a0a; 
             padding: 35px 60px; 
             border-top: 1px solid var(--border); 
             min-height: 140px; 
+            flex: 1; 
             display: flex; 
             flex-direction: column; 
             justify-content: center; 
         }
         
         #news-text { 
-            font-size: 1.8rem; /* Ökad textstorlek för nyheter! */
+            font-size: 1.8rem; 
             opacity: 0.8; 
             line-height: 1.4; 
             font-weight: 300; 
