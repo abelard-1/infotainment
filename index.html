@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v162</title>
+    <title>Staffanstorp Wall Dashboard v163</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
@@ -92,7 +92,7 @@
 
         @keyframes twinkle {
             0%, 100% { opacity: 0; transform: scale(0.5); }
-            50% { opacity: var(--max-opacity); transform: scale(1); box-shadow: 0 0 4px rgba(255,255,255,0.5); }
+            50% { opacity: var(--max-opacity); transform: scale(1); }
         }
 
         #nm-moon {
@@ -103,9 +103,9 @@
             height: 10rem;
             color: #fde16e; 
             opacity: 1; 
-            filter: drop-shadow(0 0 20px rgba(253, 225, 110, 0.8)); 
             z-index: 1; 
             animation: moon-wander 90s infinite ease-in-out; /* Månens nya vandrande bana */
+            will-change: transform; /* Optimerar för TV-stickan */
         }
 
         /* Komplex bana som låter månen sväva runt på skärmen */
