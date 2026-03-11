@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v161</title>
+    <title>Staffanstorp Wall Dashboard v162</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
@@ -15,7 +15,7 @@
             --summer: #44ffff;
             --easter: #ffaa33;
             --bday-color: #D4AF37; 
-            --worldcup: #4ade80; /* Ny sportig grön färg för VM-nedräkningen */
+            --worldcup: #4ade80; 
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -105,7 +105,20 @@
             opacity: 1; 
             filter: drop-shadow(0 0 20px rgba(253, 225, 110, 0.8)); 
             z-index: 1; 
-            transform: translate(-50%, -50%) rotate(-10deg); 
+            animation: moon-wander 90s infinite ease-in-out; /* Månens nya vandrande bana */
+        }
+
+        /* Komplex bana som låter månen sväva runt på skärmen */
+        @keyframes moon-wander {
+            0%   { transform: translate(-50%, -50%) translate(0vw, 0vh) rotate(-10deg); }
+            12%  { transform: translate(-50%, -50%) translate(-20vw, 15vh) rotate(0deg); }
+            25%  { transform: translate(-50%, -50%) translate(-50vw, -10vh) rotate(10deg); }
+            37%  { transform: translate(-50%, -50%) translate(-70vw, 20vh) rotate(20deg); }
+            50%  { transform: translate(-50%, -50%) translate(-45vw, -30vh) rotate(5deg); }
+            62%  { transform: translate(-50%, -50%) translate(-15vw, 25vh) rotate(-15deg); }
+            75%  { transform: translate(-50%, -50%) translate(-60vw, 35vh) rotate(-5deg); }
+            87%  { transform: translate(-50%, -50%) translate(-30vw, -20vh) rotate(-12deg); }
+            100% { transform: translate(-50%, -50%) translate(0vw, 0vh) rotate(-10deg); }
         }
 
         @keyframes micro-shift {
@@ -349,7 +362,7 @@
 
     <div id="night-mode-screen">
         <div id="night-stars"></div>
-        <i data-lucide="moon" id="nm-moon" class="anti-burn-in"></i>
+        <i data-lucide="moon" id="nm-moon"></i>
         <div id="nm-main-text" class="anti-burn-in">SOV GOTT</div>
         <div id="nm-footer" class="anti-burn-in">
             <div id="nm-weather">Laddar...</div>
@@ -781,7 +794,6 @@
             const easter = new Date('2026-03-30'), summer = new Date('2026-06-12'), worldcup = new Date('2026-06-11');
             document.getElementById('count-easter').innerText = Math.max(0, Math.ceil((easter - now) / 86400000));
             document.getElementById('count-summer').innerText = Math.max(0, Math.ceil((summer - now) / 86400000));
-            // NYHET: VM-nedräkningen i JS
             document.getElementById('count-worldcup').innerText = Math.max(0, Math.ceil((worldcup - now) / 86400000));
 
             const currentYear = now.getFullYear();
