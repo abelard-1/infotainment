@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v151</title>
+    <title>Staffanstorp Wall Dashboard v152</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
@@ -284,7 +284,9 @@
         .weather-hour { font-size: 1.4rem; opacity: 0.6; font-weight: 900; text-transform: uppercase; }
 
         .video-container { flex: 1; background: #000; position: relative; overflow: hidden; }
-        .video-container iframe { position: absolute; top: -25%; left: 0; width: 100%; height: 150%; border: none; pointer-events: none; z-index: 1; }
+        
+        /* JUSTERING HÄR: Ändrat top från -25% till -40% för att flytta upp videon och dölja övre sorgkanten */
+        .video-container iframe { position: absolute; top: -40%; left: 0; width: 100%; height: 150%; border: none; pointer-events: none; z-index: 1; }
 
         .countdown-bar { height: 200px; background: #0a0a0a; display: flex; align-items: center; justify-content: space-between; padding: 0 60px; border-top: 1px solid var(--border); }
         .countdown-wrapper { display: flex; align-items: center; gap: 30px; }
@@ -539,7 +541,6 @@
         const bdayScreen = document.getElementById('birthday-screen');
         const nightScreen = document.getElementById('night-mode-screen');
         
-        // Sätt variabler för födelsedag FÖRST för att kunna använda det i hierarkin
         const todayStrForBday = String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
         let isBirthday = false;
         let bdayName = "";
@@ -552,14 +553,11 @@
         let phase = (hour >= 6 && hour < 10) ? "m" : (hour >= 10 && hour < 18) ? "d" : (hour >= 18 && hour < 23) ? "e" : "n";
         
         const nightDimmer = document.getElementById('night-dimmer');
-        // Aktivera natt-dimmer endast om det inte är en födelsedag
         if (phase === "n" && !isBirthday) { nightDimmer.classList.add('active'); } else { nightDimmer.classList.remove('active'); }
 
         const showNightMode = (hour >= 23 || hour < 6) || isNightModeForced;
 
-        // --- UPPDATERAD SKÄRM-HIERARKI (FÖDELSEDAG FÖRST!) ---
         if (isBirthday) {
-            // FÖDELSEDAGS-LÄGE
             nightScreen.style.display = 'none';
             if (!celebrationActive) {
                 triggerCelebration();
@@ -573,10 +571,9 @@
                 }
             }
             document.getElementById('bday-clock').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
-            return; // Stoppar här så nattläget aldrig aktiveras!
+            return; 
         } 
         else if (showNightMode) {
-            // NATT-LÄGE
             if (celebrationActive) stopCelebration();
             bdayScreen.style.display = 'none';
             nightScreen.style.display = 'flex';
@@ -591,7 +588,6 @@
             return; 
         } 
         else {
-            // NORMALT LÄGE
             nightScreen.style.display = 'none';
             if (celebrationActive) {
                 stopCelebration();
