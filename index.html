@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v154</title>
+    <title>Staffanstorp Wall Dashboard v155</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
@@ -94,7 +94,6 @@
             50% { opacity: var(--max-opacity); transform: scale(1); box-shadow: 0 0 4px rgba(255,255,255,0.5); }
         }
 
-        /* Den lysande halvmånen bakom texten */
         #nm-moon {
             position: absolute;
             top: calc(50% - 10.5rem); 
@@ -116,35 +115,18 @@
             100% { transform: translate(0px, 0px); }
         }
 
-        .anti-burn-in {
-            animation: micro-shift 180s infinite ease-in-out;
-        }
+        .anti-burn-in { animation: micro-shift 180s infinite ease-in-out; }
 
         #nm-main-text {
-            position: relative;
-            z-index: 2; 
-            font-size: clamp(6rem, 12vw, 15rem);
-            line-height: 1;
-            font-weight: 900;
-            text-align: center;
-            letter-spacing: -2px;
-            color: #7b8b9e; 
-            text-shadow: 0px 0px 30px rgba(123, 139, 158, 0.2);
-            background: none; 
+            position: relative; z-index: 2; font-size: clamp(6rem, 12vw, 15rem); line-height: 1;
+            font-weight: 900; text-align: center; letter-spacing: -2px; color: #7b8b9e; 
+            text-shadow: 0px 0px 30px rgba(123, 139, 158, 0.2); background: none; 
         }
 
         #nm-footer {
-            position: absolute;
-            bottom: 40px;
-            right: 60px;
-            z-index: 2;
-            display: flex;
-            gap: 40px;
-            align-items: center;
-            background: rgba(10, 10, 15, 0.5);
-            padding: 20px 40px;
-            border-radius: 30px;
-            border: 1px solid rgba(123, 139, 158, 0.1);
+            position: absolute; bottom: 40px; right: 60px; z-index: 2; display: flex; gap: 40px;
+            align-items: center; background: rgba(10, 10, 15, 0.5); padding: 20px 40px;
+            border-radius: 30px; border: 1px solid rgba(123, 139, 158, 0.1);
         }
 
         #nm-clock { font-size: 3.5rem; font-weight: 900; color: #5a6675; font-variant-numeric: tabular-nums; }
@@ -154,14 +136,9 @@
 
         /* --- FÖDELSEDAGS-SKÄRMEN (HELSKÄRM) --- */
         #birthday-screen {
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            background: #000;
-            z-index: 8000; 
-            display: none; 
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #000; z-index: 8000; display: none; flex-direction: column;
+            justify-content: center; align-items: center;
         }
 
         #birthday-screen img.bg-image {
@@ -178,10 +155,9 @@
         }
 
         #bday-footer {
-            position: absolute; bottom: 40px; right: 60px; z-index: 2;
-            display: flex; gap: 40px; align-items: center; background: rgba(20, 20, 20, 0.7);
-            padding: 20px 40px; border-radius: 30px; border: 1px solid rgba(255, 215, 0, 0.2);
-            backdrop-filter: blur(10px);
+            position: absolute; bottom: 40px; right: 60px; z-index: 2; display: flex; gap: 40px;
+            align-items: center; background: rgba(20, 20, 20, 0.7); padding: 20px 40px;
+            border-radius: 30px; border: 1px solid rgba(255, 215, 0, 0.2); backdrop-filter: blur(10px);
         }
 
         #bday-clock { font-size: 3.5rem; font-weight: 900; color: #fff; font-variant-numeric: tabular-nums; }
@@ -245,7 +221,16 @@
         .moon-icon { display: inline-block; margin-left: 10px; color: #666; }
         .moon-icon svg { width: 0.8em; height: 0.8em; vertical-align: baseline; }
 
-        #date-sub { font-size: 2.8rem; font-weight: 300; color: var(--accent); margin-bottom: 5px; text-transform: lowercase; }
+        /* UPPDATERAD DATUMTEXT: Ny färg och puttad ner 15px relativt, påverkar ej andras position */
+        #date-sub { 
+            font-size: 2.8rem; 
+            font-weight: 300; 
+            color: #ffd7b5; 
+            margin-bottom: 5px; 
+            text-transform: lowercase; 
+            position: relative;
+            top: 15px; 
+        }
         #date-sub::first-letter { text-transform: uppercase; }
 
         .section-label { 
@@ -283,61 +268,48 @@
         .weather-temp { font-size: 3.8rem; font-weight: 900; margin-top: 5px; }
         .weather-hour { font-size: 1.4rem; opacity: 0.6; font-weight: 900; text-transform: uppercase; }
 
-        /* UPPDATERAD VIDEO-CONTAINER: Fixerat 16:9 format så den inte töjer ut sig */
         .video-container { 
-            width: 100%; 
-            aspect-ratio: 16 / 9; 
-            flex: none; 
-            background: #000; 
-            position: relative; 
-            overflow: hidden; 
+            width: 100%; aspect-ratio: 16 / 9; flex: none; background: #000; position: relative; overflow: hidden; 
         }
         .video-container iframe { 
-            position: absolute; 
-            top: -20%; 
-            left: 0; 
-            width: 100%; 
-            height: 140%; 
-            border: none; 
-            pointer-events: none; 
-            z-index: 1; 
+            position: absolute; top: -20%; left: 0; width: 100%; height: 140%; border: none; pointer-events: none; z-index: 1; 
         }
 
         .countdown-bar { 
-            padding: 35px 60px; 
-            background: #0a0a0a; 
-            display: flex; 
-            flex-direction: column; 
-            justify-content: center; 
-            gap: 10px; 
-            border-top: 1px solid var(--border); 
+            padding: 35px 60px; background: #0a0a0a; display: flex; flex-direction: column; 
+            justify-content: center; gap: 10px; border-top: 1px solid var(--border); 
         }
         
+        /* UPPDATERAD WRAPPER: Tagit bort justify-content: space-between eftersom klockan inte är här längre */
         .countdown-wrapper { 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between; 
-            width: 100%; 
+            display: flex; align-items: center; justify-content: flex-start; width: 100%; 
         }
-        
+
+        /* UPPDATERAD KLOCKA: Nu fast i nedre högra hörnet av skärmen/panelen */
         #clock { 
+            position: absolute;
+            bottom: 35px;
+            right: 60px;
             font-size: 3.4rem; 
             font-weight: 900; 
             font-variant-numeric: tabular-nums; 
             color: #d8d8d8; 
             text-align: right; 
+            z-index: 30; /* Säkerställer att den ligger ovanpå */
         }
 
-        /* UPPDATERAD NEWS-BAR: Nu med 'flex: 1' för att ta all plats neråt */
+        /* UPPDATERAD NEWS-BAR: justify-content satt till flex-start för att flytta upp den, + padding-right så den undviker klockan */
         .news-bar { 
             background: #0a0a0a; 
             padding: 35px 60px; 
+            padding-right: 200px; /* Ge plats åt klockan */
             border-top: 1px solid var(--border); 
             min-height: 140px; 
             flex: 1; 
             display: flex; 
             flex-direction: column; 
-            justify-content: center; 
+            justify-content: flex-start; /* Flyttar upp innehållet */
+            gap: 10px; /* Lite mellanrum mellan labeln och texten */
         }
         
         #news-text { 
@@ -347,6 +319,7 @@
             font-weight: 300; 
             transition: opacity 0.5s; 
         }
+        
         .particle { position: absolute; background: #fff; pointer-events: none; opacity: 0.6; }
     </style>
 </head>
@@ -424,8 +397,7 @@
                         <div id="label-bday" style="font-size: 1.35rem; letter-spacing: 3px; opacity: 0.4; font-weight: 900; line-height: 1.1;">NÄSTA<br>FÖDELSEDAG</div>
                     </div>
                 </div>
-                <div id="clock">00:00</div>
-            </div>
+                </div>
         </div>
         
         <div class="news-bar">
@@ -434,6 +406,8 @@
             </div>
             <div id="news-text">Laddar nyheter...</div>
         </div>
+        
+        <div id="clock">00:00</div>
     </div>
 
 <script>
