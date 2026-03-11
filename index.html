@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v155</title>
+    <title>Staffanstorp Wall Dashboard v156</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
             --glass: rgba(15, 15, 15, 0.85);
@@ -221,7 +221,6 @@
         .moon-icon { display: inline-block; margin-left: 10px; color: #666; }
         .moon-icon svg { width: 0.8em; height: 0.8em; vertical-align: baseline; }
 
-        /* UPPDATERAD DATUMTEXT: Ny färg och puttad ner 15px relativt, påverkar ej andras position */
         #date-sub { 
             font-size: 2.8rem; 
             font-weight: 300; 
@@ -259,7 +258,7 @@
         .ev-time { font-size: 1.7rem; opacity: 0.8; font-weight: 700; margin-top: 8px; } 
         .event-title { font-size: 2.6rem; font-weight: 400; flex: 1; line-height: 1.2; }
 
-        .weather-row { display: flex; gap: 15px; }
+        .weather-row { display: flex; gap: 15px; margin-bottom: 15px; }
         .weather-box { background: rgba(255,255,255,0.03); padding: 25px; border-radius: 25px; flex: 1; text-align: center; border: 1px solid var(--border); }
         .weather-icon-wrapper { display: inline-block; margin: 10px 0; animation: float 4s infinite ease-in-out; }
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
@@ -267,6 +266,22 @@
         .weather-box i[data-lucide="sun"], .weather-box svg.lucide-sun { color: #ffb703 !important; }
         .weather-temp { font-size: 3.8rem; font-weight: 900; margin-top: 5px; }
         .weather-hour { font-size: 1.4rem; opacity: 0.6; font-weight: 900; text-transform: uppercase; }
+
+        /* Vår nya meteorolog-box! */
+        #weather-summary {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 20px 30px;
+            font-size: 1.7rem;
+            line-height: 1.5;
+            font-weight: 300;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        #weather-summary strong {
+            font-weight: 700;
+            color: var(--accent);
+        }
 
         .video-container { 
             width: 100%; aspect-ratio: 16 / 9; flex: none; background: #000; position: relative; overflow: hidden; 
@@ -280,12 +295,10 @@
             justify-content: center; gap: 10px; border-top: 1px solid var(--border); 
         }
         
-        /* UPPDATERAD WRAPPER: Tagit bort justify-content: space-between eftersom klockan inte är här längre */
         .countdown-wrapper { 
             display: flex; align-items: center; justify-content: flex-start; width: 100%; 
         }
 
-        /* UPPDATERAD KLOCKA: Nu fast i nedre högra hörnet av skärmen/panelen */
         #clock { 
             position: absolute;
             bottom: 35px;
@@ -295,21 +308,20 @@
             font-variant-numeric: tabular-nums; 
             color: #d8d8d8; 
             text-align: right; 
-            z-index: 30; /* Säkerställer att den ligger ovanpå */
+            z-index: 30; 
         }
 
-        /* UPPDATERAD NEWS-BAR: justify-content satt till flex-start för att flytta upp den, + padding-right så den undviker klockan */
         .news-bar { 
             background: #0a0a0a; 
             padding: 35px 60px; 
-            padding-right: 200px; /* Ge plats åt klockan */
+            padding-right: 200px; 
             border-top: 1px solid var(--border); 
             min-height: 140px; 
             flex: 1; 
             display: flex; 
             flex-direction: column; 
-            justify-content: flex-start; /* Flyttar upp innehållet */
-            gap: 10px; /* Lite mellanrum mellan labeln och texten */
+            justify-content: flex-start; 
+            gap: 10px; 
         }
         
         #news-text { 
@@ -365,9 +377,10 @@
             <div id="calendar-list"></div>
         </section>
 
-        <section>
+        <section style="display: flex; flex-direction: column;">
             <div class="section-label">Väder i Staffanstorp</div>
             <div id="weather-list" class="weather-row"></div>
+            <div id="weather-summary">Laddar vädersammanfattning...</div>
         </section>
     </div>
 
@@ -397,7 +410,7 @@
                         <div id="label-bday" style="font-size: 1.35rem; letter-spacing: 3px; opacity: 0.4; font-weight: 900; line-height: 1.1;">NÄSTA<br>FÖDELSEDAG</div>
                     </div>
                 </div>
-                </div>
+            </div>
         </div>
         
         <div class="news-bar">
@@ -713,9 +726,25 @@
         } catch(e) {}
     }
 
+    // Vår nya funktion som översätter väderkoder till svenska
+    function getWeatherSwedishDesc(code) {
+        if (code === 0) return "övervägande klart väder";
+        if (code === 1 || code === 2) return "växlande molnighet";
+        if (code === 3) return "mulet väder";
+        if (code === 45 || code === 48) return "dimma";
+        if (code >= 51 && code <= 55) return "duggregn";
+        if (code >= 61 && code <= 65) return "regn";
+        if (code >= 71 && code <= 75) return "snöfall";
+        if (code >= 80 && code <= 82) return "regnskurar";
+        if (code >= 85 && code <= 86) return "snöbyar";
+        if (code >= 95) return "åska";
+        return "varierande väder";
+    }
+
     async function updateWeather() {
         try {
-            const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=55.64&longitude=13.21&hourly=temperature_2m,weathercode&timezone=auto');
+            // Uppdaterat API-anrop: Hämtar nu även daily data + använder m/s för vind
+            const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=55.64&longitude=13.21&hourly=temperature_2m,weathercode&daily=weathercode,temperature_2m_max,precipitation_sum,wind_speed_10m_max&wind_speed_unit=ms&timezone=auto');
             const d = await res.json();
             const nowH = new Date().getHours();
             const code = d.hourly.weathercode[nowH];
@@ -738,6 +767,33 @@
                 <div class="weather-box"><div class="weather-hour">MAX IDAG</div><div class="weather-icon-wrapper"><i data-lucide="${getIcon(d.hourly.weathercode[todayData.indexOf(Math.max(...todayData))])}"></i></div><div class="weather-temp">${Math.round(Math.max(...todayData))}°</div></div>
                 <div class="weather-box"><div class="weather-hour">MAX IMORGON</div><div class="weather-icon-wrapper"><i data-lucide="${getIcon(d.hourly.weathercode[24 + tomorrowData.indexOf(Math.max(...tomorrowData))])}"></i></div><div class="weather-temp">${Math.round(Math.max(...tomorrowData))}°</div></div>
             `;
+
+            // --- Vår nya meteorolog-logik ---
+            const daily = d.daily;
+            const todayCode = daily.weathercode[0];
+            const todayMaxTemp = Math.round(daily.temperature_2m_max[0]);
+            const todayRain = daily.precipitation_sum[0];
+            const todayWind = daily.wind_speed_10m_max[0];
+            
+            let summaryText = `Idag väntas <strong>${getWeatherSwedishDesc(todayCode)}</strong> med en temperatur upp mot <strong>${todayMaxTemp}°</strong>. `;
+            
+            if (todayRain > 0.5) {
+                summaryText += `Räkna med ca <strong>${todayRain} mm</strong> nederbörd. `;
+            } else {
+                summaryText += `Ingen nämnvärd nederbörd väntas. `;
+            }
+            
+            if (todayWind > 10) {
+                summaryText += `Dessutom ganska blåsigt med vindbyar upp mot <strong>${Math.round(todayWind)} m/s</strong>.`;
+            } else if (todayWind > 5) {
+                summaryText += `Måttliga vindar upp mot <strong>${Math.round(todayWind)} m/s</strong>.`;
+            } else {
+                summaryText += `Överlag <strong>svaga vindar</strong>.`;
+            }
+            
+            document.getElementById('weather-summary').innerHTML = summaryText;
+            // ---------------------------------
+
             lucide.createIcons();
         } catch(e) {}
     }
