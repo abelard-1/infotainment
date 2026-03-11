@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v164</title>
+    <title>Staffanstorp Wall Dashboard v165</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
@@ -83,9 +83,8 @@
 
         .star {
             position: absolute;
-            background: #fff;
+            background: #ffffff;
             border-radius: 50%;
-            /* Animationen är nu borttagen för maximal prestanda på TV-stickan */
         }
 
         #nm-moon {
@@ -98,7 +97,7 @@
             opacity: 1; 
             z-index: 1; 
             animation: moon-wander 90s infinite ease-in-out; 
-            will-change: transform; /* Optimerar för TV-stickan */
+            will-change: transform; 
         }
 
         @keyframes moon-wander {
@@ -614,18 +613,25 @@
 
     function initStars() {
         const container = document.getElementById('night-stars');
-        container.innerHTML = ''; // Renstädar om funktionen skulle anropas igen
+        container.innerHTML = ''; 
         for(let i=0; i<100; i++) {
             let star = document.createElement('div');
             star.className = 'star';
             star.style.left = Math.random() * 100 + 'vw';
             star.style.top = Math.random() * 100 + 'vh';
-            // Ökar basstorleken från 1-4px till 1.5-4.5px för att synas bättre på TV
-            let size = Math.random() * 3 + 1.5; 
+            
+            // 1. Ökar minsta storleken (2.5 - 5.5px) så TV:n inte sväljer dem
+            let size = Math.random() * 3 + 2.5; 
             star.style.width = size + 'px';
             star.style.height = size + 'px';
-            // Statisk opacity mellan 40% och 100% för att motverka Black Crush på TV:n
-            star.style.opacity = Math.random() * 0.6 + 0.4;
+            
+            // 2. Opacity ligger på 80-100% ren vit
+            star.style.opacity = Math.random() * 0.2 + 0.8;
+            
+            // 3. Glöd-effekt (glow) så stjärnan lyser upp intilliggande pixlar
+            let glow = Math.random() * 4 + 2; 
+            star.style.boxShadow = `0 0 ${glow}px rgba(255, 255, 255, 0.9)`;
+            
             container.appendChild(star);
         }
     }
