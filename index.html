@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v163</title>
+    <title>Staffanstorp Wall Dashboard v164</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
@@ -85,14 +85,7 @@
             position: absolute;
             background: #fff;
             border-radius: 50%;
-            opacity: 0;
-            animation: twinkle var(--duration) infinite ease-in-out;
-            animation-delay: var(--delay);
-        }
-
-        @keyframes twinkle {
-            0%, 100% { opacity: 0; transform: scale(0.5); }
-            50% { opacity: var(--max-opacity); transform: scale(1); }
+            /* Animationen är nu borttagen för maximal prestanda på TV-stickan */
         }
 
         #nm-moon {
@@ -104,11 +97,10 @@
             color: #fde16e; 
             opacity: 1; 
             z-index: 1; 
-            animation: moon-wander 90s infinite ease-in-out; /* Månens nya vandrande bana */
+            animation: moon-wander 90s infinite ease-in-out; 
             will-change: transform; /* Optimerar för TV-stickan */
         }
 
-        /* Komplex bana som låter månen sväva runt på skärmen */
         @keyframes moon-wander {
             0%   { transform: translate(-50%, -50%) translate(0vw, 0vh) rotate(-10deg); }
             12%  { transform: translate(-50%, -50%) translate(-20vw, 15vh) rotate(0deg); }
@@ -622,17 +614,18 @@
 
     function initStars() {
         const container = document.getElementById('night-stars');
+        container.innerHTML = ''; // Renstädar om funktionen skulle anropas igen
         for(let i=0; i<100; i++) {
             let star = document.createElement('div');
             star.className = 'star';
             star.style.left = Math.random() * 100 + 'vw';
             star.style.top = Math.random() * 100 + 'vh';
-            let size = Math.random() * 3 + 1;
+            // Ökar basstorleken från 1-4px till 1.5-4.5px för att synas bättre på TV
+            let size = Math.random() * 3 + 1.5; 
             star.style.width = size + 'px';
             star.style.height = size + 'px';
-            star.style.setProperty('--duration', (Math.random() * 4 + 2) + 's');
-            star.style.setProperty('--delay', (Math.random() * 5) + 's');
-            star.style.setProperty('--max-opacity', Math.random() * 0.5 + 0.2);
+            // Statisk opacity mellan 40% och 100% för att motverka Black Crush på TV:n
+            star.style.opacity = Math.random() * 0.6 + 0.4;
             container.appendChild(star);
         }
     }
