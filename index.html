@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v168</title>
+    <title>Staffanstorp Wall Dashboard v169</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
@@ -232,7 +232,7 @@
         .moon-icon svg { width: 0.8em; height: 0.8em; vertical-align: baseline; }
 
         #date-sub { 
-            font-size: 1.9rem; /* Ökat från 1.6rem */
+            font-size: 1.9rem; 
             font-weight: 400; 
             color: #ffd7b5; 
             margin-bottom: 5px; 
@@ -259,16 +259,14 @@
 
         .event-card {
             background: var(--glass); border: 2px solid var(--border); border-radius: 30px;
-            padding: 20px 30px; margin-bottom: 12px; display: flex; align-items: center; gap: 25px;
+            padding: 20px 30px; margin-bottom: 12px; display: flex; flex-direction: column; 
+            align-items: flex-start; justify-content: center; gap: 6px;
             transition: background 1s ease, border-color 1s ease, box-shadow 1s ease;
         }
         .event-card.today { border-color: var(--accent); }
 
-        .event-date-box { min-width: 140px; text-align: center; border-right: 4px solid var(--accent); padding-right: 20px; }
-        .ev-day-name { font-size: 1.6rem; font-weight: 900; color: var(--accent); text-transform: uppercase; } /* Ökat från 1.3rem */
-        .ev-date-num { font-size: 2.0rem; font-weight: 900; line-height: 1.1; } /* Minskat från 2.5rem */
-        .ev-time { font-size: 1.7rem; opacity: 0.8; font-weight: 700; margin-top: 8px; } 
-        .event-title { font-size: 2.6rem; font-weight: 400; flex: 1; line-height: 1.2; }
+        .ev-meta { font-size: 1.4rem; font-weight: 700; color: var(--accent); letter-spacing: 0.5px; opacity: 0.9; }
+        .ev-title { font-size: 2.6rem; font-weight: 400; line-height: 1.2; }
 
         .weather-row { display: flex; gap: 15px; margin-bottom: 12px; }
         .weather-box { background: rgba(255,255,255,0.03); padding: 18px; border-radius: 25px; flex: 1; text-align: center; border: 1px solid var(--border); transition: background 1s ease, border-color 1s ease; }
@@ -903,13 +901,22 @@
             const todayStr = new Date().toDateString();
             document.getElementById('calendar-list').innerHTML = (d.items || []).slice(0, 2).map(e => {
                 const start = new Date(e.start.dateTime || e.start.date);
+                const end = new Date(e.end.dateTime || e.end.date);
+                
+                let timeText = "Heldag";
+                if (e.start.dateTime) {
+                    timeText = `kl. ${start.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'})}-${end.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'})}`;
+                }
+                
+                let dayName = start.toLocaleDateString('sv-SE', {weekday: 'long'});
+                dayName = dayName.charAt(0).toUpperCase() + dayName.slice(1);
+                let monthName = start.toLocaleDateString('sv-SE', {month: 'long'});
+                
+                let metaString = `${dayName} ${start.getDate()} ${monthName} ${timeText}`;
+
                 return `<div class="event-card ${start.toDateString() === todayStr ? 'today' : ''}">
-                    <div class="event-date-box">
-                        <div class="ev-day-name">${start.toLocaleDateString('sv-SE', {weekday:'long'}).toUpperCase()}</div>
-                        <div class="ev-date-num">${start.getDate()} ${start.toLocaleDateString('sv-SE', {month:'short'})}</div>
-                        <div class="ev-time">${e.start.dateTime ? start.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'}) : 'HELDAG'}</div>
-                    </div>
-                    <div class="event-title">${e.summary}</div>
+                    <div class="ev-meta">${metaString}</div>
+                    <div class="ev-title">${e.summary}</div>
                 </div>`;
             }).join('');
         } catch(e) {}
