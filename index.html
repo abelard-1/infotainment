@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v173</title>
+    <title>Staffanstorp Wall Dashboard v174</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
@@ -263,10 +263,10 @@
             align-items: flex-start; justify-content: center; gap: 6px;
             transition: background 1s ease, border-color 1s ease, box-shadow 1s ease;
         }
-        .event-card.today { border-color: var(--accent); border-width: 4px; } /* Tjockare border */
+        .event-card.today { border-color: var(--accent); border-width: 4px; } 
 
         .ev-meta { font-size: 1.4rem; font-weight: 700; color: var(--accent); letter-spacing: 0.5px; opacity: 0.9; }
-        .ev-title { font-size: 2.6rem; font-weight: 400; line-height: 1.2; }
+        .ev-title { font-size: 2.5rem; font-weight: 400; line-height: 1.2; font-style: italic; }
 
         .weather-row { display: flex; gap: 15px; margin-bottom: 12px; }
         .weather-box { background: rgba(255,255,255,0.03); padding: 18px; border-radius: 25px; flex: 1; text-align: center; border: 1px solid var(--border); transition: background 1s ease, border-color 1s ease; }
@@ -364,7 +364,9 @@
             border: 1px solid rgba(0,0,0,0.1);
             box-shadow: 0 4px 15px rgba(0,0,0,0.03);
         }
-        body.day-mode .event-card.today { border-color: var(--accent); border-width: 4px; } /* Tjockare border för dagläge också */
+        body.day-mode .event-card.today { border-color: var(--accent); border-width: 4px; }
+        body.day-mode .ev-title { color: #4a4a4a; } /* Mörkgrå för att dämpa den i dagläge */
+        
         body.day-mode .weather-box, body.day-mode #weather-summary {
             background: #f5f5f7;
             border: 1px solid rgba(0,0,0,0.05);
