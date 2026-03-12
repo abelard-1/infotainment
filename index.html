@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v180 (Högtider)</title>
+    <title>Staffanstorp Wall Dashboard v181 (Högtider - Full bredd)</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
@@ -17,7 +17,7 @@
             --easter: #ffaa33;
             --bday-color: #D4AF37; 
             --worldcup: #4ade80; 
-            --holiday: #10b981; /* Ny smaragdgrön för högtider */
+            --holiday: #10b981;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -64,7 +64,6 @@
             transition: opacity 4s ease; 
         }
         #night-dimmer.active { opacity: 1; }
-        /* ------------------- */
 
         /* --- NATT-LÄGE (HELSKÄRM) --- */
         #night-mode-screen {
@@ -140,7 +139,6 @@
         #nm-clock { font-size: 3.5rem; font-weight: 900; color: #5a6675; font-variant-numeric: tabular-nums; }
         #nm-weather { display: flex; align-items: center; gap: 15px; font-size: 3rem; font-weight: 900; color: #5a6675; }
         #nm-weather svg { width: 50px; height: 50px; }
-        /* -------------------------------------- */
 
         /* --- FÖDELSEDAGS-SKÄRMEN (HELSKÄRM) --- */
         #birthday-screen {
@@ -171,7 +169,6 @@
         #bday-clock { font-size: 3.5rem; font-weight: 900; color: #fff; font-variant-numeric: tabular-nums; }
         #bday-weather { display: flex; align-items: center; gap: 15px; font-size: 3rem; font-weight: 900; color: #D4AF37; }
         #bday-weather svg { width: 50px; height: 50px; }
-        /* -------------------------------------- */
 
         /* VÄDER-OVERLAY */
         #weather-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 50; }
@@ -188,7 +185,6 @@
         }
 
         .media-panel { width: 52vw; flex: none; display: flex; flex-direction: column; position: relative; z-index: 20; }
-        /* --------------------------- */
 
         header {
             width: 100%; height: 140px; min-height: 140px; max-height: 140px; flex: none;        
@@ -290,10 +286,7 @@
             color: rgba(255, 255, 255, 0.9);
             transition: background 1s ease, border-color 1s ease, color 1s ease;
         }
-        #weather-summary strong {
-            font-weight: 700;
-            color: var(--accent);
-        }
+        #weather-summary strong { font-weight: 700; color: var(--accent); }
 
         .video-container { 
             width: 100%; aspect-ratio: 16 / 9; flex: none; background: #000; position: relative; overflow: hidden; 
@@ -338,60 +331,28 @@
             transition: background 1s ease, border-color 1s ease;
         }
         
-        #news-text { 
-            font-size: 1.8rem; 
-            opacity: 0.8; 
-            line-height: 1.4; 
-            font-weight: 300; 
-            transition: opacity 0.5s; 
-        }
+        #news-text { font-size: 1.8rem; opacity: 0.8; line-height: 1.4; font-weight: 300; transition: opacity 0.5s; }
         
         .particle { position: absolute; background: #fff; pointer-events: none; opacity: 0.6; }
 
         /* --- DAGLÄGE (APPLE-STIL) --- */
-        body.day-mode {
-            background-color: #f5f5f7;
-            color: #1d1d1f;
-        }
-        body.day-mode .info-panel {
-            background: linear-gradient(135deg, #ffffff 0%, #f2f2f7 100%);
-            border-right: 1px solid rgba(0,0,0,0.1);
-        }
-        body.day-mode .countdown-bar, body.day-mode .news-bar {
-            background: #ffffff;
-            border-top: 1px solid rgba(0,0,0,0.1);
-        }
-        body.day-mode .event-card {
-            background: rgba(255,255,255,0.8);
-            border: 1px solid rgba(0,0,0,0.1);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-        }
+        body.day-mode { background-color: #f5f5f7; color: #1d1d1f; }
+        body.day-mode .info-panel { background: linear-gradient(135deg, #ffffff 0%, #f2f2f7 100%); border-right: 1px solid rgba(0,0,0,0.1); }
+        body.day-mode .countdown-bar, body.day-mode .news-bar { background: #ffffff; border-top: 1px solid rgba(0,0,0,0.1); }
+        body.day-mode .event-card { background: rgba(255,255,255,0.8); border: 1px solid rgba(0,0,0,0.1); box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
         body.day-mode .event-card.today { border-color: var(--accent); border-width: 4px; }
         body.day-mode .ev-title { color: #4a4a4a; } 
-        
-        body.day-mode .weather-box, body.day-mode #weather-summary {
-            background: #f5f5f7;
-            border: 1px solid rgba(0,0,0,0.05);
-            color: #1d1d1f;
-        }
+        body.day-mode .weather-box, body.day-mode #weather-summary { background: #f5f5f7; border: 1px solid rgba(0,0,0,0.05); color: #1d1d1f; }
         body.day-mode .section-label { color: #86868b; }
         body.day-mode #clock { color: #1d1d1f; }
         body.day-mode .wiggle-mark { color: #1d1d1f; }
-        
-        body.day-mode .test-btn {
-            background: rgba(0,0,0,0.1);
-            border: 1px solid rgba(0,0,0,0.2);
-            color: #1d1d1f;
-        }
+        body.day-mode .test-btn { background: rgba(0,0,0,0.1); border: 1px solid rgba(0,0,0,0.2); color: #1d1d1f; }
         body.day-mode .test-btn:hover { background: rgba(0,0,0,0.15); }
-        
         body.day-mode #count-summer { color: #00a0dc !important; }
         body.day-mode #count-easter { color: #d97706 !important; }
         body.day-mode #count-worldcup { color: #16a34a !important; }
         body.day-mode #count-bday { color: #b8860b !important; }
-        body.day-mode #count-holiday { color: #059669 !important; } /* Mörkare grön i dagläge */
-        /* ---------------------------- */
-
+        body.day-mode #count-holiday { color: #059669 !important; } 
     </style>
 </head>
 <body>
@@ -456,7 +417,7 @@
         <div class="countdown-bar">
             <div class="section-label">Dagar kvar till</div>
             <div class="countdown-wrapper">
-                <div style="display: flex; gap: 25px;">
+                <div style="display: flex; width: 100%; justify-content: space-between;">
                     <div style="text-align: center;">
                         <div id="count-easter" style="font-size: 5.5rem; font-weight: 900; color: var(--easter);">--</div>
                         <div style="font-size: 1.35rem; letter-spacing: 3px; opacity: 0.4; font-weight: 900; line-height: 1.1;">PÅSK-<br>LOV</div>
@@ -516,7 +477,6 @@
         "12-10": "Mänskliga rättigheternas dag"
     };
 
-    // Vår nya smarta lista med högtider!
     const majorHolidays = [
         { date: '2026-03-20', label: 'EID<br>AL-FITR' },
         { date: '2026-04-05', label: 'PÅSK-<br>DAGEN' },
@@ -594,16 +554,11 @@
             star.className = 'star';
             star.style.left = Math.random() * 100 + 'vw';
             star.style.top = Math.random() * 100 + 'vh';
-            
             let size = Math.random() * 3 + 2.5; 
-            star.style.width = size + 'px';
-            star.style.height = size + 'px';
-            
+            star.style.width = size + 'px'; star.style.height = size + 'px';
             star.style.opacity = Math.random() * 0.2 + 0.8;
-            
             let glow = Math.random() * 4 + 2; 
             star.style.boxShadow = `0 0 ${glow}px rgba(255, 255, 255, 0.9)`;
-            
             container.appendChild(star);
         }
     }
@@ -680,11 +635,8 @@
         let phase = (hour >= 6 && hour < 10) ? "m" : (hour >= 10 && hour < 18) ? "d" : (hour >= 18 && hour < 23) ? "e" : "n";
         
         if (!isDayModeForced && !isBirthday && phase !== "n") {
-            if (isRealDaytime) {
-                document.body.classList.add('day-mode');
-            } else {
-                document.body.classList.remove('day-mode');
-            }
+            if (isRealDaytime) document.body.classList.add('day-mode');
+            else document.body.classList.remove('day-mode');
         }
 
         const nightDimmer = document.getElementById('night-dimmer');
@@ -699,11 +651,7 @@
                 bdayScreen.style.display = 'flex';
                 document.getElementById('bday-main-text').innerHTML = `GRATTIS<br>${bdayName.toUpperCase()}!`;
                 document.getElementById('weather-overlay').innerHTML = '';
-                
-                if(iframe.src && iframe.src !== 'about:blank') {
-                    iframe.src = 'about:blank'; 
-                    iframe.style.display = 'none';
-                }
+                if(iframe.src && iframe.src !== 'about:blank') { iframe.src = 'about:blank'; iframe.style.display = 'none'; }
             }
             document.getElementById('bday-clock').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
             return; 
@@ -712,28 +660,17 @@
             if (celebrationActive) stopCelebration();
             bdayScreen.style.display = 'none';
             nightScreen.style.display = 'flex';
-            
             document.getElementById('nm-clock').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
             document.getElementById('nm-weather').innerHTML = `${currentIconHtml} <span>${currentTempStr}</span>`;
-            
-            if(iframe.src && iframe.src !== 'about:blank') {
-                iframe.src = 'about:blank'; 
-                iframe.style.display = 'none';
-            }
+            if(iframe.src && iframe.src !== 'about:blank') { iframe.src = 'about:blank'; iframe.style.display = 'none'; }
             return; 
         } 
         else {
             nightScreen.style.display = 'none';
             if (celebrationActive) {
-                stopCelebration();
-                bdayScreen.style.display = 'none';
-                updateWeatherOverlay(lastRealWeatherCode);
+                stopCelebration(); bdayScreen.style.display = 'none'; updateWeatherOverlay(lastRealWeatherCode);
             }
-            
-            if(iframe.src === 'about:blank' || iframe.src === '') {
-                iframe.src = iframe.getAttribute('data-src'); 
-                iframe.style.display = 'block';
-            }
+            if(iframe.src === 'about:blank' || iframe.src === '') { iframe.src = iframe.getAttribute('data-src'); iframe.style.display = 'block'; }
             
             let greetingKey = `lang-${currentLangIndex}-${phase}`;
             if (currentRenderedGreeting !== greetingKey) {
@@ -743,25 +680,18 @@
                 let greetingBase = (greetingsTranslations[currentLangIndex] || greetingsTranslations[0])[phase];
                 greetingBase = greetingBase.charAt(0).toUpperCase() + greetingBase.slice(1);
                 let rawTextForSizing = greetingBase + (phase === "n" ? "" : "!");
-                
                 const wrappedText = wrapTextInSpans(greetingBase);
                 const suffixDelay = Math.floor(Math.random() * 400); 
                 
                 if(phase === "n") {
-                    greetingEl.classList.add('god-natt');
-                    dateSubEl.classList.add('god-natt');
+                    greetingEl.classList.add('god-natt'); dateSubEl.classList.add('god-natt');
                     greetingEl.innerHTML = `${wrappedText}<span class="char-span" style="animation-delay: ${suffixDelay}ms"><span class="moon-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></span></span>`;
                 } else {
-                    greetingEl.classList.remove('god-natt');
-                    dateSubEl.classList.remove('god-natt');
+                    greetingEl.classList.remove('god-natt'); dateSubEl.classList.remove('god-natt');
                     greetingEl.innerHTML = `${wrappedText}<span class="char-span" style="animation-delay: ${suffixDelay}ms"><span class="wiggle-mark">!</span></span>`;
                 }
-
-                if (rawTextForSizing.length > 11) {
-                    greetingEl.style.fontSize = `${Math.max(3, 77 / rawTextForSizing.length)}rem`;
-                } else {
-                    greetingEl.style.fontSize = '7rem';
-                }
+                if (rawTextForSizing.length > 11) greetingEl.style.fontSize = `${Math.max(3, 77 / rawTextForSizing.length)}rem`;
+                else greetingEl.style.fontSize = '7rem';
             }
 
             document.getElementById('clock').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
@@ -778,16 +708,13 @@
             document.getElementById('count-summer').innerText = Math.max(0, Math.ceil((summer - now) / 86400000));
             document.getElementById('count-worldcup').innerText = Math.max(0, Math.ceil((worldcup - now) / 86400000));
 
-            // Födelsedagslogik
             const currentYear = now.getFullYear();
             const todayForMath = new Date(now.getFullYear(), now.getMonth(), now.getDate());
             let minDiff = Infinity; let nextBdayName = "";
-
             for (const [dateString, name] of Object.entries(birthdays)) {
                 const [month, day] = dateString.split('-');
                 let bdate = new Date(currentYear, parseInt(month) - 1, parseInt(day));
                 if (bdate < todayForMath) bdate.setFullYear(currentYear + 1);
-                
                 const diff = bdate - todayForMath;
                 if (diff < minDiff) { minDiff = diff; nextBdayName = name; }
             }
@@ -795,10 +722,8 @@
             const nameUppercase = nextBdayName.toUpperCase();
             document.getElementById('label-bday').innerHTML = `${nameUppercase.endsWith('S') ? nameUppercase : nameUppercase + "S"}<br>FÖDELSEDAG`;
             
-            // NY LOGIK FÖR HÖGTIDER: Hittar nästa i listan
             let nextHoliday = majorHolidays.find(h => new Date(h.date) >= todayForMath);
-            if (!nextHoliday) nextHoliday = majorHolidays[majorHolidays.length - 1]; // Fallback till sista om arrayen tar slut
-            
+            if (!nextHoliday) nextHoliday = majorHolidays[majorHolidays.length - 1]; 
             const holidayDate = new Date(nextHoliday.date);
             document.getElementById('count-holiday').innerText = Math.max(0, Math.ceil((holidayDate - now) / 86400000));
             document.getElementById('label-holiday').innerHTML = nextHoliday.label;
@@ -810,13 +735,9 @@
             const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.svt.se/nyheter/rss.xml');
             const data = await res.json();
             if (data.status === 'ok' && data.items && data.items.length > 0) {
-                textNewsItems = data.items.map(item => item.title);
-                textNewsIndex = 0;
-                displayNextNews();
+                textNewsItems = data.items.map(item => item.title); textNewsIndex = 0; displayNextNews();
             }
-        } catch (e) {
-            console.error('Nyhetsfel:', e);
-        }
+        } catch (e) { console.error('Nyhetsfel:', e); }
     }
 
     function displayNextNews() {
@@ -834,45 +755,27 @@
         try {
             const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CAL_ID)}/events?key=${API_KEY_CAL}&timeMin=${new Date().toISOString()}&singleEvents=true&orderBy=startTime`);
             const d = await res.json();
-            
             const todayStr = new Date().toDateString();
             document.getElementById('calendar-list').innerHTML = (d.items || []).slice(0, 2).map(e => {
                 const start = new Date(e.start.dateTime || e.start.date);
                 const end = new Date(e.end.dateTime || e.end.date);
-                
                 let timeText = "Heldag";
-                if (e.start.dateTime) {
-                    timeText = `kl. ${start.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'})}-${end.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'})}`;
-                }
-                
-                let dayName = start.toLocaleDateString('sv-SE', {weekday: 'long'});
-                dayName = dayName.charAt(0).toUpperCase() + dayName.slice(1);
+                if (e.start.dateTime) timeText = `kl. ${start.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'})}-${end.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'})}`;
+                let dayName = start.toLocaleDateString('sv-SE', {weekday: 'long'}); dayName = dayName.charAt(0).toUpperCase() + dayName.slice(1);
                 let monthName = start.toLocaleDateString('sv-SE', {month: 'long'});
-                
                 let metaString = `${dayName} ${start.getDate()} ${monthName} ${timeText}`;
-
-                return `<div class="event-card ${start.toDateString() === todayStr ? 'today' : ''}">
-                    <div class="ev-meta">${metaString}</div>
-                    <div class="ev-title">${e.summary}</div>
-                </div>`;
+                return `<div class="event-card ${start.toDateString() === todayStr ? 'today' : ''}"><div class="ev-meta">${metaString}</div><div class="ev-title">${e.summary}</div></div>`;
             }).join('');
-        } catch (e) {
-            console.error('Kalenderfel:', e);
-        }
+        } catch (e) { console.error('Kalenderfel:', e); }
     }
 
     function getWeatherSwedishDesc(code) {
         const weatherCodes = {
-            0: "klart", 1: "övervägande klart", 2: "halvklart", 3: "mulet",
-            45: "dimma", 48: "frysande dimma",
-            51: "lätt duggregn", 53: "måttligt duggregn", 55: "tätt duggregn",
-            56: "lätt frysande duggregn", 57: "kraftigt frysande duggregn",
-            61: "lätt regn", 63: "måttligt regn", 65: "kraftigt regn",
-            66: "lätt underkylt regn", 67: "kraftigt underkylt regn",
-            71: "lätt snöfall", 73: "måttligt snöfall", 75: "kraftigt snöfall",
-            77: "snökorn",
-            80: "lätta regnskurar", 81: "måttliga regnskurar", 82: "kraftiga regnskurar",
-            85: "lätta snöbyar", 86: "kraftiga snöbyar",
+            0: "klart", 1: "övervägande klart", 2: "halvklart", 3: "mulet", 45: "dimma", 48: "frysande dimma",
+            51: "lätt duggregn", 53: "måttligt duggregn", 55: "tätt duggregn", 56: "lätt frysande duggregn", 57: "kraftigt frysande duggregn",
+            61: "lätt regn", 63: "måttligt regn", 65: "kraftigt regn", 66: "lätt underkylt regn", 67: "kraftigt underkylt regn",
+            71: "lätt snöfall", 73: "måttligt snöfall", 75: "kraftigt snöfall", 77: "snökorn",
+            80: "lätta regnskurar", 81: "måttliga regnskurar", 82: "kraftiga regnskurar", 85: "lätta snöbyar", 86: "kraftiga snöbyar",
             95: "åska", 96: "åska med hagel", 99: "kraftig åska"
         };
         return weatherCodes[code] || "varierande väder";
@@ -882,100 +785,45 @@
         try {
             const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=55.64&longitude=13.21&current=is_day&hourly=temperature_2m,weathercode&daily=weathercode,temperature_2m_max,precipitation_sum,wind_speed_10m_max&wind_speed_unit=ms&timezone=auto');
             const d = await res.json();
-
             isRealDaytime = (d.current.is_day === 1);
-
             const nowH = new Date().getHours();
             const code = d.hourly.weathercode[nowH];
-            
             lastRealWeatherCode = code; 
             updateWeatherOverlay(code); 
-
             const getIcon = (c) => (c >= 71 ? 'snowflake' : c >= 51 ? 'cloud-rain' : c >= 3 ? 'cloud' : 'sun');
-
-            currentTempStr = Math.round(d.hourly.temperature_2m[nowH]) + "°";
-            currentIconHtml = `<i data-lucide="${getIcon(code)}"></i>`;
-            
+            currentTempStr = Math.round(d.hourly.temperature_2m[nowH]) + "°"; currentIconHtml = `<i data-lucide="${getIcon(code)}"></i>`;
             document.getElementById('bday-weather').innerHTML = `${currentIconHtml} <span>${currentTempStr}</span>`;
             document.getElementById('nm-weather').innerHTML = `${currentIconHtml} <span>${currentTempStr}</span>`;
-
-            const todayData = d.hourly.temperature_2m.slice(0, 24);
-            const tomorrowData = d.hourly.temperature_2m.slice(24, 48);
-
-            document.getElementById('weather-list').innerHTML = `
-                <div class="weather-box"><div class="weather-hour">NU</div><div class="weather-icon-wrapper"><i data-lucide="${getIcon(code)}"></i></div><div class="weather-temp">${Math.round(d.hourly.temperature_2m[nowH])}°</div></div>
-                <div class="weather-box"><div class="weather-hour">MAX IDAG</div><div class="weather-icon-wrapper"><i data-lucide="${getIcon(d.hourly.weathercode[todayData.indexOf(Math.max(...todayData))])}"></i></div><div class="weather-temp">${Math.round(Math.max(...todayData))}°</div></div>
-                <div class="weather-box"><div class="weather-hour">MAX IMORGON</div><div class="weather-icon-wrapper"><i data-lucide="${getIcon(d.hourly.weathercode[24 + tomorrowData.indexOf(Math.max(...tomorrowData))])}"></i></div><div class="weather-temp">${Math.round(Math.max(...tomorrowData))}°</div></div>
-            `;
-
-            const daily = d.daily;
-            const todayMaxTemp = Math.round(daily.temperature_2m_max[0]);
-            const todayRain = daily.precipitation_sum[0];
-            const todayWind = daily.wind_speed_10m_max[0];
-            
-            const currentCode = d.hourly.weathercode[nowH];
-            const laterCode = d.hourly.weathercode[nowH + 5] !== undefined ? d.hourly.weathercode[nowH + 5] : currentCode;
-
-            const currentDesc = getWeatherSwedishDesc(currentCode);
-            const laterDesc = getWeatherSwedishDesc(laterCode);
-
+            const todayData = d.hourly.temperature_2m.slice(0, 24), tomorrowData = d.hourly.temperature_2m.slice(24, 48);
+            document.getElementById('weather-list').innerHTML = `<div class="weather-box"><div class="weather-hour">NU</div><div class="weather-icon-wrapper"><i data-lucide="${getIcon(code)}"></i></div><div class="weather-temp">${Math.round(d.hourly.temperature_2m[nowH])}°</div></div><div class="weather-box"><div class="weather-hour">MAX IDAG</div><div class="weather-icon-wrapper"><i data-lucide="${getIcon(d.hourly.weathercode[todayData.indexOf(Math.max(...todayData))])}"></i></div><div class="weather-temp">${Math.round(Math.max(...todayData))}°</div></div><div class="weather-box"><div class="weather-hour">MAX IMORGON</div><div class="weather-icon-wrapper"><i data-lucide="${getIcon(d.hourly.weathercode[24 + tomorrowData.indexOf(Math.max(...tomorrowData))])}"></i></div><div class="weather-temp">${Math.round(Math.max(...tomorrowData))}°</div></div>`;
+            const daily = d.daily, todayMaxTemp = Math.round(daily.temperature_2m_max[0]), todayRain = daily.precipitation_sum[0], todayWind = daily.wind_speed_10m_max[0];
+            const currentCode = d.hourly.weathercode[nowH], laterCode = d.hourly.weathercode[nowH + 5] !== undefined ? d.hourly.weathercode[nowH + 5] : currentCode;
+            const currentDesc = getWeatherSwedishDesc(currentCode), laterDesc = getWeatherSwedishDesc(laterCode);
             let summaryText = "";
-
-            if (currentDesc === laterDesc) {
-                summaryText = `Just nu är det <strong>${currentDesc}</strong> och det ser ut att hålla i sig. `;
-            } else {
-                let timeWord = (nowH >= 18) ? "under natten/morgondagen" : "senare under dagen";
-                summaryText = `Just nu är det <strong>${currentDesc}</strong>, men ${timeWord} väntas <strong>${laterDesc}</strong>. `;
-            }
-
+            if (currentDesc === laterDesc) summaryText = `Just nu är det <strong>${currentDesc}</strong> och det ser ut att hålla i sig. `;
+            else { let timeWord = (nowH >= 18) ? "under natten/morgondagen" : "senare under dagen"; summaryText = `Just nu är det <strong>${currentDesc}</strong>, men ${timeWord} väntas <strong>${laterDesc}</strong>. `; }
             summaryText += `Dagens maxtemperatur når upp mot <strong>${todayMaxTemp}°</strong>. `;
-
-            if (todayRain > 0.5) {
-                summaryText += `Räkna med totalt ca <strong>${todayRain} mm</strong> nederbörd under dygnet. `;
-            } else {
-                summaryText += `Ingen nämnvärd nederbörd väntas. `;
-            }
-
-            if (todayWind > 10) {
-                summaryText += `Dessutom blåsigt med vindbyar upp mot <strong>${Math.round(todayWind)} m/s</strong>.`;
-            } else if (todayWind > 5) {
-                summaryText += `Måttliga vindar upp mot <strong>${Math.round(todayWind)} m/s</strong>.`;
-            } else {
-                summaryText += `Överlag <strong>svaga vindar</strong>.`;
-            }
-
+            if (todayRain > 0.5) summaryText += `Räkna med totalt ca <strong>${todayRain} mm</strong> nederbörd under dygnet. `;
+            else summaryText += `Ingen nämnvärd nederbörd väntas. `;
+            if (todayWind > 10) summaryText += `Dessutom blåsigt med vindbyar upp mot <strong>${Math.round(todayWind)} m/s</strong>.`;
+            else if (todayWind > 5) summaryText += `Måttliga vindar upp mot <strong>${Math.round(todayWind)} m/s</strong>.`;
+            else summaryText += `Överlag <strong>svaga vindar</strong>.`;
             document.getElementById('weather-summary').innerHTML = summaryText;
-
             lucide.createIcons();
-        } catch(e) {
-            console.error('Väderfel:', e);
-        }
+        } catch(e) { console.error('Väderfel:', e); }
     }
 
     function updateWeatherOverlay(code) {
-        const container = document.getElementById('weather-overlay');
-        container.innerHTML = '';
+        const container = document.getElementById('weather-overlay'); container.innerHTML = '';
         if (celebrationActive || isNightModeForced || new Date().getHours() >= 23 || new Date().getHours() < 6) return;
-        
-        let effectiveCode = code;
-        if (forcedWeatherMode === 'rain') effectiveCode = 51;
-        if (forcedWeatherMode === 'snow') effectiveCode = 71;
-
-        let type = '';
-        if (effectiveCode >= 71) type = 'snow'; 
-        else if (effectiveCode >= 51) type = 'rain'; 
-        
+        let effectiveCode = code; if (forcedWeatherMode === 'rain') effectiveCode = 51; if (forcedWeatherMode === 'snow') effectiveCode = 71;
+        let type = ''; if (effectiveCode >= 71) type = 'snow'; else if (effectiveCode >= 51) type = 'rain'; 
         if (!type) return;
-
         let pCount = type === 'rain' ? 150 : 50;
         for (let i = 0; i < pCount; i++) {
             const p = document.createElement('div'); p.className = 'particle';
-            if (type === 'rain') { 
-                p.style.width = '3px'; p.style.height = '18px'; p.style.background = 'rgba(100,150,255,0.5)'; 
-            } else if (type === 'snow') { 
-                p.style.width = '8px'; p.style.height = '8px'; p.style.borderRadius = '50%'; p.style.filter = 'blur(1px)'; 
-            } 
-            
+            if (type === 'rain') { p.style.width = '3px'; p.style.height = '18px'; p.style.background = 'rgba(100,150,255,0.5)'; } 
+            else if (type === 'snow') { p.style.width = '8px'; p.style.height = '8px'; p.style.borderRadius = '50%'; p.style.filter = 'blur(1px)'; } 
             p.style.left = Math.random() * 100 + 'vw'; p.style.top = Math.random() * 100 + 'vh';
             const duration = 2 + Math.random() * 3;
             p.animate([ { transform: `translateY(-100px) ${type === 'snow' ? 'translateX(0)' : ''}` }, { transform: `translateY(110vh) ${type === 'snow' ? 'translateX(50px)' : ''}` } ], { duration: duration * 1000, iterations: Infinity, delay: -Math.random() * 5000 });
@@ -984,15 +832,9 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-        initStars();
-        update(); updateCalendar(); updateWeather(); updateNews(); 
-        lucide.createIcons();
-        setInterval(update, 1000); 
-        setInterval(updateCalendar, 600000); 
-        setInterval(updateWeather, 300000); 
-        setInterval(updateNews, 3600000); 
-        setInterval(displayNextNews, 15000);
-        
+        initStars(); update(); updateCalendar(); updateWeather(); updateNews(); lucide.createIcons();
+        setInterval(update, 1000); setInterval(updateCalendar, 600000); setInterval(updateWeather, 300000); 
+        setInterval(updateNews, 3600000); setInterval(displayNextNews, 15000);
         setInterval(() => {
             if (celebrationActive || isNightModeForced || new Date().getHours() >= 23 || new Date().getHours() < 6) return; 
             const spans = document.getElementById('greeting').querySelectorAll('.char-span');
@@ -1000,13 +842,9 @@
             spans.forEach(span => {
                 const randomDelay = Math.floor(Math.random() * 400); 
                 if (randomDelay > maxDelay) maxDelay = randomDelay;
-                span.style.animationDelay = `${randomDelay}ms`;
-                span.classList.add('out'); 
+                span.style.animationDelay = `${randomDelay}ms`; span.classList.add('out'); 
             });
-            setTimeout(() => {
-                currentLangIndex = (currentLangIndex + 1) % greetingsTranslations.length;
-                update(); 
-            }, maxDelay + 550);
+            setTimeout(() => { currentLangIndex = (currentLangIndex + 1) % greetingsTranslations.length; update(); }, maxDelay + 550);
         }, 10000);
     });
 </script>
