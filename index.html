@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v177 (Modern JS + Hårdkodat Ljus)</title>
+    <title>Staffanstorp Wall Dashboard v178 (Solens Tider)</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
@@ -527,6 +527,8 @@
     
     let currentTempStr = "--°";
     let currentIconHtml = "";
+    
+    let isRealDaytime = false; // <-- NY GLOBAL VARIABEL FÖR SOLEN
 
     let isNightModeForced = false;
     let isBdayModeForced = false;
@@ -538,7 +540,7 @@
         if(isDayModeForced) {
             document.body.classList.add('day-mode');
         } else {
-            update(); // Låter phase bestämma igen
+            update(); // Låter phase/solen bestämma igen
         }
     });
 
@@ -659,15 +661,15 @@
 
         let phase = (hour >= 6 && hour < 10) ? "m" : (hour >= 10 && hour < 18) ? "d" : (hour >= 18 && hour < 23) ? "e" : "n";
         
-        // --- NY HÅRDKODAD LOGIK FÖR LJUST/MÖRKT LÄGE ---
+        // --- LOGIK FÖR LJUST/MÖRKT LÄGE (Styrs nu av solens upp/nedgång) ---
         if (!isDayModeForced && !isBirthday && phase !== "n") {
-            if (phase === "m" || phase === "d") {
+            if (isRealDaytime) {
                 document.body.classList.add('day-mode');
             } else {
                 document.body.classList.remove('day-mode');
             }
         }
-        // ------------------------------------------------
+        // -------------------------------------------------------------------
 
         const nightDimmer = document.getElementById('night-dimmer');
         if (phase === "n" && !isBirthday) { nightDimmer.classList.add('active'); } else { nightDimmer.classList.remove('active'); }
@@ -857,7 +859,8 @@
             const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=55.64&longitude=13.21&current=is_day&hourly=temperature_2m,weathercode&daily=weathercode,temperature_2m_max,precipitation_sum,wind_speed_10m_max&wind_speed_unit=ms&timezone=auto');
             const d = await res.json();
 
-            // is_day-logiken är nu bortplockad! Skärmen styrs enbart av fasen i update() funktionen.
+            // NYHET: Hämtar in ifall solen är uppe eller nere just nu!
+            isRealDaytime = (d.current.is_day === 1);
 
             const nowH = new Date().getHours();
             const code = d.hourly.weathercode[nowH];
