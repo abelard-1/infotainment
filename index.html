@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v166</title>
+    <title>Staffanstorp Wall Dashboard v167</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
@@ -27,6 +27,7 @@
             width: 100vw;
             display: flex;
             overflow: hidden;
+            transition: background-color 1s ease, color 1s ease;
         }
 
         /* --- TEST-KNAPPAR --- */
@@ -181,6 +182,7 @@
             gap: 15px; 
             border-right: 1px solid var(--border);
             background: linear-gradient(135deg, #0a0a0a 0%, #151515 100%); position: relative; z-index: 20; overflow: hidden;    
+            transition: background 1s ease, border-color 1s ease;
         }
 
         .media-panel { width: 52vw; flex: none; display: flex; flex-direction: column; position: relative; z-index: 20; }
@@ -237,11 +239,13 @@
             letter-spacing: 1px;
             position: relative;
             top: 15px; 
+            transition: color 1s ease;
         }
 
         .section-label { 
             font-size: 1.1rem; font-weight: 900; text-transform: uppercase; letter-spacing: 4px; 
             color: rgba(255,255,255,0.3); margin-bottom: 10px; display: flex; align-items: center;
+            transition: color 1s ease;
         }
 
         .live-dot {
@@ -256,6 +260,7 @@
         .event-card {
             background: var(--glass); border: 2px solid var(--border); border-radius: 30px;
             padding: 20px 30px; margin-bottom: 12px; display: flex; align-items: center; gap: 25px;
+            transition: background 1s ease, border-color 1s ease, box-shadow 1s ease;
         }
         .event-card.today { border-color: var(--accent); }
 
@@ -266,7 +271,7 @@
         .event-title { font-size: 2.6rem; font-weight: 400; flex: 1; line-height: 1.2; }
 
         .weather-row { display: flex; gap: 15px; margin-bottom: 12px; }
-        .weather-box { background: rgba(255,255,255,0.03); padding: 18px; border-radius: 25px; flex: 1; text-align: center; border: 1px solid var(--border); }
+        .weather-box { background: rgba(255,255,255,0.03); padding: 18px; border-radius: 25px; flex: 1; text-align: center; border: 1px solid var(--border); transition: background 1s ease, border-color 1s ease; }
         .weather-icon-wrapper { display: inline-block; margin: 10px 0; animation: float 4s infinite ease-in-out; }
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
         .weather-box i, .weather-box svg { width: 100px !important; height: 100px !important; color: var(--accent); display: block; margin: 0 auto; }
@@ -283,6 +288,7 @@
             line-height: 1.5;
             font-weight: 300;
             color: rgba(255, 255, 255, 0.9);
+            transition: background 1s ease, border-color 1s ease, color 1s ease;
         }
         #weather-summary strong {
             font-weight: 700;
@@ -298,7 +304,7 @@
 
         .countdown-bar { 
             padding: 35px 60px; background: #0a0a0a; display: flex; flex-direction: column; 
-            justify-content: center; gap: 10px; border-top: 1px solid var(--border); 
+            justify-content: center; gap: 10px; border-top: 1px solid var(--border); transition: background 1s ease, border-color 1s ease;
         }
         
         .countdown-wrapper { 
@@ -315,6 +321,7 @@
             color: #d8d8d8; 
             text-align: right; 
             z-index: 30; 
+            transition: color 1s ease;
         }
 
         .news-bar { 
@@ -328,6 +335,7 @@
             flex-direction: column; 
             justify-content: flex-start; 
             gap: 10px; 
+            transition: background 1s ease, border-color 1s ease;
         }
         
         #news-text { 
@@ -339,11 +347,56 @@
         }
         
         .particle { position: absolute; background: #fff; pointer-events: none; opacity: 0.6; }
+
+        /* --- DAGLÄGE (APPLE-STIL) --- */
+        body.day-mode {
+            background-color: #f5f5f7;
+            color: #1d1d1f;
+        }
+        body.day-mode .info-panel {
+            background: linear-gradient(135deg, #ffffff 0%, #f2f2f7 100%);
+            border-right: 1px solid rgba(0,0,0,0.1);
+        }
+        body.day-mode .countdown-bar, body.day-mode .news-bar {
+            background: #ffffff;
+            border-top: 1px solid rgba(0,0,0,0.1);
+        }
+        body.day-mode .event-card {
+            background: rgba(255,255,255,0.8);
+            border: 1px solid rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        }
+        body.day-mode .event-card.today { border-color: var(--accent); }
+        body.day-mode .weather-box, body.day-mode #weather-summary {
+            background: #f5f5f7;
+            border: 1px solid rgba(0,0,0,0.05);
+            color: #1d1d1f;
+        }
+        body.day-mode .section-label { color: #86868b; }
+        body.day-mode #clock { color: #1d1d1f; }
+        body.day-mode .wiggle-mark { color: #1d1d1f; }
+        body.day-mode #date-sub { color: #d97706; } /* Mörkare orange för läsbarhet mot vit bakgrund */
+        
+        body.day-mode .test-btn {
+            background: rgba(0,0,0,0.1);
+            border: 1px solid rgba(0,0,0,0.2);
+            color: #1d1d1f;
+        }
+        body.day-mode .test-btn:hover { background: rgba(0,0,0,0.15); }
+        
+        /* Justera neon-färgerna så de syns bättre på vit bakgrund */
+        body.day-mode #count-summer { color: #00a0dc !important; }
+        body.day-mode #count-easter { color: #d97706 !important; }
+        body.day-mode #count-worldcup { color: #16a34a !important; }
+        body.day-mode #count-bday { color: #b8860b !important; }
+        /* ---------------------------- */
+
     </style>
 </head>
 <body>
 
     <div id="test-buttons">
+        <button id="test-day-btn" class="test-btn">Testa Dagläge</button>
         <button id="test-weather-btn" class="test-btn">Väder: Auto</button>
         <button id="test-bday-btn" class="test-btn">Testa Födelsedag</button>
         <button id="test-night-btn" class="test-btn">Testa Nattläge</button>
@@ -586,6 +639,16 @@
     let isNightModeForced = false;
     let isBdayModeForced = false;
     let forcedWeatherMode = 'auto'; 
+    let isDayModeForced = false; 
+
+    document.getElementById('test-day-btn').addEventListener('click', () => {
+        isDayModeForced = !isDayModeForced;
+        if(isDayModeForced) {
+            document.body.classList.add('day-mode');
+        } else {
+            updateWeather(); // Laddar om det korrekta sol-värdet
+        }
+    });
 
     document.getElementById('test-night-btn').addEventListener('click', () => {
         isNightModeForced = !isNightModeForced;
@@ -872,8 +935,20 @@
 
     async function updateWeather() {
         try {
-            const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=55.64&longitude=13.21&hourly=temperature_2m,weathercode&daily=weathercode,temperature_2m_max,precipitation_sum,wind_speed_10m_max&wind_speed_unit=ms&timezone=auto');
+            // Lade till current=is_day i URL:en
+            const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=55.64&longitude=13.21&current=is_day&hourly=temperature_2m,weathercode&daily=weathercode,temperature_2m_max,precipitation_sum,wind_speed_10m_max&wind_speed_unit=ms&timezone=auto');
             const d = await res.json();
+            
+            // --- DAG/NATT-LOGIK ---
+            if (!isDayModeForced) {
+                if (d.current && d.current.is_day === 1) {
+                    document.body.classList.add('day-mode');
+                } else {
+                    document.body.classList.remove('day-mode');
+                }
+            }
+            // -----------------------
+
             const nowH = new Date().getHours();
             const code = d.hourly.weathercode[nowH];
             
@@ -901,7 +976,6 @@
             const todayRain = daily.precipitation_sum[0];
             const todayWind = daily.wind_speed_10m_max[0];
             
-            // --- SMART VÄDERSAMMANFATTNING ---
             const currentCode = d.hourly.weathercode[nowH];
             const laterCode = d.hourly.weathercode[nowH + 5] !== undefined ? d.hourly.weathercode[nowH + 5] : currentCode;
 
@@ -934,7 +1008,6 @@
             }
 
             document.getElementById('weather-summary').innerHTML = summaryText;
-            // ----------------------------------
 
             lucide.createIcons();
         } catch(e) {}
