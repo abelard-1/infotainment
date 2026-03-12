@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v179 (Snabbare Sol-uppdatering)</title>
+    <title>Staffanstorp Wall Dashboard v180 (Högtider)</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
@@ -17,6 +17,7 @@
             --easter: #ffaa33;
             --bday-color: #D4AF37; 
             --worldcup: #4ade80; 
+            --holiday: #10b981; /* Ny smaragdgrön för högtider */
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -388,6 +389,7 @@
         body.day-mode #count-easter { color: #d97706 !important; }
         body.day-mode #count-worldcup { color: #16a34a !important; }
         body.day-mode #count-bday { color: #b8860b !important; }
+        body.day-mode #count-holiday { color: #059669 !important; } /* Mörkare grön i dagläge */
         /* ---------------------------- */
 
     </style>
@@ -454,7 +456,7 @@
         <div class="countdown-bar">
             <div class="section-label">Dagar kvar till</div>
             <div class="countdown-wrapper">
-                <div style="display: flex; gap: 50px;">
+                <div style="display: flex; gap: 25px;">
                     <div style="text-align: center;">
                         <div id="count-easter" style="font-size: 5.5rem; font-weight: 900; color: var(--easter);">--</div>
                         <div style="font-size: 1.35rem; letter-spacing: 3px; opacity: 0.4; font-weight: 900; line-height: 1.1;">PÅSK-<br>LOV</div>
@@ -466,6 +468,10 @@
                     <div style="text-align: center;">
                         <div id="count-bday" style="font-size: 5.5rem; font-weight: 900; color: var(--bday-color);">--</div>
                         <div id="label-bday" style="font-size: 1.35rem; letter-spacing: 3px; opacity: 0.4; font-weight: 900; line-height: 1.1;">NÄSTA<br>FÖDELSEDAG</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div id="count-holiday" style="font-size: 5.5rem; font-weight: 900; color: var(--holiday);">--</div>
+                        <div id="label-holiday" style="font-size: 1.35rem; letter-spacing: 3px; opacity: 0.4; font-weight: 900; line-height: 1.1;">NÄSTA<br>HÖGTID</div>
                     </div>
                     <div style="text-align: center;">
                         <div id="count-worldcup" style="font-size: 5.5rem; font-weight: 900; color: var(--worldcup);">--</div>
@@ -510,6 +516,18 @@
         "12-10": "Mänskliga rättigheternas dag"
     };
 
+    // Vår nya smarta lista med högtider!
+    const majorHolidays = [
+        { date: '2026-03-20', label: 'EID<br>AL-FITR' },
+        { date: '2026-04-05', label: 'PÅSK-<br>DAGEN' },
+        { date: '2026-05-14', label: 'KRISTI<br>HIMMELS.' },
+        { date: '2026-05-27', label: 'EID<br>AL-ADHA' },
+        { date: '2026-06-25', label: 'ASHURA<br>DAY' },
+        { date: '2026-10-31', label: 'ALLA<br>HELGONS' },
+        { date: '2026-12-24', label: 'JULAFTON<br>🎅' },
+        { date: '2027-02-08', label: 'RAMADAN<br>STARTAR' }
+    ];
+
     const greetingsTranslations = [
         { m: "God morgon", d: "God dag", e: "God kväll", n: "God natt" },
         { m: "Good morning", d: "Good afternoon", e: "Good evening", n: "Good night" },
@@ -528,7 +546,7 @@
     let currentTempStr = "--°";
     let currentIconHtml = "";
     
-    let isRealDaytime = false; // <-- NY GLOBAL VARIABEL FÖR SOLEN
+    let isRealDaytime = false; 
 
     let isNightModeForced = false;
     let isBdayModeForced = false;
@@ -540,7 +558,7 @@
         if(isDayModeForced) {
             document.body.classList.add('day-mode');
         } else {
-            update(); // Låter phase/solen bestämma igen
+            update(); 
         }
     });
 
@@ -661,7 +679,6 @@
 
         let phase = (hour >= 6 && hour < 10) ? "m" : (hour >= 10 && hour < 18) ? "d" : (hour >= 18 && hour < 23) ? "e" : "n";
         
-        // --- LOGIK FÖR LJUST/MÖRKT LÄGE (Styrs nu av solens upp/nedgång) ---
         if (!isDayModeForced && !isBirthday && phase !== "n") {
             if (isRealDaytime) {
                 document.body.classList.add('day-mode');
@@ -669,7 +686,6 @@
                 document.body.classList.remove('day-mode');
             }
         }
-        // -------------------------------------------------------------------
 
         const nightDimmer = document.getElementById('night-dimmer');
         if (phase === "n" && !isBirthday) { nightDimmer.classList.add('active'); } else { nightDimmer.classList.remove('active'); }
@@ -762,6 +778,7 @@
             document.getElementById('count-summer').innerText = Math.max(0, Math.ceil((summer - now) / 86400000));
             document.getElementById('count-worldcup').innerText = Math.max(0, Math.ceil((worldcup - now) / 86400000));
 
+            // Födelsedagslogik
             const currentYear = now.getFullYear();
             const todayForMath = new Date(now.getFullYear(), now.getMonth(), now.getDate());
             let minDiff = Infinity; let nextBdayName = "";
@@ -774,10 +791,17 @@
                 const diff = bdate - todayForMath;
                 if (diff < minDiff) { minDiff = diff; nextBdayName = name; }
             }
-            
             document.getElementById('count-bday').innerText = Math.ceil(minDiff / 86400000);
             const nameUppercase = nextBdayName.toUpperCase();
             document.getElementById('label-bday').innerHTML = `${nameUppercase.endsWith('S') ? nameUppercase : nameUppercase + "S"}<br>FÖDELSEDAG`;
+            
+            // NY LOGIK FÖR HÖGTIDER: Hittar nästa i listan
+            let nextHoliday = majorHolidays.find(h => new Date(h.date) >= todayForMath);
+            if (!nextHoliday) nextHoliday = majorHolidays[majorHolidays.length - 1]; // Fallback till sista om arrayen tar slut
+            
+            const holidayDate = new Date(nextHoliday.date);
+            document.getElementById('count-holiday').innerText = Math.max(0, Math.ceil((holidayDate - now) / 86400000));
+            document.getElementById('label-holiday').innerHTML = nextHoliday.label;
         }
     }
 
@@ -859,7 +883,6 @@
             const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=55.64&longitude=13.21&current=is_day&hourly=temperature_2m,weathercode&daily=weathercode,temperature_2m_max,precipitation_sum,wind_speed_10m_max&wind_speed_unit=ms&timezone=auto');
             const d = await res.json();
 
-            // NYHET: Hämtar in ifall solen är uppe eller nere just nu!
             isRealDaytime = (d.current.is_day === 1);
 
             const nowH = new Date().getHours();
@@ -966,11 +989,7 @@
         lucide.createIcons();
         setInterval(update, 1000); 
         setInterval(updateCalendar, 600000); 
-        
-        // --- ÄNDRAD HÄR: Väder hämtas nu var 5:e minut (300000 ms) ---
         setInterval(updateWeather, 300000); 
-        // -----------------------------------------------------------
-        
         setInterval(updateNews, 3600000); 
         setInterval(displayNextNews, 15000);
         
