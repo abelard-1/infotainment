@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v174</title>
+    <title>Staffanstorp Wall Dashboard v175 (Debug)</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
@@ -28,6 +28,14 @@
             display: flex;
             overflow: hidden;
             transition: background-color 1s ease, color 1s ease;
+        }
+
+        /* --- FELSÖKNING --- */
+        #debug-log {
+            position: fixed; bottom: 20px; left: 20px; background: rgba(200, 0, 0, 0.9);
+            color: #fff; padding: 15px; border-radius: 10px; z-index: 99999;
+            font-family: monospace; font-size: 1.2rem; max-width: 45vw; word-wrap: break-word;
+            display: none; border: 2px solid #ff4444; box-shadow: 0 0 20px rgba(0,0,0,0.5);
         }
 
         /* --- TEST-KNAPPAR --- */
@@ -365,7 +373,7 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.03);
         }
         body.day-mode .event-card.today { border-color: var(--accent); border-width: 4px; }
-        body.day-mode .ev-title { color: #4a4a4a; } /* Mörkgrå för att dämpa den i dagläge */
+        body.day-mode .ev-title { color: #4a4a4a; } 
         
         body.day-mode .weather-box, body.day-mode #weather-summary {
             background: #f5f5f7;
@@ -399,6 +407,8 @@
         <button id="test-bday-btn" class="test-btn">Testa Födelsedag</button>
         <button id="test-night-btn" class="test-btn">Testa Nattläge</button>
     </div>
+
+    <div id="debug-log"><strong>FELSÖKNINGSLOGG:</strong><br></div>
 
     <div id="night-dimmer"></div>
 
@@ -485,6 +495,23 @@
     </div>
 
 <script>
+    // --- FELSÖKNINGSFUNKTIONER ---
+    function logError(context, error) {
+        const debugDiv = document.getElementById('debug-log');
+        debugDiv.style.display = 'block';
+        debugDiv.innerHTML += `<div>[${context}] ${error}</div>`;
+    }
+
+    window.onerror = function(message, source, lineno, colno, error) {
+        logError('Global', `${message} (Rad: ${lineno})`);
+        return true;
+    };
+
+    window.addEventListener("unhandledrejection", function(event) {
+        logError('Promise', event.reason);
+    });
+    // -----------------------------
+
     const API_KEY_CAL = 'AIzaSyAC3QiGhqOM2F2ZrnFq3xWUu6_1bAwOvSw'; 
     const CAL_ID = 'rezgarhayder@gmail.com';
     
@@ -884,7 +911,7 @@
                 textNewsIndex = 0;
                 displayNextNews();
             }
-        } catch (e) {}
+        } catch (e) { logError('Nyheter', e.message || e); }
     }
 
     function displayNextNews() {
@@ -923,7 +950,7 @@
                     <div class="ev-title">${e.summary}</div>
                 </div>`;
             }).join('');
-        } catch(e) {}
+        } catch(e) { logError('Kalender', e.message || e); }
     }
 
     function getWeatherSwedishDesc(code) {
@@ -1019,7 +1046,7 @@
             document.getElementById('weather-summary').innerHTML = summaryText;
 
             lucide.createIcons();
-        } catch(e) {}
+        } catch(e) { logError('Väder', e.message || e); }
     }
 
     function updateWeatherOverlay(code) {
