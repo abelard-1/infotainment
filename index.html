@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v182.2 (Fredagsmys & Väder-fix)</title>
+    <title>Staffanstorp Wall Dashboard v182.2 (Fredagsmys & Kalender-fix)</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
@@ -193,14 +193,9 @@
 
         #greeting { font-size: 7rem; font-weight: 900; line-height: 1; letter-spacing: -4px; white-space: nowrap; transition: color 2s ease; }
 
-        /* FREDAGS-FÄRGER (Bugfix för osynlig text & utropstecken) */
-        #greeting.friday-mode {
-            animation: text-color-shift 8s linear infinite;
-        }
-        #greeting.friday-mode .wiggle-mark {
-            color: inherit;
-            text-shadow: inherit;
-        }
+        /* FREDAGS-FÄRGER */
+        #greeting.friday-mode { animation: text-color-shift 8s linear infinite; }
+        #greeting.friday-mode .wiggle-mark { color: inherit; text-shadow: inherit; }
         
         @keyframes text-color-shift {
             0% { color: #ff007f; text-shadow: 0 0 20px rgba(255, 0, 127, 0.4); }
@@ -272,16 +267,49 @@
             100% { box-shadow: 0 0 0 0 rgba(255, 51, 51, 0); }
         }
 
+        /* --- NY BILJETT-KALENDER --- */
         .event-card {
-            background: var(--glass); border: 2px solid var(--border); border-radius: 30px;
-            padding: 20px 30px; margin-bottom: 12px; display: flex; flex-direction: column; 
-            align-items: flex-start; justify-content: center; gap: 6px;
-            transition: background 1s ease, border-color 1s ease, box-shadow 1s ease;
+            border: 2px solid var(--border); 
+            border-radius: 30px;
+            margin-bottom: 15px; 
+            display: flex; 
+            flex-direction: row; 
+            align-items: stretch; 
+            padding: 0; 
+            overflow: hidden; 
+            background: transparent;
+            transition: border-color 1s ease, box-shadow 1s ease;
         }
-        .event-card.today { border-color: var(--accent); border-width: 4px; } 
+        .event-card.today { border-color: var(--accent); border-width: 3px; } 
 
-        .ev-meta { font-size: 1.4rem; font-weight: 700; color: var(--accent); letter-spacing: 0.5px; opacity: 0.9; }
-        .ev-title { font-size: 2.5rem; font-weight: 400; line-height: 1.2; font-style: italic; }
+        .ev-date-col {
+            width: 25%; 
+            background: rgba(255, 255, 255, 0.05); 
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border-right: 1px solid var(--border);
+            transition: background 1s ease, border-color 1s ease;
+        }
+
+        .ev-title-col {
+            width: 75%; 
+            background: var(--glass); 
+            padding: 20px 30px;
+            display: flex;
+            align-items: center;
+            font-size: 2.2rem; 
+            font-weight: 400; 
+            font-style: italic;
+            white-space: nowrap; 
+            overflow: hidden; 
+            text-overflow: ellipsis; 
+            transition: background 1s ease;
+        }
+
+        .ev-date { font-size: 1.2rem; font-weight: 900; text-transform: uppercase; opacity: 0.8; letter-spacing: 1px; }
+        .ev-time { font-size: 1.6rem; font-weight: 700; color: var(--accent); margin-top: 5px; }
 
         .weather-row { display: flex; gap: 15px; margin-bottom: 12px; }
         .weather-box { background: rgba(255,255,255,0.03); padding: 18px; border-radius: 25px; flex: 1; text-align: center; border: 1px solid var(--border); transition: background 1s ease, border-color 1s ease; }
@@ -357,8 +385,10 @@
         body.day-mode .info-panel { background: linear-gradient(135deg, #ffffff 0%, #f2f2f7 100%); border-right: 1px solid rgba(0,0,0,0.1); }
         body.day-mode .countdown-bar, body.day-mode .news-bar { background: #ffffff; border-top: 1px solid rgba(0,0,0,0.1); }
         body.day-mode .event-card { background: rgba(255,255,255,0.8); border: 1px solid rgba(0,0,0,0.1); box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
-        body.day-mode .event-card.today { border-color: var(--accent); border-width: 4px; }
-        body.day-mode .ev-title { color: #4a4a4a; } 
+        body.day-mode .event-card.today { border-color: var(--accent); }
+        body.day-mode .ev-date-col { background: rgba(0,0,0,0.04); border-right: 1px solid rgba(0,0,0,0.1); }
+        body.day-mode .ev-title-col { background: rgba(255,255,255,0.8); color: #2c3e50; }
+        body.day-mode .ev-date { color: rgba(0,0,0,0.6); }
         body.day-mode .weather-box, body.day-mode #weather-summary { background: #f5f5f7; border: 1px solid rgba(0,0,0,0.05); color: #1d1d1f; }
         body.day-mode .section-label { color: #86868b; }
         body.day-mode #clock { color: #1d1d1f; }
@@ -474,7 +504,7 @@
     const DEFAULT_VIDEO_ID = 'gCNeDWCI0vo'; // Al-Jazeera Live
     const FRIDAY_VIDEO_ID = 'hJgQtDYJUno';  // Fredagsmys-video
     
-    let textNewsItems = [];
+    let textNewsItems = ["Senaste nytt hämtas...", "SVT Nyheter uppdateras strax..."];
     let textNewsIndex = 0;
 
     const birthdays = {
@@ -484,15 +514,6 @@
         "05-27": "Julia",
         "07-15": "Olivia",
         "07-29": "Gabbe"
-    };
-
-    const unDays = {
-        "01-04": "Världsdagen för punktskrift",
-        "01-24": "Internationella dagen för utbildning",
-        "03-08": "Internationella kvinnodagen",
-        "04-22": "Internationella dagen för Moder Jord",
-        "10-24": "FN-dagen",
-        "12-10": "Mänskliga rättigheternas dag"
     };
 
     const majorHolidays = [
@@ -513,6 +534,7 @@
         { m: "Buenos días", d: "Buenas tardes", e: "Buenas noches", n: "Buenas noches" },
         { m: "Bonjour", d: "Bonjour", e: "Bonsoir", n: "Bonne nuit" }
     ];
+    
     let currentLangIndex = 0;
     let currentRenderedGreeting = "";
     
@@ -628,10 +650,53 @@
         }).join('');
     };
 
+    // Vädereffekter
+    function updateWeatherOverlay(code) {
+        lastRealWeatherCode = code;
+        const overlay = document.getElementById('weather-overlay');
+        overlay.innerHTML = '';
+        
+        let mode = forcedWeatherMode !== 'auto' ? forcedWeatherMode : 'clear';
+        if (forcedWeatherMode === 'auto') {
+            if (code >= 51 && code <= 67) mode = 'rain';
+            if (code >= 71 && code <= 77) mode = 'snow';
+        }
+
+        if (mode === 'rain') {
+            for(let i=0; i<50; i++) {
+                let drop = document.createElement('div');
+                drop.className = 'particle';
+                drop.style.width = '2px'; drop.style.height = '15px';
+                drop.style.left = Math.random() * 100 + 'vw';
+                drop.style.top = Math.random() * 100 + 'vh';
+                drop.style.animation = `rainFall ${Math.random() * 0.5 + 0.5}s linear infinite`;
+                overlay.appendChild(drop);
+            }
+        } else if (mode === 'snow') {
+            for(let i=0; i<30; i++) {
+                let flake = document.createElement('div');
+                flake.className = 'particle';
+                flake.style.width = '6px'; flake.style.height = '6px'; flake.style.borderRadius = '50%';
+                flake.style.left = Math.random() * 100 + 'vw';
+                flake.style.top = Math.random() * 100 + 'vh';
+                flake.style.animation = `snowFall ${Math.random() * 3 + 2}s linear infinite`;
+                overlay.appendChild(flake);
+            }
+        }
+    }
+
+    // Animationer för väder
+    const style = document.createElement('style');
+    style.innerHTML = `
+        @keyframes rainFall { 0% { transform: translateY(-10vh); } 100% { transform: translateY(110vh); } }
+        @keyframes snowFall { 0% { transform: translateY(-10vh) translateX(0); } 100% { transform: translateY(110vh) translateX(20px); } }
+    `;
+    document.head.appendChild(style);
+
     function update() {
         const now = new Date();
         const hour = now.getHours();
-        const dayOfWeek = now.getDay(); // 0 = Söndag, 5 = Fredag
+        const dayOfWeek = now.getDay(); 
         
         const greetingEl = document.getElementById('greeting');
         const dateSubEl = document.getElementById('date-sub');
@@ -639,7 +704,6 @@
         const bdayScreen = document.getElementById('birthday-screen');
         const nightScreen = document.getElementById('night-mode-screen');
         
-        // FREDAGSLOGIKEN (Fredag kl 15:00 - 23:00)
         const isFridayMode = (dayOfWeek === 5 && hour >= 15 && hour < 23) || isFridayModeForced;
         
         const todayStrForBday = String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
@@ -690,7 +754,6 @@
                 stopCelebration(); bdayScreen.style.display = 'none'; updateWeatherOverlay(lastRealWeatherCode);
             }
             
-            // --- SMART VIDEO-BYTE (Fredag vs Vanlig) ---
             let targetVideoId = isFridayMode ? FRIDAY_VIDEO_ID : DEFAULT_VIDEO_ID;
             let targetVideoSrc = `https://www.youtube.com/embed/${targetVideoId}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&loop=1&playlist=${targetVideoId}`;
             
@@ -698,203 +761,181 @@
                 iframe.src = targetVideoSrc; 
                 iframe.style.display = 'block'; 
             } else if (!iframe.src.includes(targetVideoId)) {
-                // Byter video om det aktuella läget kräver en annan video än den som spelas
                 iframe.src = targetVideoSrc;
             }
-            // ------------------------------------------
 
             let greetingKey = isFridayMode ? `friday-${currentLangIndex}` : `lang-${currentLangIndex}-${phase}`;
             
             if (currentRenderedGreeting !== greetingKey) {
                 currentRenderedGreeting = greetingKey;
-                greetingEl.classList.remove('birthday', 'god-natt', 'friday-mode');
+                const text = isFridayMode ? "TREVLIG HELG!" : greetingsTranslations[currentLangIndex][phase];
                 
-                let greetingBase = "";
-                let rawTextForSizing = "";
-
-                // OM FREDAGSMODE ÄR PÅ:
-                if (isFridayMode) {
-                    greetingBase = "TREVLIG HELG";
-                    rawTextForSizing = "TREVLIG HELG!";
-                    greetingEl.classList.add('friday-mode');
-                } else {
-                    greetingBase = (greetingsTranslations[currentLangIndex] || greetingsTranslations[0])[phase];
-                    greetingBase = greetingBase.charAt(0).toUpperCase() + greetingBase.slice(1);
-                    rawTextForSizing = greetingBase + (phase === "n" ? "" : "!");
-                }
+                const outSpans = Array.from(greetingEl.querySelectorAll('.char-span'));
+                outSpans.forEach(span => span.classList.add('out'));
                 
-                const wrappedText = wrapTextInSpans(greetingBase);
-                const suffixDelay = Math.floor(Math.random() * 400); 
-                
-                if(phase === "n" && !isFridayMode) {
-                    greetingEl.classList.add('god-natt'); dateSubEl.classList.add('god-natt');
-                    greetingEl.innerHTML = `${wrappedText}<span class="char-span" style="animation-delay: ${suffixDelay}ms"><span class="moon-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></span></span>`;
-                } else {
-                    dateSubEl.classList.remove('god-natt');
-                    greetingEl.innerHTML = `${wrappedText}<span class="char-span" style="animation-delay: ${suffixDelay}ms"><span class="wiggle-mark">!</span></span>`;
-                }
-                
-                if (rawTextForSizing.length > 11) greetingEl.style.fontSize = `${Math.max(3, 77 / rawTextForSizing.length)}rem`;
-                else greetingEl.style.fontSize = '7rem';
+                setTimeout(() => {
+                    greetingEl.innerHTML = wrapTextInSpans(text) + (isFridayMode ? ' <span class="wiggle-mark">🎉</span>' : '');
+                    if (isFridayMode) greetingEl.className = 'friday-mode';
+                    else if (phase === "n") greetingEl.className = 'god-natt';
+                    else greetingEl.className = '';
+                }, outSpans.length > 0 ? 500 : 0);
             }
 
-            document.getElementById('clock').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
-            
-            if (unDays[todayStrForBday]) {
-                document.getElementById('date-sub').innerText = "FN-dag: " + unDays[todayStrForBday];
-            } else {
-                let fallbackText = "Idag är det " + now.toLocaleDateString('sv-SE', { weekday: 'long', day: 'numeric', month: 'long' });
-                document.getElementById('date-sub').innerText = fallbackText.charAt(0).toUpperCase() + fallbackText.slice(1);
-            }
-            
-            const easter = new Date('2026-03-30'), summer = new Date('2026-06-12'), worldcup = new Date('2026-06-11');
-            document.getElementById('count-easter').innerText = Math.max(0, Math.ceil((easter - now) / 86400000));
-            document.getElementById('count-summer').innerText = Math.max(0, Math.ceil((summer - now) / 86400000));
-            document.getElementById('count-worldcup').innerText = Math.max(0, Math.ceil((worldcup - now) / 86400000));
-
-            const currentYear = now.getFullYear();
-            const todayForMath = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-            let minDiff = Infinity; let nextBdayName = "";
-            for (const [dateString, name] of Object.entries(birthdays)) {
-                const [month, day] = dateString.split('-');
-                let bdate = new Date(currentYear, parseInt(month) - 1, parseInt(day));
-                if (bdate < todayForMath) bdate.setFullYear(currentYear + 1);
-                const diff = bdate - todayForMath;
-                if (diff < minDiff) { minDiff = diff; nextBdayName = name; }
-            }
-            document.getElementById('count-bday').innerText = Math.ceil(minDiff / 86400000);
-            const nameUppercase = nextBdayName.toUpperCase();
-            document.getElementById('label-bday').innerHTML = `${nameUppercase.endsWith('S') ? nameUppercase : nameUppercase + "S"}<br>FÖDELSEDAG`;
-            
-            let nextHoliday = majorHolidays.find(h => new Date(h.date) >= todayForMath);
-            if (!nextHoliday) nextHoliday = majorHolidays[majorHolidays.length - 1]; 
-            const holidayDate = new Date(nextHoliday.date);
-            document.getElementById('count-holiday').innerText = Math.max(0, Math.ceil((holidayDate - now) / 86400000));
-            document.getElementById('label-holiday').innerHTML = nextHoliday.label;
+            // Tid och Datum
+            document.getElementById('clock').innerText = now.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' });
+            let dateStr = now.toLocaleDateString('sv-SE', { weekday: 'long', day: 'numeric', month: 'long' });
+            dateSubEl.innerText = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
+            if (phase === "n") dateSubEl.className = 'god-natt'; else dateSubEl.className = '';
         }
     }
 
-    async function updateNews() {
-        try {
-            const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.svt.se/nyheter/rss.xml');
-            const data = await res.json();
-            if (data.status === 'ok' && data.items && data.items.length > 0) {
-                textNewsItems = data.items.map(item => item.title); textNewsIndex = 0; displayNextNews();
-            }
-        } catch (e) { console.error('Nyhetsfel:', e); }
-    }
-
-    function displayNextNews() {
-        if (textNewsItems.length === 0) return;
-        const newsTextEl = document.getElementById('news-text');
-        newsTextEl.style.opacity = 0; 
-        setTimeout(() => {
-            newsTextEl.innerText = textNewsItems[textNewsIndex];
-            newsTextEl.style.opacity = 1; 
-            textNewsIndex = (textNewsIndex + 1) % textNewsItems.length;
-        }, 500); 
-    }
-
+    // --- NY KALENDERFUNKTION (MED BILJETTKORT) ---
     async function updateCalendar() {
         try {
-            const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CAL_ID)}/events?key=${API_KEY_CAL}&timeMin=${new Date().toISOString()}&singleEvents=true&orderBy=startTime`);
+            const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CAL_ID)}/events?key=${API_KEY_CAL}&timeMin=${new Date().toISOString()}&singleEvents=true&orderBy=startTime&maxResults=3`);
             const d = await res.json();
             const todayStr = new Date().toDateString();
-            document.getElementById('calendar-list').innerHTML = (d.items || []).slice(0, 2).map(e => {
+            
+            document.getElementById('calendar-list').innerHTML = (d.items || []).map(e => {
                 const start = new Date(e.start.dateTime || e.start.date);
                 const end = new Date(e.end.dateTime || e.end.date);
+                
                 let timeText = "Heldag";
-                if (e.start.dateTime) timeText = `kl. ${start.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'})}-${end.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'})}`;
-                let dayName = start.toLocaleDateString('sv-SE', {weekday: 'long'}); dayName = dayName.charAt(0).toUpperCase() + dayName.slice(1);
-                let monthName = start.toLocaleDateString('sv-SE', {month: 'long'});
-                let metaString = `${dayName} ${start.getDate()} ${monthName} ${timeText}`;
-                return `<div class="event-card ${start.toDateString() === todayStr ? 'today' : ''}"><div class="ev-meta">${metaString}</div><div class="ev-title">${e.summary}</div></div>`;
+                if (e.start.dateTime) timeText = `kl. ${start.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'})}`;
+                
+                let dayName = start.toLocaleDateString('sv-SE', {weekday: 'short'}); 
+                dayName = dayName.charAt(0).toUpperCase() + dayName.slice(1).replace('.', '');
+                let monthName = start.toLocaleDateString('sv-SE', {month: 'short'}).replace('.', '');
+                
+                let dateString = `${dayName} ${start.getDate()} ${monthName}`;
+                
+                return `
+                    <div class="event-card ${start.toDateString() === todayStr ? 'today' : ''}">
+                        <div class="ev-date-col">
+                            <div class="ev-date">${dateString}</div>
+                            <div class="ev-time">${timeText}</div>
+                        </div>
+                        <div class="ev-title-col">
+                            ${e.summary}
+                        </div>
+                    </div>
+                `;
             }).join('');
-        } catch (e) { console.error('Kalenderfel:', e); }
-    }
-
-    function getWeatherSwedishDesc(code) {
-        const weatherCodes = {
-            0: "klart", 1: "övervägande klart", 2: "halvklart", 3: "mulet", 45: "dimma", 48: "frysande dimma",
-            51: "lätt duggregn", 53: "måttligt duggregn", 55: "tätt duggregn", 56: "lätt frysande duggregn", 57: "kraftigt frysande duggregn",
-            61: "lätt regn", 63: "måttligt regn", 65: "kraftigt regn", 66: "lätt underkylt regn", 67: "kraftigt underkylt regn",
-            71: "lätt snöfall", 73: "måttligt snöfall", 75: "kraftigt snöfall", 77: "snökorn",
-            80: "lätta regnskurar", 81: "måttliga regnskurar", 82: "kraftiga regnskurar", 85: "lätta snöbyar", 86: "kraftiga snöbyar",
-            95: "åska", 96: "åska med hagel", 99: "kraftig åska"
-        };
-        return weatherCodes[code] || "varierande väder";
+        } catch (e) { 
+            console.error('Kalenderfel:', e); 
+        }
     }
 
     async function updateWeather() {
         try {
-            const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=55.64&longitude=13.21&current=is_day&hourly=temperature_2m,weathercode&daily=weathercode,temperature_2m_max,precipitation_sum,wind_speed_10m_max&wind_speed_unit=ms&timezone=auto');
-            const d = await res.json();
-            isRealDaytime = (d.current.is_day === 1);
-            const nowH = new Date().getHours();
-            const code = d.hourly.weathercode[nowH];
-            lastRealWeatherCode = code; 
-            updateWeatherOverlay(code); 
-            const getIcon = (c) => (c >= 71 ? 'snowflake' : c >= 51 ? 'cloud-rain' : c >= 3 ? 'cloud' : 'sun');
-            currentTempStr = Math.round(d.hourly.temperature_2m[nowH]) + "°"; currentIconHtml = `<i data-lucide="${getIcon(code)}"></i>`;
-            document.getElementById('bday-weather').innerHTML = `${currentIconHtml} <span>${currentTempStr}</span>`;
-            document.getElementById('nm-weather').innerHTML = `${currentIconHtml} <span>${currentTempStr}</span>`;
-            const todayData = d.hourly.temperature_2m.slice(0, 24), tomorrowData = d.hourly.temperature_2m.slice(24, 48);
-            document.getElementById('weather-list').innerHTML = `<div class="weather-box"><div class="weather-hour">NU</div><div class="weather-icon-wrapper"><i data-lucide="${getIcon(code)}"></i></div><div class="weather-temp">${Math.round(d.hourly.temperature_2m[nowH])}°</div></div><div class="weather-box"><div class="weather-hour">MAX IDAG</div><div class="weather-icon-wrapper"><i data-lucide="${getIcon(d.hourly.weathercode[todayData.indexOf(Math.max(...todayData))])}"></i></div><div class="weather-temp">${Math.round(Math.max(...todayData))}°</div></div><div class="weather-box"><div class="weather-hour">MAX IMORGON</div><div class="weather-icon-wrapper"><i data-lucide="${getIcon(d.hourly.weathercode[24 + tomorrowData.indexOf(Math.max(...tomorrowData))])}"></i></div><div class="weather-temp">${Math.round(Math.max(...tomorrowData))}°</div></div>`;
-            const daily = d.daily, todayMaxTemp = Math.round(daily.temperature_2m_max[0]), todayRain = daily.precipitation_sum[0], todayWind = daily.wind_speed_10m_max[0];
-            const currentCode = d.hourly.weathercode[nowH], laterCode = d.hourly.weathercode[nowH + 5] !== undefined ? d.hourly.weathercode[nowH + 5] : currentCode;
-            const currentDesc = getWeatherSwedishDesc(currentCode), laterDesc = getWeatherSwedishDesc(laterCode);
-            let summaryText = "";
-            if (currentDesc === laterDesc) summaryText = `Just nu är det <strong>${currentDesc}</strong> och det ser ut att hålla i sig. `;
-            else { let timeWord = (nowH >= 18) ? "under natten/morgondagen" : "senare under dagen"; summaryText = `Just nu är det <strong>${currentDesc}</strong>, men ${timeWord} väntas <strong>${laterDesc}</strong>. `; }
-            summaryText += `Dagens maxtemperatur når upp mot <strong>${todayMaxTemp}°</strong>. `;
-            if (todayRain > 0.5) summaryText += `Räkna med totalt ca <strong>${todayRain} mm</strong> nederbörd under dygnet. `;
-            else summaryText += `Ingen nämnvärd nederbörd väntas. `;
-            if (todayWind > 10) summaryText += `Dessutom blåsigt med vindbyar upp mot <strong>${Math.round(todayWind)} m/s</strong>.`;
-            else if (todayWind > 5) summaryText += `Måttliga vindar upp mot <strong>${Math.round(todayWind)} m/s</strong>.`;
-            else summaryText += `Överlag <strong>svaga vindar</strong>.`;
-            document.getElementById('weather-summary').innerHTML = summaryText;
+            const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=55.6444&longitude=13.2047&current=temperature_2m,weather_code,is_day&hourly=temperature_2m,weather_code&timezone=Europe%2FBerlin`);
+            const data = await res.json();
+            
+            isRealDaytime = data.current.is_day === 1;
+            lastRealWeatherCode = data.current.weather_code;
+            currentTempStr = Math.round(data.current.temperature_2m) + "°";
+            currentIconHtml = getWeatherIcon(data.current.weather_code, data.current.is_day);
+            
+            document.getElementById('weather-list').innerHTML = `
+                <div class="weather-box">
+                    <div class="weather-hour">NU</div>
+                    <div class="weather-icon-wrapper">${currentIconHtml}</div>
+                    <div class="weather-temp">${currentTempStr}</div>
+                </div>
+            `;
+            
+            let desc = "Klart";
+            if(lastRealWeatherCode >= 1 && lastRealWeatherCode <= 3) desc = "Molnigt";
+            if(lastRealWeatherCode >= 51 && lastRealWeatherCode <= 67) desc = "Regn";
+            if(lastRealWeatherCode >= 71 && lastRealWeatherCode <= 77) desc = "Snö";
+            document.getElementById('weather-summary').innerHTML = `Just nu är det <strong>${desc}</strong> och <strong>${currentTempStr}C</strong> i Staffanstorp.`;
+            
+            updateWeatherOverlay(lastRealWeatherCode);
             lucide.createIcons();
         } catch(e) { console.error('Väderfel:', e); }
     }
 
-    function updateWeatherOverlay(code) {
-        const container = document.getElementById('weather-overlay'); container.innerHTML = '';
-        if (celebrationActive || isNightModeForced || new Date().getHours() >= 23 || new Date().getHours() < 6) return;
-        let effectiveCode = code; if (forcedWeatherMode === 'rain') effectiveCode = 51; if (forcedWeatherMode === 'snow') effectiveCode = 71;
-        let type = ''; if (effectiveCode >= 71) type = 'snow'; else if (effectiveCode >= 51) type = 'rain'; 
-        if (!type) return;
-        let pCount = type === 'rain' ? 150 : 50;
-        for (let i = 0; i < pCount; i++) {
-            const p = document.createElement('div'); p.className = 'particle';
-            if (type === 'rain') { p.style.width = '3px'; p.style.height = '18px'; p.style.background = 'rgba(100,150,255,0.5)'; } 
-            else if (type === 'snow') { p.style.width = '8px'; p.style.height = '8px'; p.style.borderRadius = '50%'; p.style.filter = 'blur(1px)'; } 
-            
-            // BEGRÄNSNING TILL VÄNSTER SIDA (Täcker ca 48vw)
-            p.style.left = Math.random() * 48 + 'vw'; 
-            
-            p.style.top = Math.random() * 100 + 'vh';
-            const duration = 2 + Math.random() * 3;
-            p.animate([ { transform: `translateY(-100px) ${type === 'snow' ? 'translateX(0)' : ''}` }, { transform: `translateY(110vh) ${type === 'snow' ? 'translateX(50px)' : ''}` } ], { duration: duration * 1000, iterations: Infinity, delay: -Math.random() * 5000 });
-            container.appendChild(p);
+    function getWeatherIcon(code, isDay) {
+        if (code === 0) return isDay ? '<i data-lucide="sun"></i>' : '<i data-lucide="moon"></i>';
+        if (code >= 1 && code <= 3) return '<i data-lucide="cloud"></i>';
+        if (code >= 51 && code <= 67) return '<i data-lucide="cloud-rain"></i>';
+        if (code >= 71 && code <= 77) return '<i data-lucide="snowflake"></i>';
+        return '<i data-lucide="cloud"></i>';
+    }
+
+    async function updateNews() {
+        try {
+            const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.svt.se/rss.xml');
+            const data = await res.json();
+            textNewsItems = data.items.slice(0, 5).map(item => item.title);
+        } catch(e) { console.error('Nyhetsfel:', e); }
+    }
+
+    function rotateNews() {
+        if(textNewsItems.length > 0) {
+            const el = document.getElementById('news-text');
+            el.style.opacity = 0;
+            setTimeout(() => {
+                el.innerText = textNewsItems[textNewsIndex];
+                el.style.opacity = 1;
+                textNewsIndex = (textNewsIndex + 1) % textNewsItems.length;
+            }, 500);
         }
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-        initStars(); update(); updateCalendar(); updateWeather(); updateNews(); lucide.createIcons();
-        setInterval(update, 1000); setInterval(updateCalendar, 600000); setInterval(updateWeather, 300000); 
-        setInterval(updateNews, 3600000); setInterval(displayNextNews, 15000);
-        setInterval(() => {
-            if (celebrationActive || isNightModeForced || new Date().getHours() >= 23 || new Date().getHours() < 6) return; 
-            const spans = document.getElementById('greeting').querySelectorAll('.char-span');
-            let maxDelay = 0;
-            spans.forEach(span => {
-                const randomDelay = Math.floor(Math.random() * 400); 
-                if (randomDelay > maxDelay) maxDelay = randomDelay;
-                span.style.animationDelay = `${randomDelay}ms`; span.classList.add('out'); 
-            });
-            setTimeout(() => { currentLangIndex = (currentLangIndex + 1) % greetingsTranslations.length; update(); }, maxDelay + 550);
-        }, 10000);
-    });
+    function getDaysUntil(targetDateStr) {
+        const today = new Date();
+        today.setHours(0,0,0,0);
+        const target = new Date(targetDateStr);
+        const diffTime = target - today;
+        return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    }
+
+    function updateCountdowns() {
+        const currentYear = new Date().getFullYear();
+        document.getElementById('count-easter').innerText = getDaysUntil(`${currentYear}-04-02`);
+        document.getElementById('count-summer').innerText = getDaysUntil(`${currentYear}-06-12`);
+        document.getElementById('count-worldcup').innerText = getDaysUntil(`2026-06-11`);
+        
+        // Födelsedagar (Hitta nästa)
+        let nextBdayDays = 9999;
+        Object.keys(birthdays).forEach(date => {
+            let d = getDaysUntil(`${currentYear}-${date}`);
+            if (d < 0) d = getDaysUntil(`${currentYear+1}-${date}`);
+            if (d < nextBdayDays) nextBdayDays = d;
+        });
+        document.getElementById('count-bday').innerText = nextBdayDays;
+
+        // Högtider (Hitta nästa)
+        let nextHolDays = 9999;
+        let nextHolLabel = "NÄSTA<br>HÖGTID";
+        majorHolidays.forEach(h => {
+            let d = getDaysUntil(h.date);
+            if (d >= 0 && d < nextHolDays) {
+                nextHolDays = d;
+                nextHolLabel = h.label;
+            }
+        });
+        document.getElementById('count-holiday').innerText = nextHolDays;
+        document.getElementById('label-holiday').innerHTML = nextHolLabel;
+    }
+
+    // --- STARTA ALLT ---
+    initStars();
+    update();
+    updateCalendar();
+    updateWeather();
+    updateNews();
+    updateCountdowns();
+
+    setInterval(update, 1000);
+    setInterval(updateCalendar, 900000);
+    setInterval(updateWeather, 900000);
+    setInterval(updateNews, 3600000);
+    setInterval(rotateNews, 15000);
+    setInterval(() => { currentLangIndex = (currentLangIndex + 1) % greetingsTranslations.length; }, 10000);
+    
+    lucide.createIcons();
 </script>
 </body>
 </html>
