@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v182 (Fredagsmys)</title>
+    <title>Staffanstorp Wall Dashboard v182.1 (Fredagsmys Fix)</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
@@ -193,18 +193,17 @@
 
         #greeting { font-size: 7rem; font-weight: 900; line-height: 1; letter-spacing: -4px; white-space: nowrap; transition: color 2s ease; }
 
-        /* FREDAGS-GRADIENT */
+        /* FREDAGS-FÄRGER (Bugfix för osynlig text) */
         #greeting.friday-mode {
-            background: linear-gradient(90deg, #ff007f, #ffaa33, #4ade80, #5e92f3);
-            background-size: 300% 300%;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: gradient-shift 5s ease infinite;
+            animation: text-color-shift 8s linear infinite;
         }
-        @keyframes gradient-shift {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+        
+        @keyframes text-color-shift {
+            0% { color: #ff007f; text-shadow: 0 0 20px rgba(255, 0, 127, 0.4); }
+            25% { color: #ffaa33; text-shadow: 0 0 20px rgba(255, 170, 51, 0.4); }
+            50% { color: #4ade80; text-shadow: 0 0 20px rgba(74, 222, 128, 0.4); }
+            75% { color: #5e92f3; text-shadow: 0 0 20px rgba(94, 146, 243, 0.4); }
+            100% { color: #ff007f; text-shadow: 0 0 20px rgba(255, 0, 127, 0.4); }
         }
 
         .char-span {
