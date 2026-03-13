@@ -281,7 +281,7 @@
         .event-card {
             border: 2px solid var(--border); 
             border-radius: 30px;
-            margin-bottom: 15px; 
+            margin-bottom: 25px; 
             display: flex; 
             flex-direction: row; 
             align-items: stretch; 
@@ -295,7 +295,7 @@
         .ev-date-col {
             width: 25%; 
             background: rgba(255, 255, 255, 0.05); 
-            padding: 20px;
+            padding: 30px 25px;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -306,10 +306,10 @@
         .ev-title-col {
             width: 75%; 
             background: var(--glass); 
-            padding: 20px 30px;
+            padding: 30px 40px;
             display: flex;
             align-items: center;
-            font-size: 2.2rem; 
+            font-size: 3rem; 
             font-weight: 400; 
             font-style: italic;
             white-space: nowrap; 
@@ -318,8 +318,8 @@
             transition: background 1s ease;
         }
 
-        .ev-date { font-size: 1.2rem; font-weight: 900; text-transform: uppercase; opacity: 0.8; letter-spacing: 1px; }
-        .ev-time { font-size: 1.6rem; font-weight: 700; color: var(--accent); margin-top: 5px; }
+        .ev-date { font-size: 1.5rem; font-weight: 900; text-transform: uppercase; opacity: 0.8; letter-spacing: 1px; }
+        .ev-time { font-size: 2rem; font-weight: 700; color: var(--accent); margin-top: 5px; }
 
         .weather-row { display: flex; gap: 15px; margin-bottom: 12px; }
         .weather-box { background: rgba(255,255,255,0.03); padding: 18px; border-radius: 25px; flex: 1; text-align: center; border: 1px solid var(--border); transition: background 1s ease, border-color 1s ease; }
@@ -818,7 +818,7 @@
 
     async function updateCalendar() {
         try {
-            const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CAL_ID)}/events?key=${API_KEY_CAL}&timeMin=${new Date().toISOString()}&singleEvents=true&orderBy=startTime&maxResults=3`);
+            const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CAL_ID)}/events?key=${API_KEY_CAL}&timeMin=${new Date().toISOString()}&singleEvents=true&orderBy=startTime&maxResults=2`);
             const d = await res.json();
             const todayStr = new Date().toDateString();
             document.getElementById('calendar-list').innerHTML = (d.items || []).map(e => {
