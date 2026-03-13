@@ -200,7 +200,7 @@
 
         #greeting { font-size: 7rem; font-weight: 900; line-height: 1; letter-spacing: -4px; white-space: nowrap; transition: color 2s ease; }
 
-        /* FREDAGS-FÄRGER (Bugfix för osynlig text) */
+        /* FREDAGS-FÄRGER */
         #greeting.friday-mode {
             animation: text-color-shift 8s linear infinite;
         }
@@ -680,6 +680,9 @@
 
         const showNightMode = (hour >= 23 || hour < 6) || isNightModeForced;
 
+        // Bygger ihop en identifierare för vädret så vi slipper skriva om ikonen i onödan (detta förhindrar att ikonen blinkar)
+        let weatherKey = currentTempStr + currentIconHtml;
+
         if (isBirthday) {
             nightScreen.style.display = 'none';
             if (!celebrationActive) {
@@ -689,7 +692,17 @@
                 document.getElementById('weather-overlay').innerHTML = '';
                 if(iframe.src && iframe.src !== 'about:blank') { iframe.src = 'about:blank'; iframe.style.display = 'none'; }
             }
+            
             document.getElementById('bday-clock').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
+            
+            // Fix: Lägg in vädret i Födelsedagsvyn
+            let bdayW = document.getElementById('bday-weather');
+            if (bdayW.getAttribute('data-weather-key') !== weatherKey) {
+                bdayW.innerHTML = `${currentIconHtml} <span>${currentTempStr}</span>`;
+                bdayW.setAttribute('data-weather-key', weatherKey);
+                lucide.createIcons();
+            }
+
             return; 
         } 
         else if (showNightMode) {
@@ -697,7 +710,15 @@
             bdayScreen.style.display = 'none';
             nightScreen.style.display = 'flex';
             document.getElementById('nm-clock').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
-            document.getElementById('nm-weather').innerHTML = `${currentIconHtml} <span>${currentTempStr}</span>`;
+            
+            // Samma säkra uppdatering för Sov Gott-vyn
+            let nmW = document.getElementById('nm-weather');
+            if (nmW.getAttribute('data-weather-key') !== weatherKey) {
+                nmW.innerHTML = `${currentIconHtml} <span>${currentTempStr}</span>`;
+                nmW.setAttribute('data-weather-key', weatherKey);
+                lucide.createIcons();
+            }
+
             if(iframe.src && iframe.src !== 'about:blank') { iframe.src = 'about:blank'; iframe.style.display = 'none'; }
             return; 
         } 
