@@ -134,7 +134,7 @@
 
         #nm-footer {
             position: absolute;
-            bottom: 40px; right: 60px; z-index: 2; display: flex; gap: 40px;
+            bottom: 40px; left: 60px; right: 60px; z-index: 2; display: flex; justify-content: space-between;
             align-items: center; background: rgba(10, 10, 15, 0.5); padding: 20px 40px;
             border-radius: 30px; border: 1px solid rgba(123, 139, 158, 0.1);
         }
@@ -146,9 +146,7 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            max-width: 40vw; /* Säkerställer att texten klipps snyggt om händelsen är extremt lång */
-            border-right: 2px solid rgba(90, 102, 117, 0.2);
-            padding-right: 40px;
+            text-align: left;
         }
 
         #nm-clock { font-size: 3.5rem; font-weight: 900; color: #5a6675; font-variant-numeric: tabular-nums; }
@@ -423,8 +421,10 @@
         <div id="nm-main-text" class="anti-burn-in">SOV GOTT</div>
         <div id="nm-footer" class="anti-burn-in">
             <div id="nm-calendar">Laddar kalender...</div>
-            <div id="nm-weather">Laddar...</div>
-            <div id="nm-clock">00:00</div>
+            <div style="display: flex; gap: 40px; align-items: center; flex-shrink: 0;">
+                <div id="nm-weather">Laddar...</div>
+                <div id="nm-clock">00:00</div>
+            </div>
         </div>
     </div>
 
