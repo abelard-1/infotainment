@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v182.1 (Fredagsmys Fix)</title>
+    <title>Staffanstorp Wall Dashboard v182.2 (Fredagsmys & Väder-fix)</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
@@ -193,9 +193,13 @@
 
         #greeting { font-size: 7rem; font-weight: 900; line-height: 1; letter-spacing: -4px; white-space: nowrap; transition: color 2s ease; }
 
-        /* FREDAGS-FÄRGER (Bugfix för osynlig text) */
+        /* FREDAGS-FÄRGER (Bugfix för osynlig text & utropstecken) */
         #greeting.friday-mode {
             animation: text-color-shift 8s linear infinite;
+        }
+        #greeting.friday-mode .wiggle-mark {
+            color: inherit;
+            text-shadow: inherit;
         }
         
         @keyframes text-color-shift {
@@ -226,9 +230,9 @@
 
         .wiggle-mark {
             display: inline-block !important; transform-origin: bottom center; animation: intensive-wiggle 60s infinite;
-            color: #fff; transition: color 2s ease;
+            color: #fff; transition: color 2s ease, text-shadow 2s ease;
         }
-        #greeting.birthday .wiggle-mark { color: #ffaa33; }
+        #greeting.birthday .wiggle-mark { color: #ffaa33; text-shadow: 0 0 20px rgba(255, 170, 51, 0.4); }
 
         @keyframes intensive-wiggle {
             0%, 98% { transform: translate(0,0) rotate(0deg); }
@@ -864,7 +868,11 @@
             const p = document.createElement('div'); p.className = 'particle';
             if (type === 'rain') { p.style.width = '3px'; p.style.height = '18px'; p.style.background = 'rgba(100,150,255,0.5)'; } 
             else if (type === 'snow') { p.style.width = '8px'; p.style.height = '8px'; p.style.borderRadius = '50%'; p.style.filter = 'blur(1px)'; } 
-            p.style.left = Math.random() * 100 + 'vw'; p.style.top = Math.random() * 100 + 'vh';
+            
+            // BEGRÄNSNING TILL VÄNSTER SIDA (Täcker ca 48vw)
+            p.style.left = Math.random() * 48 + 'vw'; 
+            
+            p.style.top = Math.random() * 100 + 'vh';
             const duration = 2 + Math.random() * 3;
             p.animate([ { transform: `translateY(-100px) ${type === 'snow' ? 'translateX(0)' : ''}` }, { transform: `translateY(110vh) ${type === 'snow' ? 'translateX(50px)' : ''}` } ], { duration: duration * 1000, iterations: Infinity, delay: -Math.random() * 5000 });
             container.appendChild(p);
