@@ -900,15 +900,28 @@
             currentIconHtml = `<i data-lucide="${wIcon(currentCode)}"></i>`; 
             
             let listHtml = ''; 
-            for (let i = 0; i < 3; i++) { 
-                const h = nowH + (i * 3); 
-                if (d.hourly.time[h]) { 
-                    const t = Math.round(d.hourly.temperature_2m[h]); 
-                    const c = d.hourly.weathercode[h]; 
-                    const timeStr = i === 0 ? "NU" : new Date(d.hourly.time[h]).toLocaleTimeString('sv-SE', {hour: '2-digit', minute:'2-digit'}); 
-                    listHtml += `<div class="weather-box"><div class="weather-hour">${timeStr}</div><div class="weather-icon-wrapper"><i data-lucide="${wIcon(c)}"></i></div><div class="weather-temp">${t}°</div></div>`; 
-                } 
-            } 
+            
+            // Box 1: NU
+            if (d.hourly.time[nowH]) {
+                const t1 = Math.round(d.hourly.temperature_2m[nowH]); 
+                listHtml += `<div class="weather-box"><div class="weather-hour">NU</div><div class="weather-icon-wrapper"><i data-lucide="${wIcon(currentCode)}"></i></div><div class="weather-temp">${t1}°</div></div>`; 
+            }
+            
+            // Box 2: +3 timmar
+            const h2 = nowH + 3;
+            if (d.hourly.time[h2]) {
+                const t2 = Math.round(d.hourly.temperature_2m[h2]); 
+                const c2 = d.hourly.weathercode[h2]; 
+                const timeStr = new Date(d.hourly.time[h2]).toLocaleTimeString('sv-SE', {hour: '2-digit', minute:'2-digit'});
+                listHtml += `<div class="weather-box"><div class="weather-hour">${timeStr}</div><div class="weather-icon-wrapper"><i data-lucide="${wIcon(c2)}"></i></div><div class="weather-temp">${t2}°</div></div>`; 
+            }
+            
+            // Box 3: MAX IDAG
+            const maxTemp = Math.round(d.daily.temperature_2m_max[0]);
+            const dailyCode = d.daily.weathercode[0];
+            const maxIcon = (dailyCode === 0) ? 'sun' : wIcon(dailyCode); // Visar alltid en sol om max-vädret är helt klart
+            listHtml += `<div class="weather-box"><div class="weather-hour">MAX IDAG</div><div class="weather-icon-wrapper"><i data-lucide="${maxIcon}"></i></div><div class="weather-temp">${maxTemp}°</div></div>`; 
+
             document.getElementById('weather-list').innerHTML = listHtml; 
             updateWeatherOverlay(currentCode); 
             
@@ -942,8 +955,14 @@
         container.innerHTML = '';
         
         let type = 'none';
-        if (forcedWeatherMode === 'rain' || [51,53,55,56,57,61,63,65,66,67,80,81,82].includes(code)) type = 'rain';
-        else if (forcedWeatherMode === 'snow' || [71,73,75,77,85,86].includes(code)) type = 'snow';
+        
+        // Logik för att tvinga väder med testknappen utan att det riktiga vädret skriver över
+        if (forcedWeatherMode !== 'auto') {
+            type = forcedWeatherMode;
+        } else {
+            if ([51,53,55,56,57,61,63,65,66,67,80,81,82].includes(code)) type = 'rain';
+            else if ([71,73,75,77,85,86].includes(code)) type = 'snow';
+        }
 
         if (type === 'none') return;
         
@@ -952,33 +971,19 @@
             const p = document.createElement('div');
             p.style.position = 'absolute';
             p.style.background = '#fff';
-            
-            if (type === 'rain') {
-                p.style.opacity = '0.3';
-                p.style.width = '2px';
-                p.style.height = '15px';
-                p.style.borderRadius = '0';
-            } else {
-                // Logiken för snö - helt runda, olika storlekar och mjukare ljus
-                p.style.opacity = Math.random() * 0.6 + 0.4;
-                const size = Math.random() * 5 + 3;
-                p.style.width = `${size}px`;
-                p.style.height = `${size}px`;
-                p.style.borderRadius = '50%';
-                p.style.boxShadow = `0 0 4px rgba(255,255,255,0.8)`;
-            }
-            
+            p.style.opacity = type === 'rain' ? '0.3' : '0.6';
+            p.style.width = type === 'rain' ? '2px' : '6px';
+            p.style.height = type === 'rain' ? '15px' : '6px';
+            p.style.borderRadius = type === 'snow' ? '50%' : '0';
             p.style.left = `${Math.random() * 100}vw`;
             p.style.top = '-100px';
             p.style.pointerEvents = 'none';
             p.style.willChange = 'transform';
             
-            const duration = type === 'rain' ? (0.5 + Math.random() * 0.5) : (3 + Math.random() * 3);
-            const sway = type === 'snow' ? (Math.random() * 150 - 75) : 0;
-            
+            const duration = 2 + Math.random() * 3;
             p.animate([
-                { transform: `translateY(-100px) translateX(0)` },
-                { transform: `translateY(110vh) translateX(${sway}px)` }
+                { transform: `translateY(-100px) ${type === 'snow' ? 'translateX(0)' : ''}` },
+                { transform: `translateY(110vh) ${type === 'snow' ? 'translateX(50px)' : ''}` }
             ], {
                 duration: duration * 1000,
                 iterations: Infinity,
