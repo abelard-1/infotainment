@@ -310,15 +310,15 @@
             display: flex;
             align-items: center;
             font-size: 3rem; 
-            font-weight: 400; 
-            font-style: italic;
+            font-weight: 700; /* Tyngre font (var 400) */
+            font-style: normal; /* Icke-kursiv (var italic) */
             white-space: nowrap; 
             overflow: hidden; 
             text-overflow: ellipsis; 
             transition: background 1s ease;
         }
 
-        .ev-date { font-size: 1.5rem; font-weight: 900; text-transform: uppercase; opacity: 0.8; letter-spacing: 1px; }
+        .ev-date { font-size: 1.8rem; font-weight: 900; text-transform: uppercase; opacity: 0.8; letter-spacing: 1px; } /* 20% större (var 1.5rem) */
         .ev-time { font-size: 2rem; font-weight: 700; color: var(--accent); margin-top: 5px; }
 
         .weather-row { display: flex; gap: 15px; margin-bottom: 12px; }
@@ -680,7 +680,7 @@
 
         const showNightMode = (hour >= 23 || hour < 6) || isNightModeForced;
 
-        // Bygger ihop en identifierare för vädret så vi slipper skriva om ikonen i onödan (detta förhindrar att ikonen blinkar)
+        // Bygger ihop en identifierare för vädret så vi slipper skriva om ikonen i onödan
         let weatherKey = currentTempStr + currentIconHtml;
 
         if (isBirthday) {
@@ -695,7 +695,6 @@
             
             document.getElementById('bday-clock').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
             
-            // Fix: Lägg in vädret i Födelsedagsvyn
             let bdayW = document.getElementById('bday-weather');
             if (bdayW.getAttribute('data-weather-key') !== weatherKey) {
                 bdayW.innerHTML = `${currentIconHtml} <span>${currentTempStr}</span>`;
@@ -711,7 +710,6 @@
             nightScreen.style.display = 'flex';
             document.getElementById('nm-clock').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
             
-            // Samma säkra uppdatering för Sov Gott-vyn
             let nmW = document.getElementById('nm-weather');
             if (nmW.getAttribute('data-weather-key') !== weatherKey) {
                 nmW.innerHTML = `${currentIconHtml} <span>${currentTempStr}</span>`;
@@ -954,19 +952,33 @@
             const p = document.createElement('div');
             p.style.position = 'absolute';
             p.style.background = '#fff';
-            p.style.opacity = type === 'rain' ? '0.3' : '0.6';
-            p.style.width = type === 'rain' ? '2px' : '6px';
-            p.style.height = type === 'rain' ? '15px' : '6px';
-            p.style.borderRadius = type === 'snow' ? '50%' : '0';
+            
+            if (type === 'rain') {
+                p.style.opacity = '0.3';
+                p.style.width = '2px';
+                p.style.height = '15px';
+                p.style.borderRadius = '0';
+            } else {
+                // Logiken för snö - helt runda, olika storlekar och mjukare ljus
+                p.style.opacity = Math.random() * 0.6 + 0.4;
+                const size = Math.random() * 5 + 3;
+                p.style.width = `${size}px`;
+                p.style.height = `${size}px`;
+                p.style.borderRadius = '50%';
+                p.style.boxShadow = `0 0 4px rgba(255,255,255,0.8)`;
+            }
+            
             p.style.left = `${Math.random() * 100}vw`;
             p.style.top = '-100px';
             p.style.pointerEvents = 'none';
             p.style.willChange = 'transform';
             
-            const duration = type === 'rain' ? (0.5 + Math.random() * 0.5) : (2 + Math.random() * 3);
+            const duration = type === 'rain' ? (0.5 + Math.random() * 0.5) : (3 + Math.random() * 3);
+            const sway = type === 'snow' ? (Math.random() * 150 - 75) : 0;
+            
             p.animate([
-                { transform: `translateY(-100px) ${type === 'snow' ? 'translateX(0)' : ''}` },
-                { transform: `translateY(110vh) ${type === 'snow' ? 'translateX(50px)' : ''}` }
+                { transform: `translateY(-100px) translateX(0)` },
+                { transform: `translateY(110vh) translateX(${sway}px)` }
             ], {
                 duration: duration * 1000,
                 iterations: Infinity,
