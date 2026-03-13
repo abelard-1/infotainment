@@ -944,7 +944,7 @@
             
             const duration = type === 'rain' ? (0.5 + Math.random() * 0.5) : (2 + Math.random() * 3);
             p.animate([
-                { transform: `translateY(0) ${type === 'snow' ? 'translateX(0)' : ''}` },
+                { transform: `translateY(-100px) ${type === 'snow' ? 'translateX(0)' : ''}` },
                 { transform: `translateY(110vh) ${type === 'snow' ? 'translateX(50px)' : ''}` }
             ], {
                 duration: duration * 1000,
@@ -961,6 +961,7 @@
         setInterval(updateCalendar, 600000); 
         setInterval(updateWeather, 300000); 
         setInterval(fetchNews, 3600000); 
+        setInterval(displayNextNews, 15000);
         
         setInterval(() => {
             if (celebrationActive || isNightModeForced || new Date().getHours() >= 23 || new Date().getHours() < 6) return; 
