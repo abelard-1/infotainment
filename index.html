@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v182 (Fredagsmys)</title>
+    <title>Staffanstorp Wall Dashboard v182 (Kortkalender & Fredagsmys-Fix)</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
@@ -61,7 +61,7 @@
             pointer-events: none;
             z-index: 9999; 
             opacity: 0;
-            transition: opacity 4s ease; 
+            transition: opacity 4s ease;
         }
         #night-dimmer.active { opacity: 1; }
 
@@ -71,7 +71,7 @@
             top: 0; left: 0; width: 100vw; height: 100vh;
             background: linear-gradient(to bottom, #020111 0%, #0a0a1a 100%);
             z-index: 10000; 
-            display: none; 
+            display: none;
             flex-direction: column;
             justify-content: center;
             align-items: center;
@@ -79,7 +79,8 @@
         }
 
         #night-stars {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;
             z-index: 0;
         }
 
@@ -97,7 +98,7 @@
             height: 10rem;
             color: #fde16e; 
             opacity: 1; 
-            z-index: 1; 
+            z-index: 1;
             animation: moon-wander 90s infinite ease-in-out; 
             will-change: transform; 
         }
@@ -125,13 +126,15 @@
         .anti-burn-in { animation: micro-shift 180s infinite ease-in-out; }
 
         #nm-main-text {
-            position: relative; z-index: 2; font-size: clamp(6rem, 12vw, 15rem); line-height: 1;
-            font-weight: 900; text-align: center; letter-spacing: -2px; color: #7b8b9e; 
-            text-shadow: 0px 0px 30px rgba(123, 139, 158, 0.2); background: none; 
+            position: relative;
+            z-index: 2; font-size: clamp(6rem, 12vw, 15rem); line-height: 1;
+            font-weight: 900; text-align: center; letter-spacing: -2px; color: #7b8b9e;
+            text-shadow: 0px 0px 30px rgba(123, 139, 158, 0.2); background: none;
         }
 
         #nm-footer {
-            position: absolute; bottom: 40px; right: 60px; z-index: 2; display: flex; gap: 40px;
+            position: absolute;
+            bottom: 40px; right: 60px; z-index: 2; display: flex; gap: 40px;
             align-items: center; background: rgba(10, 10, 15, 0.5); padding: 20px 40px;
             border-radius: 30px; border: 1px solid rgba(123, 139, 158, 0.1);
         }
@@ -142,18 +145,21 @@
 
         /* --- FÖDELSEDAGS-SKÄRMEN (HELSKÄRM) --- */
         #birthday-screen {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
             background: #000; z-index: 8000; display: none; flex-direction: column;
             justify-content: center; align-items: center;
         }
 
         #birthday-screen img.bg-image {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
             object-fit: cover; opacity: 0.25; z-index: 1;
         }
 
         #bday-main-text {
-            position: relative; z-index: 2; font-size: clamp(6rem, 12vw, 15rem); line-height: 1;
+            position: relative;
+            z-index: 2; font-size: clamp(6rem, 12vw, 15rem); line-height: 1;
             font-weight: 900; text-align: center; letter-spacing: -2px;
             background: linear-gradient(180deg, #FFDF00 0%, #D4AF37 50%, #996515 100%);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
@@ -161,7 +167,8 @@
         }
 
         #bday-footer {
-            position: absolute; bottom: 40px; right: 60px; z-index: 2; display: flex; gap: 40px;
+            position: absolute;
+            bottom: 40px; right: 60px; z-index: 2; display: flex; gap: 40px;
             align-items: center; background: rgba(20, 20, 20, 0.7); padding: 20px 40px;
             border-radius: 30px; border: 1px solid rgba(255, 215, 0, 0.2); backdrop-filter: blur(10px);
         }
@@ -193,22 +200,23 @@
 
         #greeting { font-size: 7rem; font-weight: 900; line-height: 1; letter-spacing: -4px; white-space: nowrap; transition: color 2s ease; }
 
-        /* FREDAGS-GRADIENT */
+        /* FREDAGS-FÄRGER (Bugfix för osynlig text) */
         #greeting.friday-mode {
-            background: linear-gradient(90deg, #ff007f, #ffaa33, #4ade80, #5e92f3);
-            background-size: 300% 300%;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: gradient-shift 5s ease infinite;
+            animation: text-color-shift 8s linear infinite;
         }
-        @keyframes gradient-shift {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+        #greeting.friday-mode .wiggle-mark { color: inherit; text-shadow: inherit; }
+        
+        @keyframes text-color-shift {
+            0% { color: #ff007f; text-shadow: 0 0 20px rgba(255, 0, 127, 0.4); }
+            25% { color: #ffaa33; text-shadow: 0 0 20px rgba(255, 170, 51, 0.4); }
+            50% { color: #4ade80; text-shadow: 0 0 20px rgba(74, 222, 128, 0.4); }
+            75% { color: #5e92f3; text-shadow: 0 0 20px rgba(94, 146, 243, 0.4); }
+            100% { color: #ff007f; text-shadow: 0 0 20px rgba(255, 0, 127, 0.4); }
         }
 
         .char-span {
-            display: inline-block; transform-origin: center center;
+            display: inline-block;
+            transform-origin: center center;
             animation: charFlipIn 0.8s ease both; transform-style: preserve-3d; z-index: 1;
         }
 
@@ -226,7 +234,8 @@
         #greeting.birthday { color: #ffaa33; text-shadow: 0 0 20px rgba(255, 170, 51, 0.4); }
 
         .wiggle-mark {
-            display: inline-block !important; transform-origin: bottom center; animation: intensive-wiggle 60s infinite;
+            display: inline-block !important;
+            transform-origin: bottom center; animation: intensive-wiggle 60s infinite;
             color: #fff; transition: color 2s ease;
         }
         #greeting.birthday .wiggle-mark { color: #ffaa33; }
@@ -244,8 +253,7 @@
         .moon-icon svg { width: 0.8em; height: 0.8em; vertical-align: baseline; }
 
         #date-sub { 
-            font-size: 1.9rem; 
-            font-weight: 900; 
+            font-size: 1.9rem; font-weight: 900; 
             margin-bottom: 35px;
             letter-spacing: 0px;
             position: relative;
@@ -269,16 +277,49 @@
             100% { box-shadow: 0 0 0 0 rgba(255, 51, 51, 0); }
         }
 
+        /* --- NY BILJETT-KALENDER --- */
         .event-card {
-            background: var(--glass); border: 2px solid var(--border); border-radius: 30px;
-            padding: 20px 30px; margin-bottom: 12px; display: flex; flex-direction: column; 
-            align-items: flex-start; justify-content: center; gap: 6px;
-            transition: background 1s ease, border-color 1s ease, box-shadow 1s ease;
+            border: 2px solid var(--border); 
+            border-radius: 30px;
+            margin-bottom: 15px; 
+            display: flex; 
+            flex-direction: row; 
+            align-items: stretch; 
+            padding: 0; 
+            overflow: hidden; 
+            background: transparent;
+            transition: border-color 1s ease, box-shadow 1s ease;
         }
-        .event-card.today { border-color: var(--accent); border-width: 4px; } 
+        .event-card.today { border-color: var(--accent); border-width: 3px; } 
 
-        .ev-meta { font-size: 1.4rem; font-weight: 700; color: var(--accent); letter-spacing: 0.5px; opacity: 0.9; }
-        .ev-title { font-size: 2.5rem; font-weight: 400; line-height: 1.2; font-style: italic; }
+        .ev-date-col {
+            width: 25%; 
+            background: rgba(255, 255, 255, 0.05); 
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border-right: 1px solid var(--border);
+            transition: background 1s ease, border-color 1s ease;
+        }
+
+        .ev-title-col {
+            width: 75%; 
+            background: var(--glass); 
+            padding: 20px 30px;
+            display: flex;
+            align-items: center;
+            font-size: 2.2rem; 
+            font-weight: 400; 
+            font-style: italic;
+            white-space: nowrap; 
+            overflow: hidden; 
+            text-overflow: ellipsis; 
+            transition: background 1s ease;
+        }
+
+        .ev-date { font-size: 1.2rem; font-weight: 900; text-transform: uppercase; opacity: 0.8; letter-spacing: 1px; }
+        .ev-time { font-size: 1.6rem; font-weight: 700; color: var(--accent); margin-top: 5px; }
 
         .weather-row { display: flex; gap: 15px; margin-bottom: 12px; }
         .weather-box { background: rgba(255,255,255,0.03); padding: 18px; border-radius: 25px; flex: 1; text-align: center; border: 1px solid var(--border); transition: background 1s ease, border-color 1s ease; }
@@ -319,43 +360,26 @@
         }
 
         #clock { 
-            position: absolute;
-            bottom: 35px;
-            right: 60px;
-            font-size: 3.4rem; 
-            font-weight: 900; 
-            font-variant-numeric: tabular-nums; 
-            color: #d8d8d8; 
-            text-align: right; 
-            z-index: 30; 
-            transition: color 1s ease;
+            position: absolute; bottom: 35px; right: 60px; font-size: 3.4rem; font-weight: 900; 
+            font-variant-numeric: tabular-nums; color: #d8d8d8; text-align: right; z-index: 30; transition: color 1s ease;
         }
 
         .news-bar { 
-            background: #0a0a0a; 
-            padding: 35px 60px; 
-            padding-right: 200px; 
-            border-top: 1px solid var(--border); 
-            min-height: 140px; 
-            flex: 1; 
-            display: flex; 
-            flex-direction: column; 
-            justify-content: flex-start; 
-            gap: 10px; 
-            transition: background 1s ease, border-color 1s ease;
+            background: #0a0a0a; padding: 35px 60px; padding-right: 200px; border-top: 1px solid var(--border); 
+            min-height: 140px; flex: 1; display: flex; flex-direction: column; justify-content: flex-start; gap: 10px; transition: background 1s ease, border-color 1s ease;
         }
         
         #news-text { font-size: 1.8rem; opacity: 0.8; line-height: 1.4; font-weight: 300; transition: opacity 0.5s; }
         
-        .particle { position: absolute; background: #fff; pointer-events: none; opacity: 0.6; }
-
         /* --- DAGLÄGE (APPLE-STIL) --- */
         body.day-mode { background-color: #f5f5f7; color: #1d1d1f; }
         body.day-mode .info-panel { background: linear-gradient(135deg, #ffffff 0%, #f2f2f7 100%); border-right: 1px solid rgba(0,0,0,0.1); }
         body.day-mode .countdown-bar, body.day-mode .news-bar { background: #ffffff; border-top: 1px solid rgba(0,0,0,0.1); }
         body.day-mode .event-card { background: rgba(255,255,255,0.8); border: 1px solid rgba(0,0,0,0.1); box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
         body.day-mode .event-card.today { border-color: var(--accent); border-width: 4px; }
-        body.day-mode .ev-title { color: #4a4a4a; } 
+        body.day-mode .ev-date-col { background: rgba(0,0,0,0.04); border-right: 1px solid rgba(0,0,0,0.1); }
+        body.day-mode .ev-title-col { background: rgba(255,255,255,0.8); color: #2c3e50; }
+        body.day-mode .ev-date { color: rgba(0,0,0,0.6); }
         body.day-mode .weather-box, body.day-mode #weather-summary { background: #f5f5f7; border: 1px solid rgba(0,0,0,0.05); color: #1d1d1f; }
         body.day-mode .section-label { color: #86868b; }
         body.day-mode #clock { color: #1d1d1f; }
@@ -482,7 +506,6 @@
         "07-15": "Olivia",
         "07-29": "Gabbe"
     };
-
     const unDays = {
         "01-04": "Världsdagen för punktskrift",
         "01-24": "Internationella dagen för utbildning",
@@ -491,7 +514,6 @@
         "10-24": "FN-dagen",
         "12-10": "Mänskliga rättigheternas dag"
     };
-
     const majorHolidays = [
         { date: '2026-03-20', label: 'EID<br>AL-FITR' },
         { date: '2026-04-05', label: 'PÅSK-<br>DAGEN' },
@@ -628,7 +650,7 @@
     function update() {
         const now = new Date();
         const hour = now.getHours();
-        const dayOfWeek = now.getDay(); // 0 = Söndag, 5 = Fredag
+        const dayOfWeek = now.getDay(); 
         
         const greetingEl = document.getElementById('greeting');
         const dateSubEl = document.getElementById('date-sub');
@@ -636,9 +658,7 @@
         const bdayScreen = document.getElementById('birthday-screen');
         const nightScreen = document.getElementById('night-mode-screen');
         
-        // FREDAGSLOGIKEN (Fredag kl 15:00 - 23:00)
         const isFridayMode = (dayOfWeek === 5 && hour >= 15 && hour < 23) || isFridayModeForced;
-        
         const todayStrForBday = String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
         let isBirthday = false;
         let bdayName = "";
@@ -687,7 +707,6 @@
                 stopCelebration(); bdayScreen.style.display = 'none'; updateWeatherOverlay(lastRealWeatherCode);
             }
             
-            // --- SMART VIDEO-BYTE (Fredag vs Vanlig) ---
             let targetVideoId = isFridayMode ? FRIDAY_VIDEO_ID : DEFAULT_VIDEO_ID;
             let targetVideoSrc = `https://www.youtube.com/embed/${targetVideoId}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&loop=1&playlist=${targetVideoId}`;
             
@@ -695,187 +714,254 @@
                 iframe.src = targetVideoSrc; 
                 iframe.style.display = 'block'; 
             } else if (!iframe.src.includes(targetVideoId)) {
-                // Byter video om det aktuella läget kräver en annan video än den som spelas
                 iframe.src = targetVideoSrc;
             }
-            // ------------------------------------------
 
             let greetingKey = isFridayMode ? `friday-${currentLangIndex}` : `lang-${currentLangIndex}-${phase}`;
             
             if (currentRenderedGreeting !== greetingKey) {
                 currentRenderedGreeting = greetingKey;
                 greetingEl.classList.remove('birthday', 'god-natt', 'friday-mode');
-                
                 let greetingBase = "";
                 let rawTextForSizing = "";
-
-                // OM FREDAGSMODE ÄR PÅ:
-                if (isFridayMode) {
-                    greetingBase = "TREVLIG HELG";
-                    rawTextForSizing = "TREVLIG HELG!";
-                    greetingEl.classList.add('friday-mode');
-                } else {
-                    greetingBase = (greetingsTranslations[currentLangIndex] || greetingsTranslations[0])[phase];
-                    greetingBase = greetingBase.charAt(0).toUpperCase() + greetingBase.slice(1);
-                    rawTextForSizing = greetingBase + (phase === "n" ? "" : "!");
-                }
                 
+                if (isFridayMode) { 
+                    greetingBase = "TREVLIG HELG";
+                    rawTextForSizing = "TREVLIG HELG!"; 
+                    greetingEl.classList.add('friday-mode'); 
+                } else { 
+                    greetingBase = (greetingsTranslations[currentLangIndex] || greetingsTranslations[0])[phase]; 
+                    greetingBase = greetingBase.charAt(0).toUpperCase() + greetingBase.slice(1);
+                    rawTextForSizing = greetingBase + (phase === "n" ? "" : "!"); 
+                } 
                 const wrappedText = wrapTextInSpans(greetingBase);
                 const suffixDelay = Math.floor(Math.random() * 400); 
                 
-                if(phase === "n" && !isFridayMode) {
-                    greetingEl.classList.add('god-natt'); dateSubEl.classList.add('god-natt');
+                if(phase === "n" && !isFridayMode) { 
+                    greetingEl.classList.add('god-natt'); 
+                    dateSubEl.classList.add('god-natt');
                     greetingEl.innerHTML = `${wrappedText}<span class="char-span" style="animation-delay: ${suffixDelay}ms"><span class="moon-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></span></span>`;
-                } else {
-                    dateSubEl.classList.remove('god-natt');
+                } else { 
+                    dateSubEl.classList.remove('god-natt'); 
                     greetingEl.innerHTML = `${wrappedText}<span class="char-span" style="animation-delay: ${suffixDelay}ms"><span class="wiggle-mark">!</span></span>`;
-                }
-                
-                if (rawTextForSizing.length > 11) greetingEl.style.fontSize = `${Math.max(3, 77 / rawTextForSizing.length)}rem`;
+                } 
+                if (rawTextForSizing.length > 11) greetingEl.style.fontSize = `${Math.max(3, 77 / rawTextForSizing.length)}rem`; 
                 else greetingEl.style.fontSize = '7rem';
-            }
-
-            document.getElementById('clock').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'});
+            } 
             
-            if (unDays[todayStrForBday]) {
+            document.getElementById('clock').innerText = now.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'}); 
+            
+            if (unDays[todayStrForBday]) { 
                 document.getElementById('date-sub').innerText = "FN-dag: " + unDays[todayStrForBday];
-            } else {
+            } else { 
                 let fallbackText = "Idag är det " + now.toLocaleDateString('sv-SE', { weekday: 'long', day: 'numeric', month: 'long' });
-                document.getElementById('date-sub').innerText = fallbackText.charAt(0).toUpperCase() + fallbackText.slice(1);
-            }
+                document.getElementById('date-sub').innerText = fallbackText.charAt(0).toUpperCase() + fallbackText.slice(1); 
+            } 
             
             const easter = new Date('2026-03-30'), summer = new Date('2026-06-12'), worldcup = new Date('2026-06-11');
-            document.getElementById('count-easter').innerText = Math.max(0, Math.ceil((easter - now) / 86400000));
+            document.getElementById('count-easter').innerText = Math.max(0, Math.ceil((easter - now) / 86400000)); 
             document.getElementById('count-summer').innerText = Math.max(0, Math.ceil((summer - now) / 86400000));
-            document.getElementById('count-worldcup').innerText = Math.max(0, Math.ceil((worldcup - now) / 86400000));
-
-            const currentYear = now.getFullYear();
-            const todayForMath = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-            let minDiff = Infinity; let nextBdayName = "";
-            for (const [dateString, name] of Object.entries(birthdays)) {
-                const [month, day] = dateString.split('-');
-                let bdate = new Date(currentYear, parseInt(month) - 1, parseInt(day));
-                if (bdate < todayForMath) bdate.setFullYear(currentYear + 1);
-                const diff = bdate - todayForMath;
-                if (diff < minDiff) { minDiff = diff; nextBdayName = name; }
-            }
-            document.getElementById('count-bday').innerText = Math.ceil(minDiff / 86400000);
-            const nameUppercase = nextBdayName.toUpperCase();
-            document.getElementById('label-bday').innerHTML = `${nameUppercase.endsWith('S') ? nameUppercase : nameUppercase + "S"}<br>FÖDELSEDAG`;
+            document.getElementById('count-worldcup').innerText = Math.max(0, Math.ceil((worldcup - now) / 86400000)); 
             
-            let nextHoliday = majorHolidays.find(h => new Date(h.date) >= todayForMath);
-            if (!nextHoliday) nextHoliday = majorHolidays[majorHolidays.length - 1]; 
-            const holidayDate = new Date(nextHoliday.date);
-            document.getElementById('count-holiday').innerText = Math.max(0, Math.ceil((holidayDate - now) / 86400000));
-            document.getElementById('label-holiday').innerHTML = nextHoliday.label;
+            const currentYear = now.getFullYear(); 
+            const todayForMath = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            let minDiff = Infinity; 
+            let nextBdayName = ""; 
+            for (const [dateString, name] of Object.entries(birthdays)) { 
+                const [month, day] = dateString.split('-');
+                let bdate = new Date(currentYear, parseInt(month) - 1, parseInt(day)); 
+                if (bdate < todayForMath) bdate.setFullYear(currentYear + 1);
+                const diff = bdate - todayForMath; 
+                if (diff < minDiff) { 
+                    minDiff = diff; nextBdayName = name;
+                } 
+            } 
+            document.getElementById('count-bday').innerText = Math.ceil(minDiff / 86400000); 
+            const nameUppercase = nextBdayName.toUpperCase(); 
+            document.getElementById('label-bday').innerHTML = `${nameUppercase.endsWith('S') ? nameUppercase : nameUppercase + 'S'}<br>FÖDELSEDAG`;
+            
+            let minHolDiff = Infinity; let nextHolLabel = "";
+            for (const hol of majorHolidays) {
+                let hdate = new Date(hol.date);
+                if (hdate >= todayForMath) {
+                    const diff = hdate - todayForMath;
+                    if (diff < minHolDiff) { minHolDiff = diff; nextHolLabel = hol.label; }
+                }
+            }
+            document.getElementById('count-holiday').innerText = Math.ceil(minHolDiff / 86400000);
+            document.getElementById('label-holiday').innerHTML = nextHolLabel;
         }
     }
 
-    async function updateNews() {
+    async function fetchNews() {
         try {
-            const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.svt.se/nyheter/rss.xml');
-            const data = await res.json();
-            if (data.status === 'ok' && data.items && data.items.length > 0) {
-                textNewsItems = data.items.map(item => item.title); textNewsIndex = 0; displayNextNews();
-            }
-        } catch (e) { console.error('Nyhetsfel:', e); }
+            const response = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://www.svt.se/nyheter/rss.xml');
+            const data = await response.json();
+            textNewsItems = data.items.map(i => i.title);
+            if(textNewsItems.length === 0) textNewsItems = ["Inga nyheter kunde laddas."];
+            displayNextNews();
+        } catch (e) {
+            console.error('Nyhetsfel:', e);
+        }
     }
 
     function displayNextNews() {
-        if (textNewsItems.length === 0) return;
-        const newsTextEl = document.getElementById('news-text');
-        newsTextEl.style.opacity = 0; 
-        setTimeout(() => {
-            newsTextEl.innerText = textNewsItems[textNewsIndex];
+        if (textNewsItems.length === 0) return; 
+        const newsTextEl = document.getElementById('news-text'); 
+        newsTextEl.style.opacity = 0;
+        setTimeout(() => { 
+            newsTextEl.innerText = textNewsItems[textNewsIndex]; 
             newsTextEl.style.opacity = 1; 
-            textNewsIndex = (textNewsIndex + 1) % textNewsItems.length;
-        }, 500); 
+            textNewsIndex = (textNewsIndex + 1) % textNewsItems.length; 
+        }, 500);
     }
 
     async function updateCalendar() {
         try {
-            const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CAL_ID)}/events?key=${API_KEY_CAL}&timeMin=${new Date().toISOString()}&singleEvents=true&orderBy=startTime`);
+            const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CAL_ID)}/events?key=${API_KEY_CAL}&timeMin=${new Date().toISOString()}&singleEvents=true&orderBy=startTime&maxResults=3`);
             const d = await res.json();
             const todayStr = new Date().toDateString();
-            document.getElementById('calendar-list').innerHTML = (d.items || []).slice(0, 2).map(e => {
+            document.getElementById('calendar-list').innerHTML = (d.items || []).map(e => {
                 const start = new Date(e.start.dateTime || e.start.date);
                 const end = new Date(e.end.dateTime || e.end.date);
+                
                 let timeText = "Heldag";
-                if (e.start.dateTime) timeText = `kl. ${start.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'})}-${end.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'})}`;
-                let dayName = start.toLocaleDateString('sv-SE', {weekday: 'long'}); dayName = dayName.charAt(0).toUpperCase() + dayName.slice(1);
-                let monthName = start.toLocaleDateString('sv-SE', {month: 'long'});
-                let metaString = `${dayName} ${start.getDate()} ${monthName} ${timeText}`;
-                return `<div class="event-card ${start.toDateString() === todayStr ? 'today' : ''}"><div class="ev-meta">${metaString}</div><div class="ev-title">${e.summary}</div></div>`;
+                if (e.start.dateTime) timeText = `kl. ${start.toLocaleTimeString('sv-SE', {hour:'2-digit', minute:'2-digit'})}`;
+                
+                let dayName = start.toLocaleDateString('sv-SE', {weekday: 'short'}); 
+                dayName = dayName.charAt(0).toUpperCase() + dayName.slice(1).replace('.', '');
+                let monthName = start.toLocaleDateString('sv-SE', {month: 'short'}).replace('.', '');
+                
+                let dateString = `${dayName} ${start.getDate()} ${monthName}`;
+                
+                return `
+                    <div class="event-card ${start.toDateString() === todayStr ? 'today' : ''}">
+                        <div class="ev-date-col">
+                            <div class="ev-date">${dateString}</div>
+                            <div class="ev-time">${timeText}</div>
+                        </div>
+                        <div class="ev-title-col">
+                            ${e.summary}
+                        </div>
+                    </div>
+                `;
             }).join('');
         } catch (e) { console.error('Kalenderfel:', e); }
     }
 
-    function getWeatherSwedishDesc(code) {
-        const weatherCodes = {
-            0: "klart", 1: "övervägande klart", 2: "halvklart", 3: "mulet", 45: "dimma", 48: "frysande dimma",
-            51: "lätt duggregn", 53: "måttligt duggregn", 55: "tätt duggregn", 56: "lätt frysande duggregn", 57: "kraftigt frysande duggregn",
-            61: "lätt regn", 63: "måttligt regn", 65: "kraftigt regn", 66: "lätt underkylt regn", 67: "kraftigt underkylt regn",
-            71: "lätt snöfall", 73: "måttligt snöfall", 75: "kraftigt snöfall", 77: "snökorn",
-            80: "lätta regnskurar", 81: "måttliga regnskurar", 82: "kraftiga regnskurar", 85: "lätta snöbyar", 86: "kraftiga snöbyar",
-            95: "åska", 96: "åska med hagel", 99: "kraftig åska"
+    function getWeatherSwedishDesc(code) { 
+        const weatherCodes = { 
+            0: "klart", 1: "övervägande klart", 2: "halvklart", 3: "mulet", 45: "dimma", 48: "frysande dimma", 
+            51: "lätt duggregn", 53: "måttligt duggregn", 55: "tätt duggregn", 56: "lätt frysande duggregn", 57: "kraftigt frysande duggregn", 
+            61: "lätt regn", 63: "måttligt regn", 65: "kraftigt regn", 66: "lätt underkylt regn", 67: "kraftigt underkylt regn", 
+            71: "lätt snöfall", 73: "måttligt snöfall", 75: "kraftigt snöfall", 77: "snökorn", 80: "lätta regnskurar", 
+            81: "måttliga regnskurar", 82: "kraftiga regnskurar", 85: "lätta snöbyar", 86: "kraftiga snöbyar", 
+            95: "åska", 96: "åska med hagel", 99: "kraftig åska" 
         };
-        return weatherCodes[code] || "varierande väder";
-    }
-
-    async function updateWeather() {
-        try {
+        return weatherCodes[code] || "varierande väder"; 
+    } 
+    
+    async function updateWeather() { 
+        try { 
             const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=55.64&longitude=13.21&current=is_day&hourly=temperature_2m,weathercode&daily=weathercode,temperature_2m_max,precipitation_sum,wind_speed_10m_max&wind_speed_unit=ms&timezone=auto');
-            const d = await res.json();
-            isRealDaytime = (d.current.is_day === 1);
-            const nowH = new Date().getHours();
-            const code = d.hourly.weathercode[nowH];
-            lastRealWeatherCode = code; 
-            updateWeatherOverlay(code); 
-            const getIcon = (c) => (c >= 71 ? 'snowflake' : c >= 51 ? 'cloud-rain' : c >= 3 ? 'cloud' : 'sun');
-            currentTempStr = Math.round(d.hourly.temperature_2m[nowH]) + "°"; currentIconHtml = `<i data-lucide="${getIcon(code)}"></i>`;
-            document.getElementById('bday-weather').innerHTML = `${currentIconHtml} <span>${currentTempStr}</span>`;
-            document.getElementById('nm-weather').innerHTML = `${currentIconHtml} <span>${currentTempStr}</span>`;
-            const todayData = d.hourly.temperature_2m.slice(0, 24), tomorrowData = d.hourly.temperature_2m.slice(24, 48);
-            document.getElementById('weather-list').innerHTML = `<div class="weather-box"><div class="weather-hour">NU</div><div class="weather-icon-wrapper"><i data-lucide="${getIcon(code)}"></i></div><div class="weather-temp">${Math.round(d.hourly.temperature_2m[nowH])}°</div></div><div class="weather-box"><div class="weather-hour">MAX IDAG</div><div class="weather-icon-wrapper"><i data-lucide="${getIcon(d.hourly.weathercode[todayData.indexOf(Math.max(...todayData))])}"></i></div><div class="weather-temp">${Math.round(Math.max(...todayData))}°</div></div><div class="weather-box"><div class="weather-hour">MAX IMORGON</div><div class="weather-icon-wrapper"><i data-lucide="${getIcon(d.hourly.weathercode[24 + tomorrowData.indexOf(Math.max(...tomorrowData))])}"></i></div><div class="weather-temp">${Math.round(Math.max(...tomorrowData))}°</div></div>`;
-            const daily = d.daily, todayMaxTemp = Math.round(daily.temperature_2m_max[0]), todayRain = daily.precipitation_sum[0], todayWind = daily.wind_speed_10m_max[0];
-            const currentCode = d.hourly.weathercode[nowH], laterCode = d.hourly.weathercode[nowH + 5] !== undefined ? d.hourly.weathercode[nowH + 5] : currentCode;
+            const d = await res.json(); 
+            isRealDaytime = (d.current.is_day === 1); 
+            const nowH = new Date().getHours(); 
+            const currentCode = d.hourly.weathercode[nowH]; 
+            lastRealWeatherCode = currentCode; 
+            currentTempStr = Math.round(d.hourly.temperature_2m[nowH]) + "°"; 
+            
+            const wIcon = code => { 
+                if (code === 0) return isRealDaytime ? 'sun' : 'moon'; 
+                if (code <= 3) return 'cloud'; 
+                if (code <= 67 || code >= 80) return 'cloud-rain'; 
+                if (code <= 77 || code === 85 || code === 86) return 'snowflake'; 
+                return 'cloud'; 
+            }; 
+            currentIconHtml = `<i data-lucide="${wIcon(currentCode)}"></i>`; 
+            
+            let listHtml = ''; 
+            for (let i = 0; i < 3; i++) { 
+                const h = nowH + (i * 3); 
+                if (d.hourly.time[h]) { 
+                    const t = Math.round(d.hourly.temperature_2m[h]); 
+                    const c = d.hourly.weathercode[h]; 
+                    const timeStr = i === 0 ? "NU" : new Date(d.hourly.time[h]).toLocaleTimeString('sv-SE', {hour: '2-digit', minute:'2-digit'}); 
+                    listHtml += `<div class="weather-box"><div class="weather-hour">${timeStr}</div><div class="weather-icon-wrapper"><i data-lucide="${wIcon(c)}"></i></div><div class="weather-temp">${t}°</div></div>`; 
+                } 
+            } 
+            document.getElementById('weather-list').innerHTML = listHtml; 
+            updateWeatherOverlay(currentCode); 
+            
+            const todayMaxTemp = Math.round(d.daily.temperature_2m_max[0]); 
+            const todayRain = d.daily.precipitation_sum[0]; 
+            const todayWind = d.daily.wind_speed_10m_max[0]; 
+            const laterCode = d.hourly.weathercode[nowH + 5] !== undefined ? d.hourly.weathercode[nowH + 5] : currentCode; 
             const currentDesc = getWeatherSwedishDesc(currentCode), laterDesc = getWeatherSwedishDesc(laterCode);
-            let summaryText = "";
-            if (currentDesc === laterDesc) summaryText = `Just nu är det <strong>${currentDesc}</strong> och det ser ut att hålla i sig. `;
-            else { let timeWord = (nowH >= 18) ? "under natten/morgondagen" : "senare under dagen"; summaryText = `Just nu är det <strong>${currentDesc}</strong>, men ${timeWord} väntas <strong>${laterDesc}</strong>. `; }
+            
+            let summaryText = ""; 
+            if (currentDesc === laterDesc) summaryText = `Just nu är det <strong>${currentDesc}</strong> och det ser ut att hålla i sig. `; 
+            else { 
+                let timeWord = (nowH >= 18) ? "under natten/morgondagen" : "senare under dagen";
+                summaryText = `Just nu är det <strong>${currentDesc}</strong>, men ${timeWord} väntas <strong>${laterDesc}</strong>. `;
+            } 
             summaryText += `Dagens maxtemperatur når upp mot <strong>${todayMaxTemp}°</strong>. `;
             if (todayRain > 0.5) summaryText += `Räkna med totalt ca <strong>${todayRain} mm</strong> nederbörd under dygnet. `;
-            else summaryText += `Ingen nämnvärd nederbörd väntas. `;
+            else summaryText += `Ingen nämnvärd nederbörd väntas. `; 
+            
             if (todayWind > 10) summaryText += `Dessutom blåsigt med vindbyar upp mot <strong>${Math.round(todayWind)} m/s</strong>.`;
-            else if (todayWind > 5) summaryText += `Måttliga vindar upp mot <strong>${Math.round(todayWind)} m/s</strong>.`;
+            else if (todayWind > 5) summaryText += `Måttliga vindar upp mot <strong>${Math.round(todayWind)} m/s</strong>.`; 
             else summaryText += `Överlag <strong>svaga vindar</strong>.`;
-            document.getElementById('weather-summary').innerHTML = summaryText;
-            lucide.createIcons();
-        } catch(e) { console.error('Väderfel:', e); }
+            
+            document.getElementById('weather-summary').innerHTML = summaryText; 
+            lucide.createIcons(); 
+        } catch(e) { console.error("Väderfel", e); }
     }
 
     function updateWeatherOverlay(code) {
-        const container = document.getElementById('weather-overlay'); container.innerHTML = '';
-        if (celebrationActive || isNightModeForced || new Date().getHours() >= 23 || new Date().getHours() < 6) return;
-        let effectiveCode = code; if (forcedWeatherMode === 'rain') effectiveCode = 51; if (forcedWeatherMode === 'snow') effectiveCode = 71;
-        let type = ''; if (effectiveCode >= 71) type = 'snow'; else if (effectiveCode >= 51) type = 'rain'; 
-        if (!type) return;
-        let pCount = type === 'rain' ? 150 : 50;
-        for (let i = 0; i < pCount; i++) {
-            const p = document.createElement('div'); p.className = 'particle';
-            if (type === 'rain') { p.style.width = '3px'; p.style.height = '18px'; p.style.background = 'rgba(100,150,255,0.5)'; } 
-            else if (type === 'snow') { p.style.width = '8px'; p.style.height = '8px'; p.style.borderRadius = '50%'; p.style.filter = 'blur(1px)'; } 
-            p.style.left = Math.random() * 100 + 'vw'; p.style.top = Math.random() * 100 + 'vh';
-            const duration = 2 + Math.random() * 3;
-            p.animate([ { transform: `translateY(-100px) ${type === 'snow' ? 'translateX(0)' : ''}` }, { transform: `translateY(110vh) ${type === 'snow' ? 'translateX(50px)' : ''}` } ], { duration: duration * 1000, iterations: Infinity, delay: -Math.random() * 5000 });
+        const container = document.getElementById('weather-overlay');
+        container.innerHTML = '';
+        
+        let type = 'none';
+        if (forcedWeatherMode === 'rain' || [51,53,55,56,57,61,63,65,66,67,80,81,82].includes(code)) type = 'rain';
+        else if (forcedWeatherMode === 'snow' || [71,73,75,77,85,86].includes(code)) type = 'snow';
+
+        if (type === 'none') return;
+        
+        const count = type === 'rain' ? 80 : 40;
+        for (let i = 0; i < count; i++) {
+            const p = document.createElement('div');
+            p.style.position = 'absolute';
+            p.style.background = '#fff';
+            p.style.opacity = type === 'rain' ? '0.3' : '0.6';
+            p.style.width = type === 'rain' ? '2px' : '6px';
+            p.style.height = type === 'rain' ? '15px' : '6px';
+            p.style.borderRadius = type === 'snow' ? '50%' : '0';
+            p.style.left = `${Math.random() * 100}vw`;
+            p.style.top = '-100px';
+            p.style.pointerEvents = 'none';
+            p.style.willChange = 'transform';
+            
+            const duration = type === 'rain' ? (0.5 + Math.random() * 0.5) : (2 + Math.random() * 3);
+            p.animate([
+                { transform: `translateY(0) ${type === 'snow' ? 'translateX(0)' : ''}` },
+                { transform: `translateY(110vh) ${type === 'snow' ? 'translateX(50px)' : ''}` }
+            ], {
+                duration: duration * 1000,
+                iterations: Infinity,
+                delay: -Math.random() * 5000
+            });
             container.appendChild(p);
         }
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-        initStars(); update(); updateCalendar(); updateWeather(); updateNews(); lucide.createIcons();
-        setInterval(update, 1000); setInterval(updateCalendar, 600000); setInterval(updateWeather, 300000); 
-        setInterval(updateNews, 3600000); setInterval(displayNextNews, 15000);
+        initStars(); update(); updateCalendar(); updateWeather(); fetchNews(); lucide.createIcons();
+        setInterval(update, 1000); 
+        setInterval(updateCalendar, 600000); 
+        setInterval(updateWeather, 300000); 
+        setInterval(fetchNews, 3600000); 
+        
         setInterval(() => {
             if (celebrationActive || isNightModeForced || new Date().getHours() >= 23 || new Date().getHours() < 6) return; 
             const spans = document.getElementById('greeting').querySelectorAll('.char-span');
@@ -883,11 +969,15 @@
             spans.forEach(span => {
                 const randomDelay = Math.floor(Math.random() * 400); 
                 if (randomDelay > maxDelay) maxDelay = randomDelay;
-                span.style.animationDelay = `${randomDelay}ms`; span.classList.add('out'); 
+                span.style.animationDelay = `${randomDelay}ms`; 
+                span.classList.add('out');
             });
-            setTimeout(() => { currentLangIndex = (currentLangIndex + 1) % greetingsTranslations.length; update(); }, maxDelay + 550);
-        }, 10000);
+            setTimeout(() => {
+                spans.forEach(span => span.classList.remove('out'));
+            }, maxDelay + 600);
+        }, 30000);
     });
+
 </script>
 </body>
 </html>
