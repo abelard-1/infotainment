@@ -510,7 +510,7 @@
     
     // YouTube ID:s
     const DEFAULT_VIDEO_ID = 'gCNeDWCI0vo'; // Al-Jazeera Live
-    const FRIDAY_VIDEO_ID = '9u7js5YYudM';  // Fredagsmys-video (NY LÄNK)
+    const FRIDAY_VIDEO_ID = '9u7js5YYudM';  // Fredagsmys-video
     
     let textNewsItems = [];
     let textNewsIndex = 0;
@@ -542,12 +542,26 @@
         { date: '2027-02-08', label: 'RAMADAN<br>STARTAR' }
     ];
 
+    // De 18 språken för den snurrande hälsningen
     const greetingsTranslations = [
-        { m: "God morgon", d: "God dag", e: "God kväll", n: "God natt" },
-        { m: "Good morning", d: "Good afternoon", e: "Good evening", n: "Good night" },
-        { m: "Guten Morgen", d: "Guten Tag", e: "Guten Abend", n: "Gute Nacht" },
-        { m: "Buenos días", d: "Buenas tardes", e: "Buenas noches", n: "Buenas noches" },
-        { m: "Bonjour", d: "Bonjour", e: "Bonsoir", n: "Bonne nuit" }
+        { m: "God morgon", d: "God dag", e: "God kväll", n: "God natt" }, // Svenska
+        { m: "Good morning", d: "Good afternoon", e: "Good evening", n: "Good night" }, // Engelska
+        { m: "Guten Morgen", d: "Guten Tag", e: "Guten Abend", n: "Gute Nacht" }, // Tyska
+        { m: "Buenos días", d: "Buenas tardes", e: "Buenas noches", n: "Buenas noches" }, // Spanska
+        { m: "Bonjour", d: "Bonjour", e: "Bonsoir", n: "Bonne nuit" }, // Franska
+        { m: "Buongiorno", d: "Buon pomeriggio", e: "Buonasera", n: "Buonanotte" }, // Italienska
+        { m: "Bom dia", d: "Boa tarde", e: "Boa noite", n: "Boa noite" }, // Portugisiska
+        { m: "Goedemorgen", d: "Goedemiddag", e: "Goedenavond", n: "Goedenacht" }, // Nederländska
+        { m: "Godmorgen", d: "Goddag", e: "Godaften", n: "Godnat" }, // Danska
+        { m: "God morgen", d: "God dag", e: "God kveld", n: "God natt" }, // Norska
+        { m: "Hyvää huomenta", d: "Hyvää päivää", e: "Hyvää iltaa", n: "Hyvää yötä" }, // Finska
+        { m: "Dzień dobry", d: "Dzień dobry", e: "Dobry wieczór", n: "Dobranoc" }, // Polska
+        { m: "Günaydın", d: "İyi günler", e: "İyi akşamlar", n: "İyi geceler" }, // Turkiska
+        { m: "Доброе утро", d: "Добрый день", e: "Добрый вечер", n: "Спокойной ночи" }, // Ryska
+        { m: "Ohayou", d: "Konnichiwa", e: "Konbanwa", n: "Oyasumi" }, // Japanska
+        { m: "Sabah al-khayr", d: "Masa' al-khayr", e: "Masa' al-khayr", n: "Tisbah 'ala khayr" }, // Arabiska
+        { m: "Beyanî baş", d: "Roj baş", e: "Êvar baş", n: "Şev baş" }, // Kurdiska (Kurmanji)
+        { m: "Kalimera", d: "Kalispera", e: "Kalispera", n: "Kalinichta" } // Grekiska
     ];
     let currentLangIndex = 0;
     let currentRenderedGreeting = "";
@@ -753,7 +767,7 @@
                 iframe.src = targetVideoSrc;
             }
 
-            let greetingKey = isFridayMode ? `friday-${currentLangIndex}` : `lang-${currentLangIndex}-${phase}`;
+            let greetingKey = isFridayMode ? `friday-mode` : `lang-${currentLangIndex}-${phase}`;
             
             if (currentRenderedGreeting !== greetingKey) {
                 currentRenderedGreeting = greetingKey;
@@ -1026,8 +1040,9 @@
         setInterval(fetchNews, 3600000); 
         setInterval(displayNextNews, 15000);
         
+        // Intervallet som byter språk (händer var 30:e sekund)
         setInterval(() => {
-            if (celebrationActive || isNightModeForced || new Date().getHours() >= 23 || new Date().getHours() < 6) return; 
+            if (celebrationActive || isNightModeForced || new Date().getHours() >= 23 || new Date().getHours() < 6 || document.getElementById('greeting').classList.contains('friday-mode')) return; 
             const spans = document.getElementById('greeting').querySelectorAll('.char-span');
             let maxDelay = 0;
             spans.forEach(span => {
@@ -1037,7 +1052,8 @@
                 span.classList.add('out');
             });
             setTimeout(() => {
-                spans.forEach(span => span.classList.remove('out'));
+                // Inkrementera språkindexet precis när animationen är klar
+                currentLangIndex = (currentLangIndex + 1) % greetingsTranslations.length;
             }, maxDelay + 600);
         }, 30000);
     });
