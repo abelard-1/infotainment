@@ -931,20 +931,17 @@
                 listHtml += `<div class="weather-box"><div class="weather-hour">NU</div><div class="weather-icon-wrapper"><i data-lucide="${wIcon(currentCode)}"></i></div><div class="weather-temp">${t1}°</div></div>`; 
             }
             
-            // Box 2: +3 timmar
-            const h2 = nowH + 3;
-            if (d.hourly.time[h2]) {
-                const t2 = Math.round(d.hourly.temperature_2m[h2]); 
-                const c2 = d.hourly.weathercode[h2]; 
-                const timeStr = new Date(d.hourly.time[h2]).toLocaleTimeString('sv-SE', {hour: '2-digit', minute:'2-digit'});
-                listHtml += `<div class="weather-box"><div class="weather-hour">${timeStr}</div><div class="weather-icon-wrapper"><i data-lucide="${wIcon(c2)}"></i></div><div class="weather-temp">${t2}°</div></div>`; 
-            }
+            // Box 2: MAX IDAG
+            const maxTempToday = Math.round(d.daily.temperature_2m_max[0]);
+            const dailyCodeToday = d.daily.weathercode[0];
+            const maxIconToday = (dailyCodeToday === 0) ? 'sun' : wIcon(dailyCodeToday);
+            listHtml += `<div class="weather-box"><div class="weather-hour">MAX IDAG</div><div class="weather-icon-wrapper"><i data-lucide="${maxIconToday}"></i></div><div class="weather-temp">${maxTempToday}°</div></div>`; 
             
-            // Box 3: MAX IDAG
-            const maxTemp = Math.round(d.daily.temperature_2m_max[0]);
-            const dailyCode = d.daily.weathercode[0];
-            const maxIcon = (dailyCode === 0) ? 'sun' : wIcon(dailyCode); // Visar alltid en sol om max-vädret är helt klart
-            listHtml += `<div class="weather-box"><div class="weather-hour">MAX IDAG</div><div class="weather-icon-wrapper"><i data-lucide="${maxIcon}"></i></div><div class="weather-temp">${maxTemp}°</div></div>`; 
+            // Box 3: MAX IMORGON
+            const maxTempTomorrow = Math.round(d.daily.temperature_2m_max[1]);
+            const dailyCodeTomorrow = d.daily.weathercode[1];
+            const maxIconTomorrow = (dailyCodeTomorrow === 0) ? 'sun' : wIcon(dailyCodeTomorrow);
+            listHtml += `<div class="weather-box"><div class="weather-hour">MAX IMORGON</div><div class="weather-icon-wrapper"><i data-lucide="${maxIconTomorrow}"></i></div><div class="weather-temp">${maxTempTomorrow}°</div></div>`; 
 
             document.getElementById('weather-list').innerHTML = listHtml; 
             updateWeatherOverlay(currentCode); 
