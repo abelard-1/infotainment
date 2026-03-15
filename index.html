@@ -510,7 +510,7 @@
     
     // YouTube ID:s
     const DEFAULT_VIDEO_ID = 'gCNeDWCI0vo'; // Al-Jazeera Live
-    const FRIDAY_VIDEO_ID = '9u7js5YYudM';  // Fredagsmys-video
+    const FRIDAY_VIDEO_ID = '9u7js5YYudM';  // Fredagsmys-video (NY LÄNK)
     
     let textNewsItems = [];
     let textNewsIndex = 0;
@@ -859,10 +859,21 @@
         if (textNewsItems.length === 0) return; 
         const newsTextEl = document.getElementById('news-text'); 
         newsTextEl.style.opacity = 0;
+        
         setTimeout(() => { 
-            newsTextEl.innerText = textNewsItems[textNewsIndex]; 
+            if (textNewsItems.length > 1) {
+                // Plocka två nyheter och öka index med 2 för nästa runda
+                const index1 = textNewsIndex;
+                const index2 = (textNewsIndex + 1) % textNewsItems.length;
+                
+                newsTextEl.innerHTML = `<div style="margin-bottom: 12px;">${textNewsItems[index1]}</div><div>${textNewsItems[index2]}</div>`;
+                textNewsIndex = (textNewsIndex + 2) % textNewsItems.length; 
+            } else {
+                // Fallback om SVT av någon anledning bara har en nyhet just nu
+                newsTextEl.innerText = textNewsItems[textNewsIndex]; 
+                textNewsIndex = (textNewsIndex + 1) % textNewsItems.length; 
+            }
             newsTextEl.style.opacity = 1; 
-            textNewsIndex = (textNewsIndex + 1) % textNewsItems.length; 
         }, 500);
     }
 
