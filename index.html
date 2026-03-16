@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v184 (Dynamisk Media & Natt-Skift)</title>
+    <title>Staffanstorp Wall Dashboard v185 (Veckoprognos)</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
@@ -337,6 +337,24 @@
         .ev-date { font-size: 1.8rem; font-weight: 900; text-transform: uppercase; opacity: 0.8; letter-spacing: 1px; } 
         .ev-time { font-size: 2rem; font-weight: 700; color: var(--accent); margin-top: 5px; }
 
+        /* --- VÄDER-LAYOUTER --- */
+        .weather-container {
+            position: relative;
+            min-height: 220px; /* Förhindrar hopp när vi skiftar vy */
+            display: flex;
+            flex-direction: column;
+        }
+
+        .weather-view {
+            animation: fadeIn 0.8s ease both;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Nutid (3 boxar) */
         .weather-row { display: flex; gap: 15px; margin-bottom: 12px; }
         .weather-box { background: rgba(255,255,255,0.03); padding: 18px; border-radius: 25px; flex: 1; text-align: center; border: 1px solid var(--border); transition: background 1s ease, border-color 1s ease; }
         .weather-icon-wrapper { display: inline-block; margin: 10px 0; animation: float 4s infinite ease-in-out; }
@@ -358,6 +376,59 @@
             transition: background 1s ease, border-color 1s ease, color 1s ease;
         }
         #weather-summary strong { font-weight: 700; color: var(--accent); }
+
+        /* Veckoprognos (7 dagar) */
+        .forecast-row {
+            display: flex;
+            gap: 10px;
+            justify-content: space-between;
+            height: 100%;
+        }
+
+        .forecast-day {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 15px 5px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: background 1s ease, border-color 1s ease;
+        }
+
+        .forecast-day-name {
+            font-size: 1.3rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.8;
+        }
+
+        .forecast-day.today-card .forecast-day-name {
+            color: var(--accent);
+            opacity: 1;
+        }
+
+        .forecast-icon i, .forecast-icon svg {
+            width: 40px !important;
+            height: 40px !important;
+            color: var(--accent);
+        }
+        .forecast-icon i[data-lucide="sun"], .forecast-icon svg.lucide-sun { color: #ffb703 !important; }
+
+        .forecast-temps {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .forecast-max { font-size: 2.2rem; font-weight: 900; }
+        .forecast-min { font-size: 1.4rem; font-weight: 500; opacity: 0.4; }
+
 
         .video-container { 
             width: 100%; aspect-ratio: 16 / 9; flex: none; background: #000; position: relative; overflow: hidden; 
@@ -403,7 +474,7 @@
         body.day-mode .ev-date-col { background: rgba(0,0,0,0.04); border-right: 1px solid rgba(0,0,0,0.1); }
         body.day-mode .ev-title-col { background: rgba(255,255,255,0.8); color: #2c3e50; }
         body.day-mode .ev-date { color: rgba(0,0,0,0.6); }
-        body.day-mode .weather-box, body.day-mode #weather-summary { background: #f5f5f7; border: 1px solid rgba(0,0,0,0.05); color: #1d1d1f; }
+        body.day-mode .weather-box, body.day-mode #weather-summary, body.day-mode .forecast-day { background: #f5f5f7; border: 1px solid rgba(0,0,0,0.05); color: #1d1d1f; }
         body.day-mode .section-label { color: #86868b; }
         
         /* Mjukare svart i dagläge för rubrik och datum */
@@ -467,10 +538,17 @@
             <div id="calendar-list"></div>
         </section>
 
-        <section style="display: flex; flex-direction: column;">
+        <section class="weather-container">
             <div class="section-label">Väder i Staffanstorp</div>
-            <div id="weather-list" class="weather-row"></div>
-            <div id="weather-summary">Laddar vädersammanfattning...</div>
+            
+            <div id="weather-view-current" class="weather-view">
+                <div id="weather-list" class="weather-row"></div>
+                <div id="weather-summary">Laddar vädersammanfattning...</div>
+            </div>
+
+            <div id="weather-view-forecast" class="weather-view" style="display: none;">
+                <div id="forecast-list" class="forecast-row"></div>
+            </div>
         </section>
     </div>
 
@@ -695,6 +773,7 @@
     function update() {
         const now = new Date();
         const hour = now.getHours();
+        const minute = now.getMinutes();
         const dayOfWeek = now.getDay(); 
         
         const greetingEl = document.getElementById('greeting');
@@ -725,7 +804,32 @@
 
         const showNightMode = (hour >= 23 || hour < 6) || isNightModeForced;
 
-        // Bygger ihop en identifierare för vädret så vi slipper skriva om ikonen i onödan
+        // VÄDER-TOGGLE-LOGIK
+        // Cykel på 6 minuter (resten från delning med 6). 0,1,2,3 = nuvarande. 4,5 = framtid.
+        const viewCurrent = document.getElementById('weather-view-current');
+        const viewForecast = document.getElementById('weather-view-forecast');
+        
+        if (minute % 6 < 4) {
+            // Visa nutids-vy
+            if (viewCurrent.style.display === 'none') {
+                viewForecast.style.display = 'none';
+                viewCurrent.style.display = 'block';
+                viewCurrent.style.animation = 'none';
+                viewCurrent.offsetHeight; // Tvinga reflow
+                viewCurrent.style.animation = 'fadeIn 0.8s ease both';
+            }
+        } else {
+            // Visa prognos-vy
+            if (viewForecast.style.display === 'none') {
+                viewCurrent.style.display = 'none';
+                viewForecast.style.display = 'block';
+                viewForecast.style.animation = 'none';
+                viewForecast.offsetHeight; // Tvinga reflow
+                viewForecast.style.animation = 'fadeIn 0.8s ease both';
+            }
+        }
+
+
         let weatherKey = currentTempStr + currentIconHtml;
 
         if (isBirthday) {
@@ -762,8 +866,6 @@
                 lucide.createIcons();
             }
 
-            // --- SOV GOTT / DOBRANOC SKIFT ---
-            // Genom att dela minuten med 10 och kolla om det är jämnt eller ojämnt byter vi var 10:e minut
             let nmText = (Math.floor(now.getMinutes() / 10) % 2 === 0) ? "SOV GOTT" : "DOBRANOC";
             let nmTextEl = document.getElementById('nm-main-text');
             if (nmTextEl.innerText !== nmText) {
@@ -779,9 +881,7 @@
                 stopCelebration(); bdayScreen.style.display = 'none'; updateWeatherOverlay(lastRealWeatherCode);
             }
             
-            // --- VIDEO-VARVNING ---
-            // Är minuten under 30 kör vi video 1, annars video 2
-            let currentDefaultVideo = (now.getMinutes() < 30) ? DEFAULT_VIDEO_ID_1 : DEFAULT_VIDEO_ID_2;
+            let currentDefaultVideo = (minute < 30) ? DEFAULT_VIDEO_ID_1 : DEFAULT_VIDEO_ID_2;
             let targetVideoId = isFridayMode ? FRIDAY_VIDEO_ID : currentDefaultVideo;
             
             let targetVideoSrc = `https://www.youtube.com/embed/${targetVideoId}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&loop=1&playlist=${targetVideoId}`;
@@ -888,14 +988,11 @@
         
         setTimeout(() => { 
             if (textNewsItems.length > 1) {
-                // Plocka två nyheter och öka index med 2 för nästa runda
                 const index1 = textNewsIndex;
                 const index2 = (textNewsIndex + 1) % textNewsItems.length;
-                
                 newsTextEl.innerHTML = `<div style="padding-bottom: 12px; border-bottom: 1px solid rgba(128, 128, 128, 0.3); margin-bottom: 12px;">${textNewsItems[index1]}</div><div>${textNewsItems[index2]}</div>`;
                 textNewsIndex = (textNewsIndex + 2) % textNewsItems.length; 
             } else {
-                // Fallback om SVT av någon anledning bara har en nyhet just nu
                 newsTextEl.innerText = textNewsItems[textNewsIndex]; 
                 textNewsIndex = (textNewsIndex + 1) % textNewsItems.length; 
             }
@@ -926,7 +1023,6 @@
                 
                 let dateString = `${dayName} ${start.getDate()} ${monthName}`;
                 
-                // Uppdaterar den lilla kalender-texten i nattläget med första händelsen
                 if (index === 0) {
                     let nmTime = timeText === "Heldag" ? "Heldag" : timeText;
                     document.getElementById('nm-calendar').innerText = `Nästa: ${dateString} ${nmTime} · ${e.summary}`;
@@ -961,7 +1057,8 @@
     
     async function updateWeather() { 
         try { 
-            const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=55.64&longitude=13.21&current=is_day&hourly=temperature_2m,weathercode&daily=weathercode,temperature_2m_max,precipitation_sum,wind_speed_10m_max&wind_speed_unit=ms&timezone=auto');
+            // UTÖKAT ANROP: Nu hämtar vi även temperature_2m_min (lägsta temperatur per dygn)
+            const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=55.64&longitude=13.21&current=is_day&hourly=temperature_2m,weathercode&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max&wind_speed_unit=ms&timezone=auto');
             const d = await res.json(); 
             isRealDaytime = (d.current.is_day === 1); 
             const nowH = new Date().getHours(); 
@@ -976,30 +1073,37 @@
                 if (code <= 77 || code === 85 || code === 86) return 'snowflake'; 
                 return 'cloud'; 
             }; 
+
+            const dailyIcon = code => {
+                // För daily vill vi inte visa månen för klart väder
+                if (code === 0) return 'sun'; 
+                if (code <= 3) return 'cloud'; 
+                if (code <= 67 || code >= 80) return 'cloud-rain'; 
+                if (code <= 77 || code === 85 || code === 86) return 'snowflake'; 
+                return 'cloud';
+            }
+
             currentIconHtml = `<i data-lucide="${wIcon(currentCode)}"></i>`; 
             
+            // BYGGER UPP VY 1: NUTID --------------------------------------
             let listHtml = ''; 
             
-            // Box 1: NU
             if (d.hourly.time[nowH]) {
                 const t1 = Math.round(d.hourly.temperature_2m[nowH]); 
                 listHtml += `<div class="weather-box"><div class="weather-hour">NU</div><div class="weather-icon-wrapper"><i data-lucide="${wIcon(currentCode)}"></i></div><div class="weather-temp">${t1}°</div></div>`; 
             }
             
-            // Box 2: MAX IDAG
             const maxTempToday = Math.round(d.daily.temperature_2m_max[0]);
             const dailyCodeToday = d.daily.weathercode[0];
-            const maxIconToday = (dailyCodeToday === 0) ? 'sun' : wIcon(dailyCodeToday);
+            const maxIconToday = dailyIcon(dailyCodeToday);
             listHtml += `<div class="weather-box"><div class="weather-hour">MAX IDAG</div><div class="weather-icon-wrapper"><i data-lucide="${maxIconToday}"></i></div><div class="weather-temp">${maxTempToday}°</div></div>`; 
             
-            // Box 3: MAX IMORGON
             const maxTempTomorrow = Math.round(d.daily.temperature_2m_max[1]);
             const dailyCodeTomorrow = d.daily.weathercode[1];
-            const maxIconTomorrow = (dailyCodeTomorrow === 0) ? 'sun' : wIcon(dailyCodeTomorrow);
+            const maxIconTomorrow = dailyIcon(dailyCodeTomorrow);
             listHtml += `<div class="weather-box"><div class="weather-hour">MAX IMORGON</div><div class="weather-icon-wrapper"><i data-lucide="${maxIconTomorrow}"></i></div><div class="weather-temp">${maxTempTomorrow}°</div></div>`; 
 
             document.getElementById('weather-list').innerHTML = listHtml; 
-            updateWeatherOverlay(currentCode); 
             
             const todayMaxTemp = Math.round(d.daily.temperature_2m_max[0]); 
             const todayRain = d.daily.precipitation_sum[0]; 
@@ -1022,7 +1126,42 @@
             else summaryText += `Överlag <strong>svaga vindar</strong>.`;
             
             document.getElementById('weather-summary').innerHTML = summaryText; 
+
+            // BYGGER UPP VY 2: FRAMTID (7-DAGARS) --------------------------
+            let forecastHtml = '';
+            for(let i=0; i<7; i++) {
+                let date = new Date();
+                date.setDate(date.getDate() + i);
+                
+                let dayName = i === 0 ? "Idag" : date.toLocaleDateString('sv-SE', {weekday: 'short'});
+                // Ta bort punkt och gör första bokstaven stor
+                dayName = dayName.replace('.', '');
+                dayName = dayName.charAt(0).toUpperCase() + dayName.slice(1);
+
+                let code = d.daily.weathercode[i];
+                let max = Math.round(d.daily.temperature_2m_max[i]);
+                let min = Math.round(d.daily.temperature_2m_min[i]);
+                let icon = dailyIcon(code);
+                
+                let todayClass = (i === 0) ? 'today-card' : '';
+
+                forecastHtml += `
+                    <div class="forecast-day ${todayClass}">
+                        <div class="forecast-day-name">${dayName}</div>
+                        <div class="forecast-icon"><i data-lucide="${icon}"></i></div>
+                        <div class="forecast-temps">
+                            <span class="forecast-max">${max}°</span>
+                            <span class="forecast-min">${min}°</span>
+                        </div>
+                    </div>
+                `;
+            }
+            document.getElementById('forecast-list').innerHTML = forecastHtml;
+
+            // Rendera ikoner för båda vyerna och uppdatera overlay
             lucide.createIcons(); 
+            updateWeatherOverlay(currentCode); 
+            
         } catch(e) { console.error("Väderfel", e); }
     }
 
@@ -1032,7 +1171,6 @@
         
         let type = 'none';
         
-        // Logik för att tvinga väder med testknappen utan att det riktiga vädret skriver över
         if (forcedWeatherMode !== 'auto') {
             type = forcedWeatherMode;
         } else {
@@ -1077,7 +1215,6 @@
         setInterval(fetchNews, 3600000); 
         setInterval(displayNextNews, 15000);
         
-        // Intervallet som byter språk (händer var 30:e sekund)
         setInterval(() => {
             if (celebrationActive || isNightModeForced || new Date().getHours() >= 23 || new Date().getHours() < 6 || document.getElementById('greeting').classList.contains('friday-mode')) return; 
             const spans = document.getElementById('greeting').querySelectorAll('.char-span');
@@ -1089,7 +1226,6 @@
                 span.classList.add('out');
             });
             setTimeout(() => {
-                // Inkrementera språkindexet precis när animationen är klar
                 currentLangIndex = (currentLangIndex + 1) % greetingsTranslations.length;
             }, maxDelay + 600);
         }, 30000);
