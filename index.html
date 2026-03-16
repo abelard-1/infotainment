@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v189 (Skakande vinnare & Stora FN-listan)</title>
+    <title>Staffanstorp Wall Dashboard v190 (Böljande regn på vänster skärmhalva)</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
@@ -187,8 +187,39 @@
         #bday-weather { display: flex; align-items: center; gap: 15px; font-size: 3rem; font-weight: 900; color: #D4AF37; }
         #bday-weather svg { width: 50px; height: 50px; }
 
-        /* VÄDER-OVERLAY */
-        #weather-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 50; }
+        /* VÄDER-OVERLAY (Begränsad till vänster halva: 48vw) */
+        #weather-overlay { 
+            position: fixed; top: 0; left: 0; width: 48vw; height: 100%; 
+            pointer-events: none; z-index: 50; overflow: hidden; 
+        }
+
+        /* --- VÄDER-PARTIKLAR (Regn/Snö) --- */
+        .weather-particle {
+            position: absolute;
+            pointer-events: none;
+            will-change: transform, margin-left;
+            background: #fff;
+        }
+        
+        body.day-mode .weather-particle.rain {
+            background: #7a8b9e; /* Mörkare gråblå för ljus bakgrund */
+        }
+        
+        body.day-mode .weather-particle.snow {
+            background: #ffffff;
+            box-shadow: 0 0 3px rgba(0,0,0,0.3); /* Gör snön synlig mot ljus bakgrund */
+        }
+        
+        /* Den böljande animationen */
+        @keyframes rain-sway {
+            0% { margin-left: 0px; }
+            50% { margin-left: 35px; }
+            100% { margin-left: -15px; }
+        }
+        
+        .weather-particle.rain {
+            animation: rain-sway 2.5s ease-in-out infinite alternate;
+        }
 
         /* --- STABILISERAD LAYOUT --- */
         .info-panel {
@@ -1103,11 +1134,9 @@
                 { id: 'count-worldcup', val: dWorldCup }
             ];
             
-            // Letar upp det lägsta värdet som faktiskt är i framtiden (större än 0)
             const futureCounts = allCounts.filter(c => c.val > 0);
             const minVal = futureCounts.length > 0 ? Math.min(...futureCounts.map(c => c.val)) : -1;
             
-            // Loopar igenom och lägger på klassen på förälder-diven för den som vann
             allCounts.forEach(c => {
                 const parentDiv = document.getElementById(c.id).parentElement;
                 if (c.val === minVal && minVal !== -1) {
@@ -1331,18 +1360,17 @@
         const count = type === 'rain' ? 80 : 40;
         for (let i = 0; i < count; i++) {
             const p = document.createElement('div');
-            p.style.position = 'absolute';
-            p.style.background = '#fff';
+            p.className = `weather-particle ${type}`; // Klass för CSS-färg och sway
             p.style.opacity = type === 'rain' ? '0.3' : '0.6';
             p.style.width = type === 'rain' ? '2px' : '6px';
             p.style.height = type === 'rain' ? '15px' : '6px';
             p.style.borderRadius = type === 'snow' ? '50%' : '0';
-            p.style.left = `${Math.random() * 100}vw`;
+            p.style.left = `${Math.random() * 100}%`;
             p.style.top = '-100px';
-            p.style.pointerEvents = 'none';
-            p.style.willChange = 'transform';
             
-            const duration = 2 + Math.random() * 3;
+            // Lite snabbare fallhastighet för regnet
+            const duration = type === 'rain' ? 1.2 + Math.random() * 1.5 : 2 + Math.random() * 3;
+            
             p.animate([
                 { transform: `translateY(-100px) ${type === 'snow' ? 'translateX(0)' : ''}` },
                 { transform: `translateY(110vh) ${type === 'snow' ? 'translateX(50px)' : ''}` }
