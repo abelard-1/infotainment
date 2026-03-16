@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v186 (Alltid synlig text)</title>
+    <title>Staffanstorp Wall Dashboard v187 (Fast väderhöjd)</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
@@ -355,8 +355,27 @@
         }
 
         /* Nutid (3 boxar) */
-        .weather-row { display: flex; gap: 15px; margin-bottom: 12px; }
-        .weather-box { background: rgba(255,255,255,0.03); padding: 18px; border-radius: 25px; flex: 1; text-align: center; border: 1px solid var(--border); transition: background 1s ease, border-color 1s ease; }
+        .weather-row { 
+            display: flex; 
+            gap: 15px; 
+            margin-bottom: 12px; 
+            height: 250px; /* NYTT: Fast höjd för att låsa rutan under */
+        }
+        
+        .weather-box { 
+            background: rgba(255,255,255,0.03); 
+            padding: 18px; 
+            border-radius: 25px; 
+            flex: 1; 
+            display: flex; /* NYTT */
+            flex-direction: column; /* NYTT */
+            align-items: center; /* NYTT */
+            justify-content: center; /* NYTT */
+            text-align: center; 
+            border: 1px solid var(--border); 
+            transition: background 1s ease, border-color 1s ease; 
+        }
+        
         .weather-icon-wrapper { display: inline-block; margin: 10px 0; animation: float 4s infinite ease-in-out; }
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
         .weather-box i, .weather-box svg { width: 100px !important; height: 100px !important; color: var(--accent); display: block; margin: 0 auto; }
@@ -369,7 +388,8 @@
             display: flex;
             gap: 10px;
             justify-content: space-between;
-            margin-bottom: 12px; /* Lika stor marginal som weather-row */
+            margin-bottom: 12px;
+            height: 250px; /* NYTT: Samma fasta höjd som nutidsvyn */
         }
 
         .forecast-day {
@@ -1058,7 +1078,6 @@
     
     async function updateWeather() { 
         try { 
-            // UTÖKAT ANROP: Nu hämtar vi även temperature_2m_min (lägsta temperatur per dygn)
             const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=55.64&longitude=13.21&current=is_day&hourly=temperature_2m,weathercode&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max&wind_speed_unit=ms&timezone=auto');
             const d = await res.json(); 
             isRealDaytime = (d.current.is_day === 1); 
@@ -1076,7 +1095,6 @@
             }; 
 
             const dailyIcon = code => {
-                // För daily vill vi inte visa månen för klart väder
                 if (code === 0) return 'sun'; 
                 if (code <= 3) return 'cloud'; 
                 if (code <= 67 || code >= 80) return 'cloud-rain'; 
