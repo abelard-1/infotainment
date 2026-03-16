@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staffanstorp Wall Dashboard v188 (Stora FN-listan)</title>
+    <title>Staffanstorp Wall Dashboard v189 (Skakande vinnare & Stora FN-listan)</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
@@ -477,6 +477,20 @@
         }
         
         #news-text { font-size: 1.8rem; opacity: 0.8; line-height: 1.4; font-weight: 300; transition: opacity 0.5s; }
+
+        /* --- SKAK-ANIMATION FÖR NÄSTA HÄNDELSE --- */
+        @keyframes tilt-shaking {
+            0%, 92% { transform: rotate(0deg); }
+            94% { transform: rotate(4deg); }
+            96% { transform: rotate(-4deg); }
+            98% { transform: rotate(4deg); }
+            100% { transform: rotate(0deg); }
+        }
+        
+        .next-up-shake {
+            animation: tilt-shaking 20s infinite ease-in-out;
+            transform-origin: center bottom;
+        }
         
         /* --- DAGLÄGE (APPLE-STIL) --- */
         body.day-mode { background-color: #f5f5f7; color: #1d1d1f; }
@@ -1040,12 +1054,18 @@
             } 
             
             const easter = new Date('2026-03-30'), summer = new Date('2026-06-12'), worldcup = new Date('2026-06-11');
-            document.getElementById('count-easter').innerText = Math.max(0, Math.ceil((easter - now) / 86400000)); 
-            document.getElementById('count-summer').innerText = Math.max(0, Math.ceil((summer - now) / 86400000));
-            document.getElementById('count-worldcup').innerText = Math.max(0, Math.ceil((worldcup - now) / 86400000)); 
+            
+            const dEaster = Math.max(0, Math.ceil((easter - now) / 86400000));
+            const dSummer = Math.max(0, Math.ceil((summer - now) / 86400000));
+            const dWorldCup = Math.max(0, Math.ceil((worldcup - now) / 86400000));
+            
+            document.getElementById('count-easter').innerText = dEaster; 
+            document.getElementById('count-summer').innerText = dSummer;
+            document.getElementById('count-worldcup').innerText = dWorldCup; 
             
             const currentYear = now.getFullYear(); 
             const todayForMath = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            
             let minDiff = Infinity; 
             let nextBdayName = ""; 
             for (const [dateString, name] of Object.entries(birthdays)) { 
@@ -1057,7 +1077,8 @@
                     minDiff = diff; nextBdayName = name;
                 } 
             } 
-            document.getElementById('count-bday').innerText = Math.ceil(minDiff / 86400000); 
+            const dBday = Math.ceil(minDiff / 86400000);
+            document.getElementById('count-bday').innerText = dBday; 
             const nameUppercase = nextBdayName.toUpperCase(); 
             document.getElementById('label-bday').innerHTML = `${nameUppercase.endsWith('S') ? nameUppercase : nameUppercase + 'S'}<br>FÖDELSEDAG`;
             
@@ -1069,8 +1090,32 @@
                     if (diff < minHolDiff) { minHolDiff = diff; nextHolLabel = hol.label; }
                 }
             }
-            document.getElementById('count-holiday').innerText = Math.ceil(minHolDiff / 86400000);
+            const dHoliday = Math.ceil(minHolDiff / 86400000);
+            document.getElementById('count-holiday').innerText = dHoliday;
             document.getElementById('label-holiday').innerHTML = nextHolLabel;
+
+            // --- HITTA VINNAREN OCH LÄGG PÅ SKAKNING ---
+            const allCounts = [
+                { id: 'count-easter', val: dEaster },
+                { id: 'count-summer', val: dSummer },
+                { id: 'count-bday', val: dBday },
+                { id: 'count-holiday', val: dHoliday },
+                { id: 'count-worldcup', val: dWorldCup }
+            ];
+            
+            // Letar upp det lägsta värdet som faktiskt är i framtiden (större än 0)
+            const futureCounts = allCounts.filter(c => c.val > 0);
+            const minVal = futureCounts.length > 0 ? Math.min(...futureCounts.map(c => c.val)) : -1;
+            
+            // Loopar igenom och lägger på klassen på förälder-diven för den som vann
+            allCounts.forEach(c => {
+                const parentDiv = document.getElementById(c.id).parentElement;
+                if (c.val === minVal && minVal !== -1) {
+                    parentDiv.classList.add('next-up-shake');
+                } else {
+                    parentDiv.classList.remove('next-up-shake');
+                }
+            });
         }
     }
 
